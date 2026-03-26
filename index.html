@@ -1154,13 +1154,24 @@ var DONE_STORE  = function(sid,date){ return 'missions_done_'+sid+'_'+date; };
 var GOAL_KEY    = function(sid){ return 'toeic_goal_'+sid; };
 
 /* ═══ HELPERS ═══ */
-function today(){ return new Date().toISOString().split('T')[0]; }
-function fmtD(s){ return new Date(s+'T00:00:00').toLocaleDateString('vi-VN',{weekday:'short',day:'numeric',month:'numeric'}); }
+function today(){
+  var d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function fmtD(s){
+  if(!s) return '—';
+  var p=s.split('-');
+  return p[2]+'/'+p[1]+'/'+p[0];
+}
 function isoToDMY(s){ if(!s)return '—'; var p=s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
 function fmtTime(iso){
   if(!iso) return '';
   var d=new Date(iso);
-  return d.toLocaleDateString('vi-VN',{day:'numeric',month:'numeric'})+' '+d.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
+  var dd=String(d.getDate()).padStart(2,'0');
+  var mm=String(d.getMonth()+1).padStart(2,'0');
+  var hh=String(d.getHours()).padStart(2,'0');
+  var mi=String(d.getMinutes()).padStart(2,'0');
+  return dd+'/'+mm+' '+hh+':'+mi;
 }
 function escH(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 function toast(m){
@@ -1331,7 +1342,8 @@ function renderOverview(){
     scores.forEach(function(sc,i){
       var pip=document.createElement('div');
       pip.className='h-pip'+(i===scores.length-1?' latest':'');
-      pip.textContent=sc.score+' ('+(sc.date||'').substring(5).replace('-','/')+')';
+      var _pp=(sc.date||'').split('-'); var _ppd=_pp.length===3?_pp[2]+'/'+_pp[1]+'/'+_pp[0]:sc.date||'';
+    pip.textContent=sc.score+' ('+_ppd+')';
       hEl.appendChild(pip);
     });
   }
@@ -1345,7 +1357,7 @@ function renderOverview(){
     document.getElementById('ov-goal-num').textContent=goal.target+' điểm';
     var gap=latest?(goal.target-latest):null;
     document.getElementById('ov-goal-gap').textContent=gap!==null?(gap>0?'— còn '+gap+' điểm nữa':'— 🏆 Đã đạt!'):'';
-    if(goal.deadline) document.getElementById('ov-goal-dl').textContent='📅 Trước '+new Date(goal.deadline+'-01').toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
+    if(goal.deadline){ var _gp=goal.deadline.split('-'); document.getElementById('ov-goal-dl').textContent='📅 Trước tháng '+_gp[1]+'/'+_gp[0]; }
     // Marker trên thanh điểm
     var goalPct=(goal.target/990*100);
     var track=document.getElementById('ov-bar');
@@ -1495,7 +1507,7 @@ function renderScoresTab(){
       else gapEl.textContent='';
       if(goal.deadline&&goalDlEl&&goalDlTxtEl){
         goalDlEl.style.display='flex';
-        goalDlTxtEl.textContent='Trước '+new Date(goal.deadline+'-01').toLocaleDateString('vi-VN',{month:'long',year:'numeric'});
+        var _gp2=goal.deadline.split('-'); goalDlTxtEl.textContent='Trước tháng '+_gp2[1]+'/'+_gp2[0];
       }
       if(editBtnEl) editBtnEl.textContent='✏️ Chỉnh mục tiêu';
     } else {
@@ -1547,8 +1559,10 @@ function buildScoreChart(scores,goalTarget){
   var defs='<defs><linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--orange)" stop-opacity=".35"/><stop offset="100%" stop-color="var(--orange)" stop-opacity="0"/></linearGradient></defs>';
   var linePts=scores.map(function(s,i){return px(i)+','+py(s.score);}).join(' ');
   var areaPts='30,'+h+' '+scores.map(function(s,i){return px(i)+','+py(s.score);}).join(' ')+' '+(w-30)+','+h;
-  var dots=scores.map(function(s,i){return '<circle class="chart-dot'+(i===scores.length-1?' latest':'')+'" cx="'+px(i)+'" cy="'+py(s.score)+'" r="4"><title>'+s.score+' ('+s.date+')</title></circle>';}).join('');
-  var axisLabels=scores.map(function(s,i){return i===0||i===scores.length-1?'<text class="chart-axis" x="'+px(i)+'" y="'+(h-1)+'" text-anchor="middle">'+s.date.substring(5)+'</text>':'';}).join('');
+  var dots=scores.map(function(s,i){var _tp=s.date.split('-'); var _tpd=_tp.length===3?_tp[2]+'/'+_tp[1]+'/'+_tp[0]:s.date;
+      return '<circle class="chart-dot'+(i===scores.length-1?' latest':'')+'" cx="'+px(i)+'" cy="'+py(s.score)+'" r="4"><title>'+s.score+' ('+_tpd+')</title></circle>';}).join('');
+  var axisLabels=scores.map(function(s,i){var _p=s.date.split('-'); var _dl=_p[2]+'/'+_p[1];
+        return i===0||i===scores.length-1?'<text class="chart-axis" x="'+px(i)+'" y="'+(h-1)+'" text-anchor="middle">'+_dl+'</text>':'';"}).join('');
   var goalLine=goalTarget?'<line class="chart-goal-line" x1="30" y1="'+py(goalTarget)+'" x2="'+(w-30)+'" y2="'+py(goalTarget)+'"/><text class="chart-axis" x="33" y="'+(py(goalTarget)-3)+'" fill="var(--rust)">'+goalTarget+'</text>':'';
   svg.innerHTML=defs+'<polyline class="chart-area" points="'+areaPts+'"/><polyline class="chart-line" points="'+linePts+'"/>'+dots+axisLabels+goalLine;
 }
@@ -1672,7 +1686,7 @@ function renderMissions(){
     var isMultiDay = hwEnd && hwEnd !== hwStart;
     if(isMultiDay && !isAllDone){
       var dlObj=new Date(hwEnd+'T00:00:00');
-      var dlStr=dlObj.getDate()+'/'+(dlObj.getMonth()+1);
+      var dlStr=String(dlObj.getDate()).padStart(2,'0')+'/'+String(dlObj.getMonth()+1).padStart(2,'0');
       var daysLeft=Math.round((dlObj-new Date(td+'T00:00:00'))/(1000*60*60*24));
       var dlCls = daysLeft<=0 ? 'urgent' : daysLeft===1 ? 'today-dl' : '';
       deadlineBadge='<span class="badge-deadline '+dlCls+'">⏱ Hạn nộp: '+dlStr+'</span>';
@@ -1717,8 +1731,8 @@ function renderMissions(){
         '<div class="mday-divider"></div>'+
         // Info
         '<div class="mday-info">'+
-          '<div class="mday-label">'+(h.label||h.date)+'</div>'+
-          '<div class="mday-sub">'+badge+(isMultiDay?'<span class="hw-range-pill">'+hwStart.slice(5).replace('-','/')+'→'+hwEnd.slice(5).replace('-','/')+'</span>':'')+deadlineBadge+'<span class="mday-count">'+countTxt+'</span></div>'+
+          '<div class="mday-label">'+(h.label||isoToDMY(h.date))+'</div>'+
+          '<div class="mday-sub">'+badge+(isMultiDay?(function(){var _a=hwStart.split('-'),_b=hwEnd.split('-');return '<span class="hw-range-pill">'+_a[2]+'/'+_a[1]+'→'+_b[2]+'/'+_b[1]+'</span>';})():'')+deadlineBadge+'<span class="mday-count">'+countTxt+'</span></div>'+
         '</div>'+
         // Ring
         '<div class="mission-ring-wrap'+(isAllDone?' ring-done':'')+'">'+
@@ -1906,7 +1920,8 @@ function markItemDone(hwId,date,sec,idx,forceDone){
 /* ═══ REMINDER ═══ */
 function checkReminder(){
   var td=today();
-  var yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  var yd=new Date(); yd.setDate(yd.getDate()-1);
+  var yesterday=yd.getFullYear()+'-'+String(yd.getMonth()+1).padStart(2,'0')+'-'+String(yd.getDate()).padStart(2,'0');
   var yHw=(S.homework||[]).find(function(h){var e=h.endDate||h.date;return e===yesterday;});
   if(!yHw) return;
   var total=countHwItems(yHw); if(!total) return;
@@ -1952,7 +1967,9 @@ function renderScheduleTab(){
       curWeek=wk; block=document.createElement('div'); block.style.marginBottom='1.5rem';
       var lbl=document.createElement('div'); lbl.className='sched-week-hd';
       var wkEnd=new Date(wkStart.getTime()+6*86400000);
-      lbl.textContent='Tuần '+wkStart.toLocaleDateString('vi-VN',{day:'numeric',month:'long'})+' – '+wkEnd.toLocaleDateString('vi-VN',{day:'numeric',month:'long'});
+      var _ws=String(wkStart.getDate()).padStart(2,'0')+'/'+String(wkStart.getMonth()+1).padStart(2,'0');
+      var _we=String(wkEnd.getDate()).padStart(2,'0')+'/'+String(wkEnd.getMonth()+1).padStart(2,'0');
+      lbl.textContent='Tuần '+_ws+' – '+_we;
       block.appendChild(lbl); el.appendChild(block);
     }
     var row=document.createElement('div'); row.className='sched-full';
@@ -1976,7 +1993,8 @@ function renderBookingTab(){
       var isTaken=Object.values(allBookings).some(function(b){return b.slotId===sl.id&&b.status!=='declined';});
       var d=new Date(sl.date+'T00:00:00');
       var card=document.createElement('div'); card.className='slot-card'+(isTaken?' taken':'');
-      card.innerHTML='<div class="slot-date-main">'+d.toLocaleDateString('vi-VN',{weekday:'long',day:'numeric',month:'long'})+'</div><div class="slot-time">⏰ '+sl.time+'</div>'+(sl.note?'<div class="slot-note">'+sl.note+'</div>':'')+'<div class="slot-chk">✓</div>'+(isTaken?'<div class="slot-taken-lbl">Đã được đặt</div>':'');
+      var _scd=sl.date.split('-');var _scdf=_scd[2]+'/'+_scd[1]+'/'+_scd[0];
+      card.innerHTML='<div class="slot-date-main">'+d.toLocaleDateString('vi-VN',{weekday:'long'})+', '+_scdf+'</div><div class="slot-time">⏰ '+sl.time+'</div>'+(sl.note?'<div class="slot-note">'+sl.note+'</div>':'')+'<div class="slot-chk">✓</div>'+(isTaken?'<div class="slot-taken-lbl">Đã được đặt</div>':'');
       if(!isTaken) card.addEventListener('click',function(){ pickSlot(sl,card); });
       grid.appendChild(card);
     });
@@ -1988,7 +2006,7 @@ function renderBookingTab(){
     var sc=b.status==='approved'?'bs-a':b.status==='declined'?'bs-d':'bs-p';
     var sl=b.status==='approved'?'✅ Đã xác nhận':b.status==='declined'?'❌ Không được':'⏳ Chờ duyệt';
     var row=document.createElement('div'); row.className='book-row';
-    row.innerHTML='<div class="book-row-info"><div class="book-row-title">Buổi 1-1 — '+b.date+'</div><div class="book-row-sub">⏰ '+b.time+(b.note?' · '+b.note:'')+'</div></div><span class="bs '+sc+'">'+sl+'</span>';
+    row.innerHTML='<div class="book-row-info"><div class="book-row-title">Buổi 1-1 — '+isoToDMY(b.date)+'</div><div class="book-row-sub">⏰ '+b.time+(b.note?' · '+b.note:'')+'</div></div><span class="bs '+sc+'">'+sl+'</span>';
     myEl.appendChild(row);
   });
 }
@@ -1997,7 +2015,8 @@ function pickSlot(sl,card){
   document.querySelectorAll('.slot-card').forEach(function(c){c.classList.remove('sel');});
   card.classList.add('sel'); selSlot=sl;
   var d=new Date(sl.date+'T00:00:00');
-  document.getElementById('sel-info').textContent='📅 '+d.toLocaleDateString('vi-VN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'  ⏰ '+sl.time;
+  var _sd=sl.date.split('-'); var _sdf=_sd[2]+'/'+_sd[1]+'/'+_sd[0];
+  document.getElementById('sel-info').textContent='📅 '+d.toLocaleDateString('vi-VN',{weekday:'long'})+', '+_sdf+'  ⏰ '+sl.time;
   var form=document.getElementById('book-form');
   form.style.display='block'; form.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
