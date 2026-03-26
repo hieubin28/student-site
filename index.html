@@ -1626,6 +1626,7 @@ function submitScoreReq(){
 /* ═══ MISSIONS ═══ */
 function renderMissions(){
   var td=today();
+  console.log('[DEBUG] today='+td);
   var hw=(S.homework||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
   var el=document.getElementById('missions-content');
   if(!hw.length){ el.innerHTML='<div class="empty">Giáo viên chưa giao nhiệm vụ nào. Hãy kiểm tra lại sau nhé!</div>'; return; }
@@ -1636,6 +1637,7 @@ function renderMissions(){
     var hwEnd=h.endDate||h.date;
     var isToday=(td>=hwStart&&td<=hwEnd);
     var isPast=hwEnd<td;
+    console.log('[DEBUG] hw='+h.id+' start='+hwStart+' end='+hwEnd+' td='+td+' isToday='+isToday+' isPast='+isPast);
     var dayLinkData=getDayLink(S.id, h.id);
     var isAllDone=!!(dayLinkData&&dayLinkData.link);
     var pct=isAllDone?100:0;
