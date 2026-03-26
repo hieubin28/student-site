@@ -723,13 +723,128 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .goal-form-row{display:flex;gap:.7rem;margin-bottom:.7rem;}
 .goal-form-row:last-child{margin-bottom:0;}
 
+/* ═══════════════════════════════
+   DEADLINE BADGE
+═══════════════════════════════ */
+.badge-deadline{
+  display:inline-flex;align-items:center;gap:.3rem;
+  background:rgba(58,104,152,.12);color:var(--sky);
+  border:1px solid rgba(58,104,152,.25);
+  font-size:.62rem;font-weight:700;padding:.18rem .55rem;
+  letter-spacing:.03em;border-radius:2px;
+}
+.badge-deadline.urgent{background:rgba(176,58,42,.1);color:var(--rust);border-color:rgba(176,58,42,.25);}
+.badge-deadline.today-dl{background:rgba(196,98,45,.12);color:var(--orange);border-color:rgba(196,98,45,.25);}
+.hw-range-pill{
+  font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;
+  background:var(--cream);border:1px solid var(--border);
+  padding:.12rem .45rem;border-radius:2px;margin-left:.3rem;
+}
+
+/* ═══════════════════════════════
+   MOBILE — full responsive
+═══════════════════════════════ */
 @media(max-width:720px){
+  /* Layout */
   .two,.three{grid-template-columns:1fr;}
   .mod-grid{grid-template-columns:1fr;}
   .slots-grid{grid-template-columns:1fr 1fr;}
-  .main{padding:1rem;}
-  .topbar{padding:0 1rem;}
-  .tabs{padding:0 1rem;}
+  .main{padding:.75rem .9rem;}
+
+  /* Topbar */
+  .topbar{padding:0 .9rem;height:52px;}
+  .topbar-brand img{width:30px;height:30px;}
+  .topbar-brand h1{font-size:.88rem;}
+  .topbar-student{display:none;}
+  .btn-logout{padding:.28rem .65rem;font-size:.68rem;}
+
+  /* Tabs — smaller, scrollable */
+  .tabs{padding:0 .6rem;gap:0;}
+  .tab{padding:.7rem .85rem;font-size:.75rem;}
+
+  /* Login */
+  .login-wrap{width:calc(100vw - 2.4rem);max-width:380px;}
+  .login-deco{font-size:2rem;}
+  .login-card{padding:1.8rem 1.4rem;}
+  .login-title{font-size:1.35rem;}
+
+  /* Welcome */
+  .welcome{padding:1rem 1.1rem;}
+  .welcome-name{font-size:1.2rem;}
+
+  /* Stats */
+  .three.stats-row{grid-template-columns:repeat(3,1fr);}
+  .stat{padding:.75rem .6rem;}
+  .stat-num{font-size:1.5rem;}
+  .stat-lbl{font-size:.58rem;}
+
+  /* Section headers */
+  .section-hd{font-size:.62rem;gap:.4rem;}
+
+  /* Missions — mission day card */
+  .mission-day-header{padding:.7rem .85rem;gap:.6rem;}
+  .mday-cal{width:42px;}
+  .mday-cal-day{font-size:1.6rem;}
+  .mday-cal-mon,.mday-cal-wd{font-size:.55rem;}
+  .mday-divider{height:36px;}
+  .mday-label{font-size:.84rem;}
+  .mday-badge{font-size:.58rem;padding:.14rem .45rem;}
+  .mday-count{font-size:.65rem;}
+  .mission-ring-wrap{width:38px;height:38px;}
+  .ring-pct{font-size:.55rem;}
+  .mission-day-body{padding:.75rem .9rem;}
+
+  /* Items */
+  .ms-item{padding:.55rem .65rem;gap:.55rem;}
+  .ms-cb{width:16px;height:16px;font-size:.65rem;}
+  .ms-item-txt{font-size:.82rem;}
+  .ms-link-btn{font-size:.68rem;padding:.18rem .5rem;}
+
+  /* Day link zone */
+  .day-link-zone{flex-direction:column;align-items:stretch;gap:.45rem;padding:.6rem .85rem;}
+  .day-link-input{min-width:0;width:100%;}
+  .day-link-submit{width:100%;padding:.5rem;}
+  .day-link-submitted{flex-direction:column;gap:.3rem;}
+  .day-link-resubmit{align-self:flex-start;}
+
+  /* Submit zone */
+  .ms-submit-zone{padding:.5rem .65rem;}
+  .ms-submit-row{flex-direction:column;gap:.35rem;}
+  .ms-submit-input{width:100%;}
+  .ms-submit-btn{width:100%;padding:.45rem;}
+
+  /* Score tab */
+  .score-tab-grid{grid-template-columns:1fr;}
+  .score-goal-card{padding:1.2rem 1.1rem;}
+  .goal-num{font-size:2.8rem;}
+  .parts-input-grid{grid-template-columns:repeat(4,1fr);}
+  .score-form-row{grid-template-columns:1fr;}
+
+  /* Progress bars */
+  .sched-full{flex-wrap:wrap;}
+  .sf-date{width:54px;}
+
+  /* Popups */
+  .popup-box{width:calc(100vw - 2.4rem);padding:1.5rem 1.2rem;}
+
+  /* Book tab */
+  .book-row{flex-wrap:wrap;gap:.4rem;}
+
+  /* Goal form */
+  .goal-form-row{flex-direction:column;}
+
+  /* Overview two-col */
+  .score-big .n{font-size:2.8rem;}
+}
+
+@media(max-width:400px){
+  .main{padding:.6rem .7rem;}
+  .topbar{padding:0 .75rem;}
+  .tabs{padding:0 .4rem;}
+  .tab{padding:.65rem .7rem;font-size:.7rem;}
+  .three.stats-row{grid-template-columns:1fr 1fr 1fr;}
+  .stat-num{font-size:1.3rem;}
+  .mday-cal-day{font-size:1.4rem;}
 }
 </style>
 </head>
@@ -1152,7 +1267,7 @@ function updateBookingBadge(){
 }
 function updateMissionBadge(){
   var td=today();
-  var todayHw=(S.homework||[]).find(function(h){return h.date===td;});
+  var todayHw=(S.homework||[]).find(function(h){var s=h.date,e=h.endDate||h.date;return td>=s&&td<=e;});
   var incomplete=0;
   if(todayHw){
     var linked=getDayLink(S.id,todayHw.id);
@@ -1199,7 +1314,7 @@ function renderOverview(){
   var scores=S.scores||[];
   var latest=scores.length?scores[scores.length-1].score:null;
   var doneCount=(S.modules||[]).filter(function(m){return m.status==='done';}).length;
-  var todayHw=(S.homework||[]).find(function(h){return h.date===td;});
+  var todayHw=(S.homework||[]).find(function(h){var s=h.date,e=h.endDate||h.date;return td>=s&&td<=e;});
   var totalToday=todayHw?countHwItems(todayHw):0;
   var todayLinked=todayHw?!!(getDayLink(S.id,todayHw.id)):false;
   document.getElementById('ov-score-stat').textContent=latest||'—';
@@ -1502,8 +1617,11 @@ function renderMissions(){
   if(!hw.length){ el.innerHTML='<div class="empty">Giáo viên chưa giao nhiệm vụ nào. Hãy kiểm tra lại sau nhé!</div>'; return; }
   el.innerHTML='';
   hw.forEach(function(h,idx){
-    var isToday=h.date===td;
-    var isPast=h.date<td;
+    // Multi-day support: endDate field
+    var hwStart=h.date;
+    var hwEnd=h.endDate||h.date;
+    var isToday=(td>=hwStart&&td<=hwEnd);
+    var isPast=hwEnd<td;
     var dayLinkData=getDayLink(S.id, h.id);
     var isAllDone=!!(dayLinkData&&dayLinkData.link);
     var pct=isAllDone?100:0;
@@ -1542,17 +1660,28 @@ function renderMissions(){
     // Determine day state class
     var dayClass = isToday ? 'day-today' : isAllDone ? 'day-done' : isPast ? 'day-overdue' : 'day-future';
 
-    // Calendar date parts
-    var dObj = new Date(h.date+'T00:00:00');
+    // Calendar date parts (show start date)
+    var dObj = new Date(hwStart+'T00:00:00');
     var dayNum  = dObj.getDate();
     var monStr  = dObj.toLocaleDateString('vi-VN',{month:'short'}).replace('thg ','Th').replace('tháng ','Th');
     var wdStr   = dObj.toLocaleDateString('vi-VN',{weekday:'long'});
     wdStr = wdStr.charAt(0).toUpperCase()+wdStr.slice(1);
 
+    // Deadline badge for multi-day homework
+    var deadlineBadge = '';
+    var isMultiDay = hwEnd && hwEnd !== hwStart;
+    if(isMultiDay && !isAllDone){
+      var dlObj=new Date(hwEnd+'T00:00:00');
+      var dlStr=dlObj.getDate()+'/'+(dlObj.getMonth()+1);
+      var daysLeft=Math.round((dlObj-new Date(td+'T00:00:00'))/(1000*60*60*24));
+      var dlCls = daysLeft<=0 ? 'urgent' : daysLeft===1 ? 'today-dl' : '';
+      deadlineBadge='<span class="badge-deadline '+dlCls+'">⏱ Hạn nộp: '+dlStr+'</span>';
+    }
+
     // Status badge
     var badge = '';
     if(isAllDone)       badge='<span class="mday-badge badge-done">✓ Hoàn thành</span>';
-    else if(isToday)    badge='<span class="mday-badge badge-today">📌 Hôm nay</span>';
+    else if(isToday)    badge='<span class="mday-badge badge-today">📌 Đang mở</span>';
     else if(isPast)     badge='<span class="mday-badge badge-overdue">⚠️ Chưa nộp</span>';
     else                badge='<span class="mday-badge badge-future">Sắp tới</span>';
 
@@ -1589,7 +1718,7 @@ function renderMissions(){
         // Info
         '<div class="mday-info">'+
           '<div class="mday-label">'+(h.label||h.date)+'</div>'+
-          '<div class="mday-sub">'+badge+'<span class="mday-count">'+countTxt+'</span></div>'+
+          '<div class="mday-sub">'+badge+(isMultiDay?'<span class="hw-range-pill">'+hwStart.slice(5).replace('-','/')+'→'+hwEnd.slice(5).replace('-','/')+'</span>':'')+deadlineBadge+'<span class="mday-count">'+countTxt+'</span></div>'+
         '</div>'+
         // Ring
         '<div class="mission-ring-wrap'+(isAllDone?' ring-done':'')+'">'+
@@ -1778,7 +1907,7 @@ function markItemDone(hwId,date,sec,idx,forceDone){
 function checkReminder(){
   var td=today();
   var yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
-  var yHw=(S.homework||[]).find(function(h){return h.date===yesterday;});
+  var yHw=(S.homework||[]).find(function(h){var e=h.endDate||h.date;return e===yesterday;});
   if(!yHw) return;
   var total=countHwItems(yHw); if(!total) return;
   var done=getDoneKeys(S.id,yesterday).length;
