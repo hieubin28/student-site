@@ -63,9 +63,9 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 #login-screen::after{
   content:'';position:absolute;inset:0;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events:none;opacity:.6;
+  pointer-events:none;opacity:.6;z-index:0;
 }
-.login-wrap{position:relative;width:420px;z-index:1;}
+.login-wrap{position:relative;width:420px;z-index:10;}
 .login-deco{
   font-family:'Lora',serif;font-size:2.6rem;font-style:italic;font-weight:700;
   color:rgba(232,136,92,.18);line-height:1.2;margin-bottom:-.8rem;
@@ -1626,7 +1626,6 @@ function submitScoreReq(){
 /* ═══ MISSIONS ═══ */
 function renderMissions(){
   var td=today();
-  console.log('[DEBUG] today='+td);
   var hw=(S.homework||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
   var el=document.getElementById('missions-content');
   if(!hw.length){ el.innerHTML='<div class="empty">Giáo viên chưa giao nhiệm vụ nào. Hãy kiểm tra lại sau nhé!</div>'; return; }
@@ -1637,7 +1636,6 @@ function renderMissions(){
     var hwEnd=h.endDate||h.date;
     var isToday=(td>=hwStart&&td<=hwEnd);
     var isPast=hwEnd<td;
-    console.log('[DEBUG] hw='+h.id+' start='+hwStart+' end='+hwEnd+' td='+td+' isToday='+isToday+' isPast='+isPast);
     var dayLinkData=getDayLink(S.id, h.id);
     var isAllDone=!!(dayLinkData&&dayLinkData.link);
     var pct=isAllDone?100:0;
