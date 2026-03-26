@@ -1563,7 +1563,7 @@ function buildScoreChart(scores,goalTarget){
   var dots=scores.map(function(s,i){var _tp=s.date.split('-'); var _tpd=_tp.length===3?_tp[2]+'/'+_tp[1]+'/'+_tp[0]:s.date;
       return '<circle class="chart-dot'+(i===scores.length-1?' latest':'')+'" cx="'+px(i)+'" cy="'+py(s.score)+'" r="4"><title>'+s.score+' ('+_tpd+')</title></circle>';}).join('');
   var axisLabels=scores.map(function(s,i){var _p=s.date.split('-'); var _dl=_p[2]+'/'+_p[1];
-        return i===0||i===scores.length-1?'<text class="chart-axis" x="'+px(i)+'" y="'+(h-1)+'" text-anchor="middle">'+_dl+'</text>':'';"}).join('');
+        return i===0||i===scores.length-1?'<text class="chart-axis" x="'+px(i)+'" y="'+(h-1)+'" text-anchor="middle">'+_dl+'</text>':'';}).join('');
   var goalLine=goalTarget?'<line class="chart-goal-line" x1="30" y1="'+py(goalTarget)+'" x2="'+(w-30)+'" y2="'+py(goalTarget)+'"/><text class="chart-axis" x="33" y="'+(py(goalTarget)-3)+'" fill="var(--rust)">'+goalTarget+'</text>':'';
   svg.innerHTML=defs+'<polyline class="chart-area" points="'+areaPts+'"/><polyline class="chart-line" points="'+linePts+'"/>'+dots+axisLabels+goalLine;
 }
