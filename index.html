@@ -259,6 +259,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .no-tasks{padding:1.8rem;text-align:center;color:var(--muted);font-size:.85rem;font-style:italic;border:1px dashed var(--border);}
 
 /* UPCOMING mini */
+.sched-row.sched-today{border-left:3px solid var(--orange);background:rgba(196,98,45,.06);}
 .sched-row{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid var(--line);}
 .sched-row:last-child{border-bottom:none;}
 .sched-cal{text-align:center;min-width:36px;}
@@ -538,6 +539,19 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .reminder-popup-card{background:linear-gradient(160deg,#2A1505,#1A0E04);}
 .reminder-popup-card .popup-fireworks{animation:shake .5s ease infinite alternate;}
 @keyframes shake{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+@keyframes gentle-wave{from{transform:rotate(-8deg) scale(1)}to{transform:rotate(8deg) scale(1.1)}}
+.reminder-overdue-item{
+  display:flex;align-items:center;gap:.6rem;
+  background:rgba(196,98,45,.1);border:1px solid rgba(196,98,45,.2);
+  padding:.45rem .75rem;font-size:.78rem;color:rgba(245,239,230,.7);
+}
+.reminder-overdue-item .roi-date{
+  font-family:'JetBrains Mono',monospace;font-size:.7rem;
+  color:var(--orange2);font-weight:700;white-space:nowrap;
+}
+.reminder-overdue-item .roi-count{
+  font-size:.7rem;color:rgba(245,239,230,.4);margin-left:auto;white-space:nowrap;
+}
 
 /* Overview today missions widget */
 .today-missions-mini{display:flex;flex-direction:column;gap:.3rem;}
@@ -1119,11 +1133,15 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 
 <!-- REMINDER POPUP -->
 <div class="popup-ov" id="popup-reminder">
-  <div class="popup-card reminder-popup-card">
-    <div class="popup-fireworks">⏰</div>
-    <div class="popup-title" style="color:#f0a030">Nhắc nhở!</div>
-    <div class="popup-msg" id="popup-reminder-msg">Bạn còn nhiệm vụ chưa hoàn thành từ ngày hôm qua. Hoàn thành nốt nhé!</div>
-    <button class="popup-btn" style="background:#f0a030;" onclick="closePopup('popup-reminder');goTab(document.querySelector('[data-tab=missions]'))">Xem nhiệm vụ →</button>
+  <div class="popup-card reminder-popup-card" style="max-width:440px;">
+    <div style="font-size:2.8rem;margin-bottom:.6rem;animation:gentle-wave 2s ease infinite alternate;">🌸</div>
+    <div class="popup-title" id="reminder-title" style="color:var(--orange2);font-size:1.35rem;margin-bottom:.6rem;">Ơi bạn ơi~</div>
+    <div class="popup-msg" id="popup-reminder-msg" style="line-height:1.75;color:rgba(245,239,230,.82);"></div>
+    <div id="reminder-overdue-list" style="margin:.9rem 0 1.2rem;display:flex;flex-direction:column;gap:.4rem;"></div>
+    <div style="display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;">
+      <button class="popup-btn" style="background:var(--orange);min-width:140px;" onclick="closePopup('popup-reminder');goTab(document.querySelector('[data-tab=missions]'))">📋 Xem nhiệm vụ</button>
+      <button class="popup-btn" style="background:transparent;border:1px solid rgba(196,98,45,.4);color:rgba(245,239,230,.5);min-width:100px;" onclick="closePopup('popup-reminder')">Để sau</button>
+    </div>
   </div>
 </div>
 
@@ -1386,40 +1404,102 @@ function renderOverview(){
   document.getElementById('ov-today-lbl').textContent=' — '+new Date().toLocaleDateString('vi-VN',{weekday:'long',day:'numeric',month:'long'});
 
   var taskEl=document.getElementById('ov-tasks'); taskEl.innerHTML='';
+  if(!todayHw||totalToday===0){
+    // Check if multi-day HW is active
+    var activeHw=(S.homework||[]).find(function(h){var s=h.date,e=h.endDate||h.date;return td>=s&&td<=e;});
+    if(activeHw){
+      todayHw=activeHw; totalToday=countHwItems(activeHw);
+    }
+  }
   if(!todayHw||totalToday===0){ taskEl.innerHTML='<div class="no-tasks">🎉 Hôm nay không có nhiệm vụ!</div>'; }
   else {
+    var dayLinkDone=!!(getDayLink(S.id,todayHw.id));
+    var doneKeys=getDoneKeys(S.id,todayHw.date);
+    var doneToday=dayLinkDone?totalToday:doneKeys.length;
     var pct2=totalToday?Math.round(doneToday/totalToday*100):0;
     var SEC_LABELS2={vocab:'Từ vựng',reading:'Đọc',listening:'Nghe',other:'Khác',practice:'Đề luyện'};
-    var SHOW_SECS=['vocab','reading','listening','other'];
-    var doneKeys=getDoneKeys(S.id,td);
     var wrap=document.createElement('div'); wrap.className='today-missions-mini';
-    SHOW_SECS.forEach(function(sec){
-      (todayHw[sec]||[]).forEach(function(item,i){
-        var key=td+'_'+sec+'_'+i;
-        var isDone=doneKeys.indexOf(key)!==-1;
-        var row=document.createElement('div'); row.className='tm-row'+(isDone?' checked':'');
-        row.innerHTML='<div class="tm-sec-dot" style="background:'+SEC_COLORS[sec]+'"></div><span style="flex:1">'+escH(item.text||'—')+'</span><span style="font-size:.67rem;color:var(--muted)">'+SEC_LABELS2[sec]+'</span>';
-        wrap.appendChild(row);
+
+    // Show section summary — count per section, not individual items
+    HW_SECTIONS.forEach(function(sec){
+      var items=todayHw[sec]||[]; if(!items.length) return;
+      var doneSec=0;
+      items.forEach(function(_,i){
+        var key=todayHw.date+'_'+sec+'_'+i;
+        if(dayLinkDone||doneKeys.indexOf(key)!==-1) doneSec++;
       });
+      var allSecDone=doneSec>=items.length;
+      var row=document.createElement('div'); row.className='tm-row'+(allSecDone?' checked':'');
+      row.innerHTML=
+        '<div class="tm-sec-dot" style="background:'+SEC_COLORS[sec]+'"></div>'+
+        '<span style="flex:1">'+SEC_LABELS2[sec]+'</span>'+
+        '<span style="font-size:.67rem;color:'+(allSecDone?'var(--sage)':'var(--muted)')+'">'+
+          (allSecDone?'✓ Xong':doneSec+'/'+items.length)+
+        '</span>';
+      wrap.appendChild(row);
     });
+
+    // Multi-day deadline hint
+    if(todayHw.endDate&&todayHw.endDate!==todayHw.date){
+      var dlDiv=document.createElement('div');
+      dlDiv.style.cssText='font-size:.68rem;color:var(--orange);margin-top:.4rem;display:flex;align-items:center;gap:.3rem;';
+      dlDiv.innerHTML='⏱ Hạn nộp: '+isoToDMY(todayHw.endDate);
+      wrap.appendChild(dlDiv);
+    }
+
     var prog=document.createElement('div'); prog.className='today-prog-wrap';
-    prog.innerHTML='<div class="today-prog-lbl"><span>Tiến độ hôm nay</span><span>'+doneToday+'/'+totalToday+' · '+pct2+'%</span></div><div class="today-prog-bar"><div class="today-prog-fill" style="width:'+pct2+'%"></div></div>';
+    prog.innerHTML='<div class="today-prog-lbl"><span>Tiến độ hôm nay</span><span id="ov-prog-count">'+doneToday+'/'+totalToday+' · '+pct2+'%</span></div><div class="today-prog-bar"><div class="today-prog-fill" style="width:'+pct2+'%"></div></div>';
     wrap.appendChild(prog);
+
+    // CTA if not done
+    if(!dayLinkDone){
+      var cta=document.createElement('button');
+      cta.style.cssText='margin-top:.6rem;width:100%;padding:.45rem;background:var(--orange);color:#fff;border:none;font-family:"Be Vietnam Pro",sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;';
+      cta.textContent='Vào làm nhiệm vụ →';
+      cta.onclick=function(){goTab(document.querySelector('[data-tab=missions]'));};
+      wrap.appendChild(cta);
+    }
     taskEl.appendChild(wrap);
   }
 
-  var allSched=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});}).concat(
+  // Upcoming: this week + next 7 days
+  var now=new Date();
+  var weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay()+1); // Mon
+  var weekEnd=new Date(weekStart); weekEnd.setDate(weekStart.getDate()+13); // 2 weeks
+  var wkStartStr=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
+  var wkEndStr=weekEnd.getFullYear()+'-'+String(weekEnd.getMonth()+1).padStart(2,'0')+'-'+String(weekEnd.getDate()).padStart(2,'0');
+
+  var allSched=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});}).concat(
     Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';}).map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
-  ).filter(function(s){return s.date>=td;}).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,4);
+  ).filter(function(sc){return sc.date>=td&&sc.date<=wkEndStr;}).sort(function(a,b){return a.date.localeCompare(b.date);});
 
   var upEl=document.getElementById('ov-upcoming'); upEl.innerHTML='';
-  if(!allSched.length){ upEl.innerHTML='<div class="no-tasks">Chưa có lịch sắp tới</div>'; return; }
-  allSched.forEach(function(s){
-    var d=new Date(s.date+'T00:00:00');
-    var r=document.createElement('div'); r.className='sched-row';
-    var tagCls=s.kind==='oneone'?'st-oneone':'st-class';
-    var tagLbl=s.kind==='oneone'?'1-1':'Lớp';
-    r.innerHTML='<div class="sched-cal"><div class="sched-d">'+d.getDate()+'</div><div class="sched-m">'+d.toLocaleDateString('vi-VN',{month:'short'})+'</div></div><div class="sched-info"><div class="sched-title">'+s.title+'</div><div class="sched-time">'+(s.time||'')+'</div></div><span class="sched-tag '+tagCls+'">'+tagLbl+'</span>';
+  if(!allSched.length){ upEl.innerHTML='<div class="no-tasks">Không có lịch trong 2 tuần tới</div>'; return; }
+
+  // Group by week
+  var thisWeekItems=allSched.filter(function(sc){return sc.date<=wkStartStr.replace(/\d{4}-\d{2}-(\d{2})/,function(_,d){
+    var e=new Date(weekStart); e.setDate(e.getDate()+6);
+    return e.getFullYear()+'-'+String(e.getMonth()+1).padStart(2,'0')+'-'+String(e.getDate()).padStart(2,'0');
+  });});
+
+  allSched.forEach(function(sc){
+    var d=new Date(sc.date+'T00:00:00');
+    var isToday2=sc.date===td;
+    var dayName=isToday2?'Hôm nay':d.toLocaleDateString('vi-VN',{weekday:'short'});
+    var dateStr=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
+    var r=document.createElement('div'); r.className='sched-row'+(isToday2?' sched-today':'');
+    var tagCls=sc.kind==='oneone'?'st-oneone':'st-class';
+    var tagLbl=sc.kind==='oneone'?'📞 1-1':'🏫 Lớp';
+    r.innerHTML=
+      '<div class="sched-cal">'+
+        '<div class="sched-d">'+d.getDate()+'</div>'+
+        '<div class="sched-m">'+dateStr.split('/')[1]+'/'+dateStr.split('/')[0].slice(0,2)+'</div>'+
+      '</div>'+
+      '<div class="sched-info">'+
+        '<div class="sched-title">'+escH(sc.title)+'</div>'+
+        '<div class="sched-time">'+dayName+(sc.time?' · '+sc.time:'')+'</div>'+
+      '</div>'+
+      '<span class="sched-tag '+tagCls+'">'+tagLbl+'</span>';
     upEl.appendChild(r);
   });
 }
@@ -1924,25 +2004,89 @@ function markItemDone(hwId,date,sec,idx,forceDone){
 /* ═══ REMINDER ═══ */
 function checkReminder(){
   var td=today();
-  var yd=new Date(); yd.setDate(yd.getDate()-1);
-  var yesterday=yd.getFullYear()+'-'+String(yd.getMonth()+1).padStart(2,'0')+'-'+String(yd.getDate()).padStart(2,'0');
-  var yHw=(S.homework||[]).find(function(h){var e=h.endDate||h.date;return e===yesterday;});
-  if(!yHw) return;
-  var total=countHwItems(yHw); if(!total) return;
-  var done=getDoneKeys(S.id,yesterday).length;
-  if(done>=total) return;
-  var shownKey='reminder_shown_'+S.id+'_'+td;
-  if(localStorage.getItem(shownKey)){ showReminderBanner(yesterday,done,total); return; }
-  localStorage.setItem(shownKey,'1');
-  var remaining=total-done;
-  document.getElementById('popup-reminder-msg').textContent='Ngày '+yesterday+' bạn còn '+remaining+'/'+total+' nhiệm vụ chưa hoàn thành. Hãy cố gắng hoàn thành nốt nhé! 💪';
+
+  // Find ALL overdue homework (endDate < today, not fully done)
+  var overdueList=[];
+  (S.homework||[]).forEach(function(h){
+    var hwEnd=h.endDate||h.date;
+    if(hwEnd>=td) return; // not past
+    var dayLinkData=getDayLink(S.id,h.id);
+    if(dayLinkData&&dayLinkData.link) return; // fully submitted
+    var total=countHwItems(h); if(!total) return;
+    var done=getDoneKeys(S.id,h.date).length;
+    if(done>=total) return; // all checked
+    overdueList.push({h:h,done:done,total:total,hwEnd:hwEnd});
+  });
+
+  if(!overdueList.length) return;
+
+  // Only show popup once per login session (not per day — show every login)
+  var sessionKey='reminder_session_'+S.id+'_'+td;
+  var alreadyShownToday=sessionStorage.getItem(sessionKey);
+
+  // Always show banner regardless
+  showOverdueBanner(overdueList);
+
+  if(alreadyShownToday) return;
+  sessionStorage.setItem(sessionKey,'1');
+
+  // Warm, friendly messages
+  var totalOverdue=overdueList.reduce(function(sum,item){return sum+(item.total-item.done);},0);
+  var firstName=(S.name||'bạn').split(' ').pop();
+
+  var greetings=[
+    firstName+' ơi~ 💛',
+    'Hế lô '+firstName+' dễ thương~ 🌼',
+    'Psst... '+firstName+' ơi! 🌸',
+    'Này '+firstName+'~ 🍊',
+  ];
+  var messages=[
+    'Có <strong>'+totalOverdue+' nhiệm vụ</strong> đang chờ '+firstName+' ghé thăm nè~ Không cần hoàn hảo, chỉ cần cố gắng một chút thôi là được rồi! 🌱',
+    'Mình thấy còn <strong>'+totalOverdue+' nhiệm vụ</strong> chưa xong nè. Không sao cả — làm từng bước nhỏ thôi, '+firstName+' hoàn toàn làm được! 💪',
+    ''+firstName+' có biết không — chỉ cần hoàn thành <strong>'+totalOverdue+' nhiệm vụ</strong> còn lại là xong rồi đó! Cùng cố lên nào~ 🚀',
+    'Nhắc nhẹ thôi nha: còn <strong>'+totalOverdue+' nhiệm vụ</strong> đang đợi '+firstName+' kìa. Làm xong rồi thư giãn thoải mái nhé! ☕',
+  ];
+
+  var title=greetings[Math.floor(Math.random()*greetings.length)];
+  var msg=messages[Math.floor(Math.random()*messages.length)];
+
+  document.getElementById('reminder-title').textContent=title;
+  document.getElementById('popup-reminder-msg').innerHTML=msg;
+
+  // Build overdue list
+  var listEl=document.getElementById('reminder-overdue-list');
+  listEl.innerHTML='';
+  overdueList.slice(0,4).forEach(function(item){
+    var div=document.createElement('div');
+    div.className='reminder-overdue-item';
+    var label=item.h.label||isoToDMY(item.hwEnd);
+    div.innerHTML='<span>📌 '+escH(label)+'</span>'+
+      '<span class="roi-count">'+(item.total-item.done)+' mục còn lại</span>';
+    listEl.appendChild(div);
+  });
+  if(overdueList.length>4){
+    var more=document.createElement('div');
+    more.style.cssText='font-size:.72rem;color:rgba(245,239,230,.35);text-align:center;padding:.2rem 0';
+    more.textContent='... và '+(overdueList.length-4)+' ngày khác';
+    listEl.appendChild(more);
+  }
+
   document.getElementById('popup-reminder').classList.add('show');
-  showReminderBanner(yesterday,done,total);
 }
-function showReminderBanner(date,done,total){
+
+function showOverdueBanner(overdueList){
   var el=document.getElementById('reminder-banner');
+  if(!el||!overdueList.length) return;
+  var total=overdueList.reduce(function(s,i){return s+(i.total-i.done);},0);
   el.style.display='block';
-  el.innerHTML='<div class="reminder-banner"><div class="reminder-ico">⏰</div><div class="reminder-body"><div class="reminder-title">Nhiệm vụ chưa hoàn thành — '+date+'</div><div class="reminder-text">Bạn còn <strong>'+(total-done)+'/'+total+'</strong> nhiệm vụ chưa xong từ ngày hôm qua. Hoàn thành nốt để không bị tụt lại nhé!</div></div><button class="reminder-close" onclick="this.closest(\'.reminder-banner\').parentElement.style.display=\'none\'">✕</button></div>';
+  el.innerHTML='<div class="reminder-banner">'+
+    '<div class="reminder-ico">📌</div>'+
+    '<div class="reminder-body">'+
+      '<div class="reminder-title">Còn '+total+' nhiệm vụ quá hạn chưa hoàn thành</div>'+
+      '<div class="reminder-text">Từ '+overdueList.length+' ngày trước — vào tab <strong>Nhiệm vụ</strong> để xem và hoàn thành nhé!</div>'+
+    '</div>'+
+    '<button class="reminder-close" onclick="this.closest(\'.reminder-banner\').parentElement.style.display=\'none\'">✕</button>'+
+  '</div>';
 }
 function showCongratsPopup(done,total){
   var msgs=['Tuyệt vời! Bạn đã hoàn thành tất cả nhiệm vụ hôm nay! 🔥','Xuất sắc! 100% nhiệm vụ hoàn thành! 💪','Hoàn hảo! Giáo viên sẽ rất tự hào về bạn! ⭐'];
