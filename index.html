@@ -50,22 +50,23 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 ═══════════════════════════════ */
 #login-screen{
   min-height:100vh;display:flex;align-items:center;justify-content:center;
-  background:var(--ink2);position:relative;overflow:hidden;
+  background:var(--ink2);position:relative;
 }
 #login-screen::before{
-  content:'';position:absolute;inset:0;
+  content:'';position:absolute;inset:0;z-index:0;
   background:
     radial-gradient(ellipse 70% 60% at 15% 70%, rgba(196,98,45,.15) 0%, transparent 55%),
     radial-gradient(ellipse 50% 70% at 85% 20%, rgba(196,98,45,.08) 0%, transparent 55%),
     radial-gradient(ellipse 40% 40% at 50% 50%, rgba(245,208,187,.04) 0%, transparent 60%);
+  pointer-events:none;
 }
 /* Subtle grain texture overlay */
 #login-screen::after{
-  content:'';position:absolute;inset:0;
+  content:'';position:absolute;inset:0;z-index:0;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events:none;opacity:.6;z-index:0;
+  pointer-events:none;opacity:.6;
 }
-.login-wrap{position:relative;width:420px;z-index:10;}
+.login-wrap{position:relative;width:420px;z-index:2;isolation:isolate;}
 .login-deco{
   font-family:'Lora',serif;font-size:2.6rem;font-style:italic;font-weight:700;
   color:rgba(232,136,92,.18);line-height:1.2;margin-bottom:-.8rem;
