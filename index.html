@@ -216,6 +216,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   letter-spacing:.08em;cursor:pointer;transition:all .2s;
 }
 .btn-login:hover{background:var(--orange2);}
+.btn-login:disabled{background:rgba(196,98,45,.4);cursor:not-allowed;letter-spacing:.04em;}
 .login-hint{margin-top:1.2rem;text-align:center;font-size:.74rem;color:rgba(245,239,230,.2);}
 
 /* ═══════════════════════════════
@@ -1424,12 +1425,38 @@ function goTab(el){
 /* ═══ LOGIN / LOGOUT ═══ */
 function doLogin(){
   var id=document.getElementById('li-id').value.trim().toUpperCase();
+  var errEl=document.getElementById('li-err');
+  var btn=document.querySelector('.btn-login');
+
+  if(!id){
+    errEl.textContent='⚠️ Vui lòng nhập mã học viên trước.';
+    errEl.style.display='block';
+    document.getElementById('li-id').focus();
+    return;
+  }
+
+  // Disable button while loading
+  btn.disabled=true;
+  btn.textContent='Đang tìm...';
+  errEl.style.display='none';
+
   db.ref('students/'+id).get().then(function(snap){
-    if(!snap.exists()){ document.getElementById('li-err').style.display='block'; return; }
-    document.getElementById('li-err').style.display='none';
+    btn.disabled=false;
+    btn.textContent='Vào nhật ký →';
+    if(!snap.exists()){
+      errEl.textContent='❌ Không tìm thấy học viên. Kiểm tra lại mã.';
+      errEl.style.display='block';
+      return;
+    }
+    errEl.style.display='none';
     S=snap.val();
     sessionStorage.setItem('sv_id',id);
     launchApp();
+  }).catch(function(){
+    btn.disabled=false;
+    btn.textContent='Vào nhật ký →';
+    errEl.textContent='❌ Lỗi kết nối. Thử lại sau.';
+    errEl.style.display='block';
   });
 }
 document.getElementById('li-id').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
