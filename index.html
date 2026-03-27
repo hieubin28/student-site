@@ -1494,6 +1494,7 @@ var S = null;
 var selSlot = null;
 var allSlots = {};
 var allBookings = {};
+var _submissionSelfWrite = false; // flag tránh re-render khi chính mình ghi submissions
 var allScoreReqs = {};
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
@@ -1662,9 +1663,16 @@ function launchApp(){
     renderOverview();
   });
   // Real-time: submissions for this student
+  // Chỉ cập nhật S._subs để data luôn fresh — KHÔNG gọi renderMissions()
+  // vì markItemDone đã update DOM trực tiếp rồi, gọi lại sẽ re-render toàn bộ + animate lại
   db.ref('submissions/'+S.id).on('value',function(snap){
     if(snap.exists()) S._subs=snap.val(); else S._subs={};
-    renderMissions();
+    // Chỉ re-render nếu tab missions đang active VÀ không phải do chính mình tick
+    // (tức là có thay đổi từ bên ngoài, ví dụ teacher reset)
+    // Dùng flag để tránh re-render khi chính mình vừa ghi
+    if(_submissionSelfWrite){ _submissionSelfWrite=false; return; }
+    var pane=document.getElementById('pane-missions');
+    if(pane&&pane.classList.contains('active')) renderMissions();
   });
 }
 
@@ -1714,6 +1722,7 @@ function getSubmission(hwId,sec,idx){ return getSvSubs()[subKey(hwId,sec,idx)]||
 function saveSubmission(hwId,sec,idx,link){
   var key=subKey(hwId,sec,idx);
   var data={link:link.trim(),submittedAt:new Date().toISOString()};
+  _submissionSelfWrite=true;
   db.ref('submissions/'+S.id+'/'+key).set(data);
 }
 function syncProgressToTeacher(sid,date,done,total){
@@ -2406,7 +2415,7 @@ function markItemDone(hwId,date,sec,idx,forceDone){
   var subKeyStr=hwId+'_'+sec+'_'+idx;
   var existingSub=getSubmission(hwId,sec,idx);
   if(!existingSub || !existingSub.link){
-    // Chỉ ghi "ticked" nếu chưa có link thật — tránh ghi đè
+    _submissionSelfWrite=true; // báo listener đây là mình tự ghi, không re-render
     if(nowTickDone){
       db.ref('submissions/'+S.id+'/'+subKeyStr).set({
         link:'', ticked:true, tickedAt:new Date().toISOString()
