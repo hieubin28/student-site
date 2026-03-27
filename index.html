@@ -168,6 +168,69 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .pwa-banner-install:hover{background:#1558b0;}
 .pwa-banner-install svg{width:14px;height:14px;}
 
+/* ═══════════════════════════════
+   SURVEY BUBBLE
+═══════════════════════════════ */
+#survey-bubble{
+  position:fixed;bottom:28px;right:24px;z-index:9998;
+  display:none;flex-direction:column;align-items:flex-end;gap:10px;
+  animation:surveyFadeIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes surveyFadeIn{
+  from{opacity:0;transform:translateY(20px) scale(.85);}
+  to  {opacity:1;transform:translateY(0)    scale(1);}
+}
+@keyframes surveyFadeOut{
+  from{opacity:1;transform:scale(1);}
+  to  {opacity:0;transform:scale(.8);}
+}
+.survey-tooltip{
+  background:var(--ink2);color:var(--paper);
+  font-size:.78rem;font-weight:600;
+  padding:.45rem .85rem;border-radius:6px;
+  border:1px solid rgba(196,98,45,.3);
+  white-space:nowrap;box-shadow:0 4px 16px rgba(44,30,15,.25);
+  position:relative;cursor:pointer;transition:background .2s;
+}
+.survey-tooltip:hover{background:#2C1E0F;}
+.survey-tooltip::after{
+  content:'';position:absolute;bottom:-6px;right:22px;
+  width:10px;height:10px;background:var(--ink2);
+  border-right:1px solid rgba(196,98,45,.3);
+  border-bottom:1px solid rgba(196,98,45,.3);
+  transform:rotate(45deg);
+}
+.survey-row{display:flex;align-items:center;gap:8px;}
+.survey-dismiss{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--paper2);border:1px solid var(--border);
+  color:var(--muted);font-size:.75rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;flex-shrink:0;line-height:1;
+}
+.survey-dismiss:hover{background:var(--rust2);color:var(--rust);border-color:var(--rust);}
+.survey-btn{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--orange),var(--orange2));
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 20px rgba(196,98,45,.45);
+  transition:transform .2s,box-shadow .2s;
+  font-size:1.45rem;position:relative;flex-shrink:0;
+}
+.survey-btn:hover{transform:scale(1.1);box-shadow:0 8px 28px rgba(196,98,45,.55);}
+.survey-btn:active{transform:scale(.96);}
+.survey-btn::before{
+  content:'';position:absolute;inset:-5px;border-radius:50%;
+  border:2px solid rgba(196,98,45,.4);
+  animation:surveyPulse 2.2s ease-out infinite;
+}
+@keyframes surveyPulse{
+  0%  {transform:scale(1);   opacity:.7;}
+  70% {transform:scale(1.35);opacity:0;}
+  100%{transform:scale(1.35);opacity:0;}
+}
+
 /* ── Topbar install button ── */
 .btn-topbar-install{
   background:none;border:1px solid rgba(196,98,45,.3);color:rgba(245,239,230,.45);
@@ -493,12 +556,44 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .mission-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
 .ring-bg{fill:none;stroke:rgba(0,0,0,.08);stroke-width:3;}
 .mission-day.day-today .ring-bg{stroke:rgba(255,255,255,.1);}
-.ring-fill{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
-.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;color:var(--gold);}
+.ring-fill{
+  fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;
+  transition:stroke-dashoffset 1s cubic-bezier(.33,1,.68,1),
+             stroke .35s ease;
+}
+.ring-pct{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;color:var(--gold);
+  transition:color .35s ease;
+}
 .ring-done .ring-fill{stroke:var(--sage);}
 .ring-done .ring-pct{color:var(--sage);}
 .mission-day.day-overdue .ring-fill{stroke:var(--rust);}
 .mission-day.day-overdue .ring-pct{color:var(--rust);}
+
+/* Ring done — bounce pulse */
+@keyframes ringDonePulse{
+  0%  { transform:rotate(-90deg) scale(1);   }
+  30% { transform:rotate(-90deg) scale(1.18);}
+  55% { transform:rotate(-90deg) scale(.93); }
+  75% { transform:rotate(-90deg) scale(1.07);}
+  100%{ transform:rotate(-90deg) scale(1);   }
+}
+.ring-done svg{ animation:ringDonePulse .65s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* Ring pct done flip */
+@keyframes pctFlip{
+  0%  { opacity:0; transform:scale(.5) rotate(180deg); }
+  100%{ opacity:1; transform:scale(1)  rotate(0deg);   }
+}
+.ring-done .ring-pct{ animation:pctFlip .45s .15s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* Ring appear — animate from 0 on mount */
+@keyframes ringAppear{
+  from{ opacity:0; transform:rotate(-90deg) scale(.7); }
+  to  { opacity:1; transform:rotate(-90deg) scale(1);  }
+}
+.ring-fill{ animation:ringAppear .4s ease both; }
 
 /* Toggle chevron */
 .mission-toggle{font-size:.7rem;color:var(--muted);margin-left:.3rem;transition:transform .2s;flex-shrink:0;}
@@ -510,8 +605,30 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .mission-incomplete-badge{background:var(--rust);color:#fff;font-size:.6rem;font-weight:700;padding:.18rem .5rem;}
 
 /* Day progress bar */
-.day-progress-bar{height:3px;background:var(--line);margin-bottom:1rem;}
-.day-progress-fill{height:100%;background:linear-gradient(90deg,var(--sage),var(--gold));transition:width .5s ease;}
+.day-progress-bar{height:3px;background:var(--line);margin-bottom:1rem;overflow:hidden;position:relative;border-radius:2px;}
+.day-progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--sage),var(--gold));
+  border-radius:2px;
+  width:0%;
+  transition:width 1s cubic-bezier(.33,1,.68,1);
+}
+/* Shimmer sweep on fill */
+@keyframes progShimmer{
+  0%  { background-position:200% center; }
+  100%{ background-position:-200% center; }
+}
+.day-progress-fill.shimmer{
+  background:linear-gradient(90deg,var(--sage),var(--gold),var(--sage));
+  background-size:200% auto;
+  animation:progShimmer 1.8s linear infinite;
+}
+/* Done: solid sage + glow */
+.day-progress-fill.done{
+  background:var(--sage);
+  box-shadow:0 0 6px rgba(74,124,89,.5);
+  animation:none;
+}
 
 /* Day link submission zone */
 .day-link-zone{padding:.6rem .9rem;background:var(--cream);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
@@ -541,20 +658,31 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   display:flex;align-items:flex-start;gap:.75rem;
   padding:.65rem .8rem;border:1px solid var(--line);
   background:var(--cream);margin-bottom:.35rem;
-  cursor:pointer;transition:all .15s;user-select:none;
+  cursor:pointer;transition:border-color .2s, background .25s, opacity .25s, transform .15s;
+  user-select:none;
 }
 .ms-item:hover{border-color:var(--gold);background:#fffdf5;}
-.ms-item:active{transform:scale(.99);opacity:.85;}
-.ms-item.checked{background:#f2f9f5;border-color:var(--sage);opacity:.75;}
+.ms-item:active{transform:scale(.985);}
+.ms-item.checked{background:#f2f9f5;border-color:var(--sage);opacity:.78;}
 .ms-item.checked .ms-item-txt{text-decoration:line-through;color:var(--muted);}
 .ms-cb{
   width:18px;height:18px;border:1.5px solid var(--border);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-size:.7rem;
-  transition:all .15s;background:#fff;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;font-size:.65rem;
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+  background:#fff;margin-top:2px;
 }
-.ms-item.checked .ms-cb{background:var(--sage);border-color:var(--sage);color:#fff;}
+.ms-item.checked .ms-cb{
+  background:var(--sage);border-color:var(--sage);color:#fff;
+  transform:scale(1.15) rotate(8deg);
+}
+@keyframes cbCheck{
+  0%  { transform:scale(0) rotate(-20deg); }
+  60% { transform:scale(1.3) rotate(5deg); }
+  100%{ transform:scale(1.15) rotate(8deg); }
+}
+.ms-item.checked .ms-cb{ animation:cbCheck .3s cubic-bezier(.34,1.56,.64,1) both; }
 .ms-item-body{flex:1;}
-.ms-item-txt{font-size:.86rem;font-weight:500;transition:all .15s;}
+.ms-item-txt{font-size:.86rem;font-weight:500;transition:color .2s, text-decoration .2s;}
 /* Desc toggle button */
 .ms-desc-btn{
   display:inline-flex;align-items:center;gap:.25rem;
@@ -1476,6 +1604,10 @@ function launchApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
 
+  // Show survey bubble
+  var bubble=document.getElementById('survey-bubble');
+  if(bubble){ bubble.style.display='flex'; }
+
   // Event delegation for mission item ticks (avoids inline onclick escaping issues)
   document.getElementById('missions-content').addEventListener('click',function(e){
     var item=e.target.closest('.ms-item');
@@ -2016,6 +2148,8 @@ function renderMissions(){
 
     var isOpen=idx===0||isToday;
     var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
+    // Render ring at offset=circ (0%) — animate to real value after mount via JS
+    var initOffset=circ; // start empty, animate in
 
     // Determine day state class
     var dayClass = isToday ? 'day-today' : isAllDone ? 'day-done' : isPast ? 'day-overdue' : 'day-future';
@@ -2080,26 +2214,44 @@ function renderMissions(){
           '<div class="mday-sub">'+badge+(isMultiDay?(function(){var _a=hwStart.split('-'),_b=hwEnd.split('-');return '<span class="hw-range-pill">'+_a[2]+'/'+_a[1]+'→'+_b[2]+'/'+_b[1]+'</span>';})():'')+deadlineBadge+'<span class="mday-count">'+countTxt+'</span></div>'+
         '</div>'+
         // Ring
-        '<div class="mission-ring-wrap'+(isAllDone?' ring-done':'')+'">'+
+        '<div class="mission-ring-wrap'+(isAllDone?' ring-done':'')+'" id="ring-wrap-'+h.id+'">'+
           '<svg class="mission-ring" viewBox="0 0 50 50">'+
             '<circle class="ring-bg" cx="25" cy="25" r="'+r+'"/>'+
-            '<circle class="ring-fill" cx="25" cy="25" r="'+r+'" style="stroke-dasharray:'+circ+';stroke-dashoffset:'+offset+'"/>'+
+            '<circle class="ring-fill" id="ring-fill-'+h.id+'" cx="25" cy="25" r="'+r+'" style="stroke-dasharray:'+circ+';stroke-dashoffset:'+initOffset+'"/>'+
           '</svg>'+
-          '<div class="ring-pct">'+(isAllDone?'✓':pct+'%')+'</div>'+
+          '<div class="ring-pct" id="ring-pct-'+h.id+'">'+(isAllDone?'✓':pct+'%')+'</div>'+
         '</div>'+
         '<div class="mission-toggle'+(isOpen?' open':'')+'">▼</div>'+
       '</div>'+
       '<div class="mission-day-body'+(isOpen?' open':'')+'">'+
         dayLinkHtml+
         '<div style="padding:.9rem 1.1rem 1.1rem">'+
-        '<div class="day-progress-bar"><div class="day-progress-fill" id="prog-fill-'+h.id+'" style="width:'+pct+'%"></div></div>'+
+        '<div class="day-progress-bar"><div class="day-progress-fill'+(pct===100?' done':pct>0?' shimmer':'')+'" id="prog-fill-'+h.id+'" style="width:0%"></div></div>'+
         secsHtml+
         '</div>'+
       '</div>';
     el.appendChild(day);
   });
 
-  // Sync all to teacher
+  // Animate tất cả ring và progress bar sau khi DOM đã render
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      hw.forEach(function(h){
+        var total=countHwItems(h);
+        var hasLnk=!!(getDayLink(S.id,h.id)&&getDayLink(S.id,h.id).link);
+        var doneKeys=getDoneKeys(S.id,h.date);
+        var doneCount=hasLnk?total:doneKeys.length;
+        var pct=total?Math.round(doneCount/total*100):0;
+        var r=20, circ=2*Math.PI*r, offset=circ-(pct/100)*circ;
+        // Animate ring
+        var fillEl=document.getElementById('ring-fill-'+h.id);
+        if(fillEl) fillEl.style.strokeDashoffset=offset;
+        // Animate progress bar
+        var barEl=document.getElementById('prog-fill-'+h.id);
+        if(barEl) barEl.style.width=pct+'%';
+      });
+    });
+  });
   hw.forEach(function(h){
     var total=countHwItems(h);
     var hasLnk=!!(getDayLink(S.id,h.id)&&getDayLink(S.id,h.id).link);
@@ -2247,19 +2399,6 @@ function markItemDone(hwId,date,sec,idx,forceDone){
   }
   localStorage.setItem(store,JSON.stringify(keys));
 
-  // Đồng bộ trạng thái tick lên Firebase (nếu chưa có link submission)
-  var nowDone=keys.indexOf(key)!==-1;
-  var subKeyStr=subKey(hwId,sec,idx);
-  var existingSub=getSubmission(hwId,sec,idx);
-  if(!existingSub || !existingSub.link){
-    // Chỉ ghi "ticked" nếu chưa có link thật — tránh ghi đè link đã nộp
-    if(nowDone){
-      db.ref('submissions/'+S.id+'/'+subKeyStr).set({link:'',ticked:true,tickedAt:new Date().toISOString()});
-    } else {
-      db.ref('submissions/'+S.id+'/'+subKeyStr).remove();
-    }
-  }
-
   var total=countHwItems(hw);
   var done=keys.length;
   syncProgressToTeacher(S.id,date,done,total);
@@ -2272,17 +2411,28 @@ function markItemDone(hwId,date,sec,idx,forceDone){
     var cb=itemEl.querySelector('.ms-cb'); if(cb) cb.textContent=nowDone?'✓':'';
   }
 
-  // Update progress bar
+  // Update progress bar — animate mượt
   var pct=total?Math.round(done/total*100):0;
-  var fillEl=document.getElementById('prog-fill-'+hwId); if(fillEl) fillEl.style.width=pct+'%';
+  var fillEl=document.getElementById('prog-fill-'+hwId);
+  if(fillEl){
+    fillEl.style.width=pct+'%';
+    fillEl.classList.toggle('done', pct===100);
+    fillEl.classList.toggle('shimmer', pct>0 && pct<100);
+  }
 
   // Update ring + day header
   var dayEl=document.getElementById('mday-'+hwId);
   if(dayEl){
     var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
-    var ringFill=dayEl.querySelector('.ring-fill'); if(ringFill){ ringFill.style.strokeDasharray=circ; ringFill.style.strokeDashoffset=offset; }
-    var ringPct=dayEl.querySelector('.ring-pct'); if(ringPct) ringPct.textContent=(done>=total&&total>0)?'✓':pct+'%';
-    var ringWrap=dayEl.querySelector('.mission-ring-wrap'); if(ringWrap) ringWrap.classList.toggle('ring-done',done>=total&&total>0);
+    var ringFill=dayEl.querySelector('.ring-fill');
+    if(ringFill){
+      ringFill.style.strokeDasharray=circ;
+      ringFill.style.strokeDashoffset=offset;
+    }
+    var ringPct=dayEl.querySelector('.ring-pct');
+    if(ringPct) ringPct.textContent=(done>=total&&total>0)?'✓':pct+'%';
+    var ringWrap=dayEl.querySelector('.mission-ring-wrap');
+    if(ringWrap) ringWrap.classList.toggle('ring-done',done>=total&&total>0);
     // Update count text in header
     var countEl=dayEl.querySelector('.mday-count');
     if(countEl) countEl.textContent=(done>0&&done<total) ? done+'/'+total+' nhiệm vụ' : total+' nhiệm vụ';
@@ -2570,11 +2720,34 @@ function closePwaBanner(){
   var ua=navigator.userAgent||'';
   var isIOS=/iPhone|iPad|iPod/.test(ua);
   if(!isIOS && /Chrome/.test(ua)) switchInstallTab('android');
-  // Open the install guide by default on mobile to show it's there
   if(window.innerWidth<=600){
     // Keep collapsed on mobile — just visible as a small label
   }
 })();
+
+/* ═══ SURVEY BUBBLE ═══ */
+function openSurvey(){
+  window.open('https://forms.gle/Uu7gyfgBYx5qHYyX9','_blank','noopener,noreferrer');
+}
+function dismissSurvey(){
+  var bubble=document.getElementById('survey-bubble');
+  if(bubble){
+    bubble.style.animation='surveyFadeOut .3s ease forwards';
+    setTimeout(function(){ bubble.style.display='none'; },300);
+  }
+}
 </script>
+
+<!-- ═══ SURVEY BUBBLE ═══ -->
+<div id="survey-bubble">
+  <div class="survey-tooltip" onclick="openSurvey()">
+    📋 Góp ý chất lượng khóa học
+  </div>
+  <div class="survey-row">
+    <button class="survey-dismiss" onclick="dismissSurvey()" title="Ẩn đi">✕</button>
+    <button class="survey-btn" onclick="openSurvey()" title="Khảo sát chất lượng">📋</button>
+  </div>
+</div>
+
 </body>
 </html>
