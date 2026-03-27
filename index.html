@@ -2683,6 +2683,8 @@ function dismissSurvey(){
   var bubble=document.getElementById('survey-bubble');
   if(bubble){ bubble.style.animation='surveyFadeOut .3s ease forwards'; setTimeout(function(){ bubble.style.display='none'; },300); }
 }
+</script>
+
 <!-- ═══ SURVEY BUBBLE ═══ -->
 <div id="survey-bubble">
   <div class="survey-tooltip" onclick="openSurvey()">
@@ -2693,6 +2695,6 @@ function dismissSurvey(){
     <button class="survey-btn" onclick="openSurvey()" title="Khảo sát chất lượng">📋</button>
   </div>
 </div>
-</script>
+
 </body>
 </html>
