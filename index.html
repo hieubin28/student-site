@@ -1492,6 +1492,7 @@ var selSlot = null;
 var allSlots = {};
 var allBookings = {};
 var allScoreReqs = {};
+var allClasses = {};
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
 var DONE_STORE  = function(sid,date){ return 'missions_done_'+sid+'_'+date; };
@@ -1501,6 +1502,33 @@ var GOAL_KEY    = function(sid){ return 'toeic_goal_'+sid; };
 function today(){
   var d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+/* Lấy lịch lớp (từ weeklySchedule) cho học sinh này, generate 8 tuần tới */
+function getMyClassSchedule(){
+  var items=[];
+  var td=today();
+  var now=new Date(td+'T00:00:00');
+  Object.values(allClasses).forEach(function(cls){
+    var members=cls.members||[];
+    if(!S||members.indexOf(S.id)===-1) return; // không phải lớp của mình
+    var ws=cls.weeklySchedule||[];
+    if(!ws.length) return;
+    ws.forEach(function(sess){
+      var targetDay=sess.day; // 0=CN,1=T2,...,6=T7
+      // Generate từ hôm nay, 8 tuần tới (56 ngày)
+      for(var i=0;i<=56;i++){
+        var d=new Date(now.getTime()+i*86400000);
+        if(d.getDay()===targetDay){
+          var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+          if(ds>=td){
+            items.push({date:ds, title:cls.name, time:sess.time||'', kind:'class', clsId:cls.id});
+          }
+        }
+      }
+    });
+  });
+  return items;
 }
 function fmtD(s){
   if(!s) return '—';
@@ -1618,6 +1646,12 @@ function launchApp(){
   db.ref('slots').on('value',function(snap){
     allSlots=snap.val()||{};
     renderBookingTab();
+  });
+  // Real-time: classes (để lấy lịch cố định theo tuần)
+  db.ref('classes').on('value',function(snap){
+    allClasses=snap.val()||{};
+    renderScheduleTab();
+    renderOverview();
   });
   // Real-time: score requests for this student
   db.ref('scoreRequests').on('value',function(snap){
@@ -1834,9 +1868,14 @@ function renderOverview(){
   var wkStartStr=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
   var wkEndStr=weekEnd.getFullYear()+'-'+String(weekEnd.getMonth()+1).padStart(2,'0')+'-'+String(weekEnd.getDate()).padStart(2,'0');
 
-  var allSched=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});}).concat(
-    Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';}).map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
-  ).filter(function(sc){return sc.date>=td&&sc.date<=wkEndStr;}).sort(function(a,b){return a.date.localeCompare(b.date);});
+  var allSched=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});})
+    .concat(getMyClassSchedule())
+    .concat(Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';}).map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};}))
+    .filter(function(sc){return sc.date>=td&&sc.date<=wkEndStr;})
+    .sort(function(a,b){return a.date.localeCompare(b.date)||((a.time||'').localeCompare(b.time||''));})
+    .filter(function(item,idx,arr){
+      return arr.findIndex(function(x){return x.date===item.date&&x.title===item.title&&x.time===item.time;})=== idx;
+    });
 
   var upEl=document.getElementById('ov-upcoming'); upEl.innerHTML='';
   if(!allSched.length){ upEl.innerHTML='<div class="no-tasks">Không có lịch trong 2 tuần tới</div>'; return; }
@@ -2510,9 +2549,16 @@ function renderScheduleTab(){
   if(!S) return;
   var td=today();
   var approvedBooks=Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';});
-  var items=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});}).concat(
-    approvedBooks.map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
-  ).filter(function(i){return i.date>=td;}).sort(function(a,b){return a.date.localeCompare(b.date);});
+  // Merge: lịch cá nhân + lịch lớp (weeklySchedule) + book 1-1
+  var items=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});})
+    .concat(getMyClassSchedule())
+    .concat(approvedBooks.map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};}))
+    .filter(function(i){return i.date>=td;})
+    .sort(function(a,b){return a.date.localeCompare(b.date)||((a.time||'').localeCompare(b.time||''));})
+    // Loại trùng cùng ngày + title + time
+    .filter(function(item,idx,arr){
+      return arr.findIndex(function(x){return x.date===item.date&&x.title===item.title&&x.time===item.time;})=== idx;
+    });
   var el=document.getElementById('sched-content');
   if(!items.length){ el.innerHTML='<div class="empty">Chưa có lịch học nào sắp tới</div>'; return; }
   el.innerHTML='';
