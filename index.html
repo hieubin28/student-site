@@ -2216,30 +2216,22 @@ function renderMissions(){
     el.appendChild(day);
   });
 
-  // Animate tất cả ring và progress bar sau khi DOM đã render
+  // Ring header: bắt đầu từ circ (rỗng), animate về offset thật qua RAF
   requestAnimationFrame(function(){
     requestAnimationFrame(function(){
       hw.forEach(function(h){
         var total=countHwItems(h);
         var hasLnk=!!(getDayLink(S.id,h.id)&&getDayLink(S.id,h.id).link);
-        var doneKeys=getDoneKeys(S.id,h.date);
-        var doneCount=hasLnk?total:doneKeys.length;
+        var doneCount=hasLnk?total:getDoneKeys(S.id,h.date).length;
         var pct=total?Math.round(doneCount/total*100):0;
-        var r=20, circ=2*Math.PI*r, offset=circ-(pct/100)*circ;
-        // Animate ring
+        var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
         var fillEl=document.getElementById('ring-fill-'+h.id);
         if(fillEl) fillEl.style.strokeDashoffset=offset;
-        // Animate progress bar
-        var barEl=document.getElementById('prog-fill-'+h.id);
-        if(barEl) barEl.style.width=pct+'%';
+        // Sync to teacher
+        var done=hasLnk?total:doneCount;
+        syncProgressToTeacher(S.id,h.date,done,total);
       });
     });
-  });
-  hw.forEach(function(h){
-    var total=countHwItems(h);
-    var hasLnk=!!(getDayLink(S.id,h.id)&&getDayLink(S.id,h.id).link);
-    var done=hasLnk?total:getDoneKeys(S.id,h.date).length;
-    syncProgressToTeacher(S.id,h.date,done,total);
   });
 }
 
@@ -2250,6 +2242,23 @@ function toggleMissionDay(hwId){
   var isOpen=body.classList.contains('open');
   body.classList.toggle('open',!isOpen);
   tog.classList.toggle('open',!isOpen);
+  // Animate thanh + ring khi mở ra lần đầu
+  if(!isOpen){
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        var hw=(S.homework||[]).find(function(h){return h.id===hwId;}); if(!hw) return;
+        var total=countHwItems(hw);
+        var hasLnk=!!(getDayLink(S.id,hw.id)&&getDayLink(S.id,hw.id).link);
+        var doneCount=hasLnk?total:getDoneKeys(S.id,hw.date).length;
+        var pct=total?Math.round(doneCount/total*100):0;
+        var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
+        var fillEl=document.getElementById('ring-fill-'+hwId);
+        if(fillEl) fillEl.style.strokeDashoffset=offset;
+        var barEl=document.getElementById('prog-fill-'+hwId);
+        if(barEl) barEl.style.width=pct+'%';
+      });
+    });
+  }
 }
 function toggleMsDesc(id){
   var el=document.getElementById(id); if(!el) return;
