@@ -558,46 +558,36 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .mission-day.day-today .ring-bg{stroke:rgba(255,255,255,.1);}
 .ring-fill{
   fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;
-  transition:stroke-dashoffset 1s cubic-bezier(.33,1,.68,1),
-             stroke .35s ease;
+  transition:stroke-dashoffset 1.1s cubic-bezier(.25,.46,.45,.94),
+             stroke .4s ease;
 }
 .ring-pct{
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;color:var(--gold);
-  transition:color .35s ease;
+  transition:color .4s ease;
 }
 .ring-done .ring-fill{stroke:var(--sage);}
 .ring-done .ring-pct{color:var(--sage);}
 .mission-day.day-overdue .ring-fill{stroke:var(--rust);}
 .mission-day.day-overdue .ring-pct{color:var(--rust);}
 
-/* Ring done — bounce pulse */
-@keyframes ringDonePulse{
-  0%  { transform:rotate(-90deg) scale(1);   }
-  30% { transform:rotate(-90deg) scale(1.18);}
-  55% { transform:rotate(-90deg) scale(.93); }
-  75% { transform:rotate(-90deg) scale(1.07);}
-  100%{ transform:rotate(-90deg) scale(1);   }
+/* Ring done — bounce nhẹ trên wrapper */
+@keyframes ringDoneBounce{
+  0%  { transform:scale(1);    }
+  40% { transform:scale(1.15); }
+  65% { transform:scale(.92);  }
+  82% { transform:scale(1.06); }
+  100%{ transform:scale(1);    }
 }
-.ring-done svg{ animation:ringDonePulse .65s cubic-bezier(.34,1.56,.64,1) both; }
+.ring-done{ animation:ringDoneBounce .55s cubic-bezier(.34,1.56,.64,1) both; }
 
-/* Ring pct done flip */
-@keyframes pctFlip{
-  0%  { opacity:0; transform:scale(.5) rotate(180deg); }
-  100%{ opacity:1; transform:scale(1)  rotate(0deg);   }
+/* Ring pct done */
+@keyframes pctPop{
+  0%  { opacity:0; transform:scale(.4); }
+  70% { opacity:1; transform:scale(1.2); }
+  100%{ opacity:1; transform:scale(1);  }
 }
-.ring-done .ring-pct{ animation:pctFlip .45s .15s cubic-bezier(.34,1.56,.64,1) both; }
-
-/* Ring appear — fade in wrapper nhẹ khi mount, không conflict transform */
-@keyframes ringWrapAppear{
-  from{ opacity:0; transform:scale(.75); }
-  to  { opacity:1; transform:scale(1);  }
-}
-.mission-ring-wrap{ animation:ringWrapAppear .35s cubic-bezier(.34,1.56,.64,1) both; }
-/* ring-done: dừng wrapper animation, chuyển sang bounce svg */
-.ring-done{ animation:none; }
-/* ring-fill KHÔNG có animation riêng — chỉ dùng transition stroke-dashoffset */
-.ring-fill{ animation:none; }
+.ring-done .ring-pct{ animation:pctPop .4s .1s cubic-bezier(.34,1.56,.64,1) both; }
 
 /* Toggle chevron */
 .mission-toggle{font-size:.7rem;color:var(--muted);margin-left:.3rem;transition:transform .2s;flex-shrink:0;}
@@ -609,29 +599,18 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .mission-incomplete-badge{background:var(--rust);color:#fff;font-size:.6rem;font-weight:700;padding:.18rem .5rem;}
 
 /* Day progress bar */
-.day-progress-bar{height:3px;background:var(--line);margin-bottom:1rem;overflow:hidden;position:relative;border-radius:2px;}
+.day-progress-bar{height:4px;background:var(--line);margin-bottom:1rem;overflow:hidden;border-radius:99px;}
 .day-progress-fill{
   height:100%;
-  background:linear-gradient(90deg,var(--sage),var(--gold));
-  border-radius:2px;
+  background:linear-gradient(90deg,var(--orange),var(--gold));
+  border-radius:99px;
   width:0%;
-  transition:width 1s cubic-bezier(.33,1,.68,1);
+  transition:width 1.1s cubic-bezier(.25,.46,.45,.94),
+             background .5s ease;
 }
-/* Shimmer sweep on fill */
-@keyframes progShimmer{
-  0%  { background-position:200% center; }
-  100%{ background-position:-200% center; }
-}
-.day-progress-fill.shimmer{
-  background:linear-gradient(90deg,var(--sage),var(--gold),var(--sage));
-  background-size:200% auto;
-  animation:progShimmer 1.8s linear infinite;
-}
-/* Done: solid sage + glow */
 .day-progress-fill.done{
   background:var(--sage);
-  box-shadow:0 0 6px rgba(74,124,89,.5);
-  animation:none;
+  box-shadow:0 0 5px rgba(74,124,89,.4);
 }
 
 /* Day link submission zone */
@@ -2230,7 +2209,7 @@ function renderMissions(){
       '<div class="mission-day-body'+(isOpen?' open':'')+'">'+
         dayLinkHtml+
         '<div style="padding:.9rem 1.1rem 1.1rem">'+
-        '<div class="day-progress-bar"><div class="day-progress-fill'+(pct===100?' done':pct>0?' shimmer':'')+'" id="prog-fill-'+h.id+'" style="width:0%"></div></div>'+
+        '<div class="day-progress-bar"><div class="day-progress-fill'+(pct===100?' done':'')+'" id="prog-fill-'+h.id+'" style="width:0%"></div></div>'+
         secsHtml+
         '</div>'+
       '</div>';
@@ -2436,7 +2415,6 @@ function markItemDone(hwId,date,sec,idx,forceDone){
   if(fillEl){
     fillEl.style.width=pct+'%';
     fillEl.classList.toggle('done', pct===100);
-    fillEl.classList.toggle('shimmer', pct>0 && pct<100);
   }
 
   // Update ring + day header
