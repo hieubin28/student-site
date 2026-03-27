@@ -55,114 +55,6 @@
 body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
 
 /* ═══════════════════════════════
-   SURVEY BUBBLE
-═══════════════════════════════ */
-#survey-bubble {
-  position: fixed;
-  bottom: 28px;
-  right: 24px;
-  z-index: 9998;
-  display: none; /* shown after login via launchApp */
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-  animation: surveyFadeIn .5s cubic-bezier(.34,1.56,.64,1) both;
-}
-@keyframes surveyFadeIn {
-  from { opacity: 0; transform: translateY(20px) scale(.85); }
-  to   { opacity: 1; transform: translateY(0)   scale(1);    }
-}
-@keyframes surveyFadeOut {
-  from { opacity: 1; transform: scale(1); }
-  to   { opacity: 0; transform: scale(.8); }
-}
-
-/* Tooltip label */
-.survey-tooltip {
-  background: var(--ink2);
-  color: var(--paper);
-  font-size: .78rem;
-  font-weight: 600;
-  padding: .45rem .85rem;
-  border-radius: 6px;
-  border: 1px solid rgba(196,98,45,.3);
-  white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(44,30,15,.25);
-  position: relative;
-  cursor: pointer;
-  transition: background .2s;
-}
-.survey-tooltip:hover { background: #2C1E0F; }
-/* little arrow pointing right-down toward bubble */
-.survey-tooltip::after {
-  content: '';
-  position: absolute;
-  bottom: -6px; right: 22px;
-  width: 10px; height: 10px;
-  background: var(--ink2);
-  border-right: 1px solid rgba(196,98,45,.3);
-  border-bottom: 1px solid rgba(196,98,45,.3);
-  transform: rotate(45deg);
-}
-
-/* Row: dismiss × + main button */
-.survey-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Dismiss button */
-.survey-dismiss {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  background: var(--paper2);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-size: .75rem;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .2s;
-  flex-shrink: 0;
-  line-height: 1;
-}
-.survey-dismiss:hover { background: var(--rust2); color: var(--rust); border-color: var(--rust); }
-
-/* Main bubble button */
-.survey-btn {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--orange), var(--orange2));
-  border: none;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 6px 20px rgba(196,98,45,.45);
-  transition: transform .2s, box-shadow .2s;
-  font-size: 1.45rem;
-  position: relative;
-  flex-shrink: 0;
-}
-.survey-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 28px rgba(196,98,45,.55);
-}
-.survey-btn:active { transform: scale(.96); }
-
-/* Pulse ring */
-.survey-btn::before {
-  content: '';
-  position: absolute; inset: -5px;
-  border-radius: 50%;
-  border: 2px solid rgba(196,98,45,.4);
-  animation: surveyPulse 2.2s ease-out infinite;
-}
-@keyframes surveyPulse {
-  0%   { transform: scale(1);    opacity: .7; }
-  70%  { transform: scale(1.35); opacity: 0;  }
-  100% { transform: scale(1.35); opacity: 0;  }
-}
-
-/* ═══════════════════════════════
    LOGIN SCREEN
 ═══════════════════════════════ */
 #login-screen{
@@ -1492,7 +1384,6 @@ var selSlot = null;
 var allSlots = {};
 var allBookings = {};
 var allScoreReqs = {};
-var allClasses = {};
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
 var DONE_STORE  = function(sid,date){ return 'missions_done_'+sid+'_'+date; };
@@ -1502,33 +1393,6 @@ var GOAL_KEY    = function(sid){ return 'toeic_goal_'+sid; };
 function today(){
   var d=new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-
-/* Lấy lịch lớp (từ weeklySchedule) cho học sinh này, generate 8 tuần tới */
-function getMyClassSchedule(){
-  var items=[];
-  var td=today();
-  var now=new Date(td+'T00:00:00');
-  Object.values(allClasses).forEach(function(cls){
-    var members=cls.members||[];
-    if(!S||members.indexOf(S.id)===-1) return; // không phải lớp của mình
-    var ws=cls.weeklySchedule||[];
-    if(!ws.length) return;
-    ws.forEach(function(sess){
-      var targetDay=sess.day; // 0=CN,1=T2,...,6=T7
-      // Generate từ hôm nay, 8 tuần tới (56 ngày)
-      for(var i=0;i<=56;i++){
-        var d=new Date(now.getTime()+i*86400000);
-        if(d.getDay()===targetDay){
-          var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-          if(ds>=td){
-            items.push({date:ds, title:cls.name, time:sess.time||'', kind:'class', clsId:cls.id});
-          }
-        }
-      }
-    });
-  });
-  return items;
 }
 function fmtD(s){
   if(!s) return '—';
@@ -1612,10 +1476,6 @@ function launchApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
 
-  // Show survey bubble after login
-  var bubble=document.getElementById('survey-bubble');
-  if(bubble){ bubble.style.display='flex'; }
-
   // Event delegation for mission item ticks (avoids inline onclick escaping issues)
   document.getElementById('missions-content').addEventListener('click',function(e){
     var item=e.target.closest('.ms-item');
@@ -1646,12 +1506,6 @@ function launchApp(){
   db.ref('slots').on('value',function(snap){
     allSlots=snap.val()||{};
     renderBookingTab();
-  });
-  // Real-time: classes (để lấy lịch cố định theo tuần)
-  db.ref('classes').on('value',function(snap){
-    allClasses=snap.val()||{};
-    renderScheduleTab();
-    renderOverview();
   });
   // Real-time: score requests for this student
   db.ref('scoreRequests').on('value',function(snap){
@@ -1868,14 +1722,9 @@ function renderOverview(){
   var wkStartStr=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
   var wkEndStr=weekEnd.getFullYear()+'-'+String(weekEnd.getMonth()+1).padStart(2,'0')+'-'+String(weekEnd.getDate()).padStart(2,'0');
 
-  var allSched=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});})
-    .concat(getMyClassSchedule())
-    .concat(Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';}).map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};}))
-    .filter(function(sc){return sc.date>=td&&sc.date<=wkEndStr;})
-    .sort(function(a,b){return a.date.localeCompare(b.date)||((a.time||'').localeCompare(b.time||''));})
-    .filter(function(item,idx,arr){
-      return arr.findIndex(function(x){return x.date===item.date&&x.title===item.title&&x.time===item.time;})=== idx;
-    });
+  var allSched=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});}).concat(
+    Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';}).map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
+  ).filter(function(sc){return sc.date>=td&&sc.date<=wkEndStr;}).sort(function(a,b){return a.date.localeCompare(b.date);});
 
   var upEl=document.getElementById('ov-upcoming'); upEl.innerHTML='';
   if(!allSched.length){ upEl.innerHTML='<div class="no-tasks">Không có lịch trong 2 tuần tới</div>'; return; }
@@ -2398,6 +2247,19 @@ function markItemDone(hwId,date,sec,idx,forceDone){
   }
   localStorage.setItem(store,JSON.stringify(keys));
 
+  // Đồng bộ trạng thái tick lên Firebase (nếu chưa có link submission)
+  var nowDone=keys.indexOf(key)!==-1;
+  var subKeyStr=subKey(hwId,sec,idx);
+  var existingSub=getSubmission(hwId,sec,idx);
+  if(!existingSub || !existingSub.link){
+    // Chỉ ghi "ticked" nếu chưa có link thật — tránh ghi đè link đã nộp
+    if(nowDone){
+      db.ref('submissions/'+S.id+'/'+subKeyStr).set({link:'',ticked:true,tickedAt:new Date().toISOString()});
+    } else {
+      db.ref('submissions/'+S.id+'/'+subKeyStr).remove();
+    }
+  }
+
   var total=countHwItems(hw);
   var done=keys.length;
   syncProgressToTeacher(S.id,date,done,total);
@@ -2549,16 +2411,9 @@ function renderScheduleTab(){
   if(!S) return;
   var td=today();
   var approvedBooks=Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';});
-  // Merge: lịch cá nhân + lịch lớp (weeklySchedule) + book 1-1
-  var items=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});})
-    .concat(getMyClassSchedule())
-    .concat(approvedBooks.map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};}))
-    .filter(function(i){return i.date>=td;})
-    .sort(function(a,b){return a.date.localeCompare(b.date)||((a.time||'').localeCompare(b.time||''));})
-    // Loại trùng cùng ngày + title + time
-    .filter(function(item,idx,arr){
-      return arr.findIndex(function(x){return x.date===item.date&&x.title===item.title&&x.time===item.time;})=== idx;
-    });
+  var items=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});}).concat(
+    approvedBooks.map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
+  ).filter(function(i){return i.date>=td;}).sort(function(a,b){return a.date.localeCompare(b.date);});
   var el=document.getElementById('sched-content');
   if(!items.length){ el.innerHTML='<div class="empty">Chưa có lịch học nào sắp tới</div>'; return; }
   el.innerHTML='';
@@ -2720,27 +2575,6 @@ function closePwaBanner(){
     // Keep collapsed on mobile — just visible as a small label
   }
 })();
-
-/* ═══ SURVEY BUBBLE ═══ */
-function openSurvey(){
-  window.open('https://forms.gle/Uu7gyfgBYx5qHYyX9','_blank','noopener,noreferrer');
-}
-function dismissSurvey(){
-  var bubble=document.getElementById('survey-bubble');
-  if(bubble){ bubble.style.animation='surveyFadeOut .3s ease forwards'; setTimeout(function(){ bubble.style.display='none'; },300); }
-}
 </script>
-
-<!-- ═══ SURVEY BUBBLE ═══ -->
-<div id="survey-bubble">
-  <div class="survey-tooltip" onclick="openSurvey()">
-    📋 Góp ý chất lượng khóa học
-  </div>
-  <div class="survey-row">
-    <button class="survey-dismiss" onclick="dismissSurvey()" title="Ẩn đi">✕</button>
-    <button class="survey-btn" onclick="openSurvey()" title="Khảo sát chất lượng">📋</button>
-  </div>
-</div>
-
 </body>
 </html>
