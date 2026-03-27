@@ -588,12 +588,16 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 }
 .ring-done .ring-pct{ animation:pctFlip .45s .15s cubic-bezier(.34,1.56,.64,1) both; }
 
-/* Ring appear — animate from 0 on mount */
-@keyframes ringAppear{
-  from{ opacity:0; transform:rotate(-90deg) scale(.7); }
-  to  { opacity:1; transform:rotate(-90deg) scale(1);  }
+/* Ring appear — fade in wrapper nhẹ khi mount, không conflict transform */
+@keyframes ringWrapAppear{
+  from{ opacity:0; transform:scale(.75); }
+  to  { opacity:1; transform:scale(1);  }
 }
-.ring-fill{ animation:ringAppear .4s ease both; }
+.mission-ring-wrap{ animation:ringWrapAppear .35s cubic-bezier(.34,1.56,.64,1) both; }
+/* ring-done: dừng wrapper animation, chuyển sang bounce svg */
+.ring-done{ animation:none; }
+/* ring-fill KHÔNG có animation riêng — chỉ dùng transition stroke-dashoffset */
+.ring-fill{ animation:none; }
 
 /* Toggle chevron */
 .mission-toggle{font-size:.7rem;color:var(--muted);margin-left:.3rem;transition:transform .2s;flex-shrink:0;}
