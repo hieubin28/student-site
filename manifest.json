@@ -1,0 +1,22 @@
+{
+  "name": "Tiếng Anh² Hiếu · Nhật Ký Học Tập",
+  "short_name": "TA² Hiếu",
+  "description": "Nhật ký học tập Tiếng Anh cùng thầy Hiếu",
+  "start_url": "./student.html",
+  "display": "standalone",
+  "background_color": "#3D2B18",
+  "theme_color": "#3D2B18",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "favicon_student.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
