@@ -1532,6 +1532,20 @@ function goTab(el){
   document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('active');});
   el.classList.add('active');
   document.getElementById('pane-'+el.dataset.tab).classList.add('active');
+  // Khi vào tab Nhiệm vụ: reset ring về 0 rồi animate lại
+  if(el.dataset.tab==='missions'){
+    document.querySelectorAll('.ring-fill').forEach(function(f){
+      f.style.transition='none';
+      var circ=2*Math.PI*20;
+      f.style.strokeDashoffset=circ;
+    });
+    setTimeout(function(){
+      document.querySelectorAll('.ring-fill').forEach(function(f){
+        f.style.transition='';
+      });
+      if(S) renderMissions();
+    }, 30);
+  }
 }
 
 /* ═══ LOGIN / LOGOUT ═══ */
@@ -2216,23 +2230,20 @@ function renderMissions(){
     el.appendChild(day);
   });
 
-  // Ring header: bắt đầu từ circ (rỗng), animate về offset thật qua RAF
-  requestAnimationFrame(function(){
-    requestAnimationFrame(function(){
-      hw.forEach(function(h){
-        var total=countHwItems(h);
-        var hasLnk=!!(getDayLink(S.id,h.id)&&getDayLink(S.id,h.id).link);
-        var doneCount=hasLnk?total:getDoneKeys(S.id,h.date).length;
-        var pct=total?Math.round(doneCount/total*100):0;
-        var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
-        var fillEl=document.getElementById('ring-fill-'+h.id);
-        if(fillEl) fillEl.style.strokeDashoffset=offset;
-        // Sync to teacher
-        var done=hasLnk?total:doneCount;
-        syncProgressToTeacher(S.id,h.date,done,total);
-      });
+  // Ring: render xong với offset=circ (rỗng), setTimeout 50ms để browser paint trước rồi mới animate
+  setTimeout(function(){
+    hw.forEach(function(h){
+      var total=countHwItems(h);
+      var hasLnk=!!(getDayLink(S.id,h.id)&&getDayLink(S.id,h.id).link);
+      var doneCount=hasLnk?total:getDoneKeys(S.id,h.date).length;
+      var pct=total?Math.round(doneCount/total*100):0;
+      var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
+      var fillEl=document.getElementById('ring-fill-'+h.id);
+      if(fillEl) fillEl.style.strokeDashoffset=offset;
+      // Sync to teacher
+      syncProgressToTeacher(S.id,h.date,hasLnk?total:doneCount,total);
     });
-  });
+  }, 50);
 }
 
 function toggleMissionDay(hwId){
@@ -2242,22 +2253,21 @@ function toggleMissionDay(hwId){
   var isOpen=body.classList.contains('open');
   body.classList.toggle('open',!isOpen);
   tog.classList.toggle('open',!isOpen);
-  // Animate thanh + ring khi mở ra lần đầu
+  // Animate thanh ngang khi mở — setTimeout 50ms để browser paint display:block trước
   if(!isOpen){
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        var hw=(S.homework||[]).find(function(h){return h.id===hwId;}); if(!hw) return;
-        var total=countHwItems(hw);
-        var hasLnk=!!(getDayLink(S.id,hw.id)&&getDayLink(S.id,hw.id).link);
-        var doneCount=hasLnk?total:getDoneKeys(S.id,hw.date).length;
-        var pct=total?Math.round(doneCount/total*100):0;
-        var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
-        var fillEl=document.getElementById('ring-fill-'+hwId);
-        if(fillEl) fillEl.style.strokeDashoffset=offset;
-        var barEl=document.getElementById('prog-fill-'+hwId);
-        if(barEl) barEl.style.width=pct+'%';
-      });
-    });
+    var barEl=document.getElementById('prog-fill-'+hwId);
+    if(barEl && barEl.style.width === '0%'){
+      // Chỉ animate lần đầu mở (width vẫn còn 0%)
+      var hw=(S.homework||[]).find(function(h){return h.id===hwId;}); if(!hw) return;
+      var total=countHwItems(hw);
+      var hasLnk=!!(getDayLink(S.id,hw.id)&&getDayLink(S.id,hw.id).link);
+      var doneCount=hasLnk?total:getDoneKeys(S.id,hw.date).length;
+      var pct=total?Math.round(doneCount/total*100):0;
+      setTimeout(function(){
+        barEl.style.width=pct+'%';
+        if(pct===100) barEl.classList.add('done');
+      }, 50);
+    }
   }
 }
 function toggleMsDesc(id){
