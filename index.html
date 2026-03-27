@@ -10,6 +10,12 @@
 <link rel="icon" type="image/x-icon" href="favicon_student.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon_student.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#3D2B18">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TA² Hiếu">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -54,6 +60,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 #login-screen{
   min-height:100vh;display:flex;align-items:center;justify-content:center;
   background:var(--ink2);position:relative;
+  padding:1.5rem 0;overflow-y:auto;
 }
 #login-screen::before{
   content:'';position:absolute;inset:0;z-index:0;
@@ -71,56 +78,106 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 }
 .login-wrap{position:relative;width:420px;z-index:2;isolation:isolate;}
 
-/* ── Install Guide ── */
+/* ── Install Guide (compact) ── */
 .install-guide{
-  margin-top:2rem;
-  background:rgba(250,232,219,.04);
-  border:1px solid rgba(196,98,45,.15);
-  padding:1.6rem 1.8rem;
+  margin-top:1.2rem;
+  background:rgba(250,232,219,.03);
+  border:1px solid rgba(196,98,45,.12);
+  padding:1rem 1.1rem;
+}
+.install-guide-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:.7rem;cursor:pointer;
 }
 .install-guide-title{
-  font-family:'Lora',serif;font-size:1rem;font-weight:600;
-  color:var(--orange2);text-align:center;margin-bottom:.4rem;
+  font-size:.72rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:rgba(245,239,230,.35);display:flex;align-items:center;gap:.45rem;
 }
-.install-guide-sub{
-  font-size:.73rem;color:rgba(245,239,230,.3);text-align:center;
-  margin-bottom:1.2rem;line-height:1.5;
+.install-guide-title svg{width:13px;height:13px;opacity:.6;}
+.install-guide-chevron{
+  font-size:.6rem;color:rgba(245,239,230,.2);transition:transform .25s;
 }
-.install-tabs{display:flex;border:1px solid rgba(196,98,45,.2);margin-bottom:1.2rem;}
+.install-guide-chevron.open{transform:rotate(180deg);}
+.install-guide-body{display:none;}
+.install-guide-body.open{display:block;}
+.install-tabs{display:flex;border:1px solid rgba(196,98,45,.18);margin-bottom:.8rem;}
 .install-tab{
-  flex:1;padding:.5rem .6rem;text-align:center;font-size:.73rem;font-weight:500;
-  color:rgba(245,239,230,.35);cursor:pointer;transition:all .2s;
-  display:flex;align-items:center;justify-content:center;gap:.4rem;
+  flex:1;padding:.38rem .5rem;text-align:center;font-size:.68rem;font-weight:500;
+  color:rgba(245,239,230,.28);cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:.35rem;
 }
-.install-tab:first-child{border-right:1px solid rgba(196,98,45,.2);}
-.install-tab.active{
-  background:rgba(196,98,45,.15);color:var(--orange2);font-weight:600;
-}
-.install-tab svg{width:14px;height:14px;flex-shrink:0;}
+.install-tab:first-child{border-right:1px solid rgba(196,98,45,.18);}
+.install-tab.active{background:rgba(196,98,45,.13);color:var(--orange2);font-weight:600;}
+.install-tab svg{width:12px;height:12px;flex-shrink:0;}
 .install-steps{display:none;}
 .install-steps.active{display:block;}
 .install-step{
-  display:flex;align-items:flex-start;gap:.85rem;
-  padding:.65rem .6rem;border:1px solid rgba(196,98,45,.12);
-  margin-bottom:.55rem;background:rgba(245,239,230,.03);
+  display:flex;align-items:flex-start;gap:.65rem;
+  padding:.45rem .4rem;border-bottom:1px solid rgba(196,98,45,.08);
 }
+.install-step:last-child{border-bottom:none;}
 .install-step-num{
-  width:26px;height:26px;border-radius:50%;background:var(--orange);
-  color:#fff;font-size:.72rem;font-weight:700;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:20px;height:20px;border-radius:50%;background:var(--orange);
+  color:#fff;font-size:.62rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
 }
-.install-step-body{display:flex;align-items:center;gap:.6rem;flex:1;}
-.install-step-body svg{width:16px;height:16px;color:rgba(245,239,230,.4);flex-shrink:0;}
-.install-step-txt{font-size:.78rem;color:rgba(245,239,230,.55);line-height:1.45;}
+.install-step-body{display:flex;align-items:flex-start;gap:.45rem;flex:1;}
+.install-step-body svg{width:13px;height:13px;color:rgba(245,239,230,.3);flex-shrink:0;margin-top:2px;}
+.install-step-txt{font-size:.7rem;color:rgba(245,239,230,.45);line-height:1.45;}
+.install-step-txt strong{color:rgba(245,239,230,.65);}
 .install-cta{
-  display:block;width:100%;padding:.65rem;margin-top:.8rem;
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+  width:100%;padding:.5rem;margin-top:.7rem;
   background:var(--orange);color:#fff;border:none;
-  font-family:'Be Vietnam Pro',sans-serif;font-size:.8rem;font-weight:600;
-  letter-spacing:.05em;cursor:pointer;text-align:center;transition:background .2s;
-  text-decoration:none;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.75rem;font-weight:600;
+  letter-spacing:.04em;cursor:pointer;text-align:center;transition:background .2s;
 }
 .install-cta:hover{background:var(--orange2);}
-.install-cta svg{width:14px;height:14px;vertical-align:-2px;margin-right:.35rem;}
+.install-cta svg{width:13px;height:13px;}
+
+/* ── PWA Install Banner (Chrome-style) ── */
+#pwa-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:#fff;border-top:1px solid #e0e0e0;
+  box-shadow:0 -2px 16px rgba(0,0,0,.12);
+  padding:.85rem 1rem;
+  display:none;align-items:center;gap:.85rem;
+  font-family:'Be Vietnam Pro',sans-serif;
+}
+#pwa-banner.show{display:flex;}
+.pwa-banner-icon{
+  width:44px;height:44px;border-radius:10px;flex-shrink:0;
+  background:var(--ink2);display:flex;align-items:center;justify-content:center;
+  color:var(--orange2);
+}
+.pwa-banner-icon svg{width:22px;height:22px;}
+.pwa-banner-text{flex:1;min-width:0;}
+.pwa-banner-title{font-size:.85rem;font-weight:600;color:#1a1a1a;margin-bottom:.15rem;}
+.pwa-banner-sub{font-size:.72rem;color:#666;line-height:1.3;}
+.pwa-banner-btns{display:flex;align-items:center;gap:.5rem;flex-shrink:0;}
+.pwa-banner-close{
+  background:none;border:none;color:#888;font-size:1.1rem;cursor:pointer;
+  padding:.2rem .4rem;line-height:1;
+}
+.pwa-banner-install{
+  background:#1a73e8;color:#fff;border:none;border-radius:4px;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.78rem;font-weight:600;
+  padding:.45rem .9rem;cursor:pointer;transition:background .2s;white-space:nowrap;
+  display:flex;align-items:center;gap:.35rem;
+}
+.pwa-banner-install:hover{background:#1558b0;}
+.pwa-banner-install svg{width:14px;height:14px;}
+
+/* ── Topbar install button ── */
+.btn-topbar-install{
+  background:none;border:1px solid rgba(196,98,45,.3);color:rgba(245,239,230,.45);
+  padding:.28rem .55rem;cursor:pointer;font-size:.72rem;
+  display:none;align-items:center;gap:.35rem;transition:all .2s;
+  font-family:'Be Vietnam Pro',sans-serif;
+}
+.btn-topbar-install:hover{border-color:var(--orange2);color:var(--orange2);}
+.btn-topbar-install.show{display:flex;}
+.btn-topbar-install svg{width:14px;height:14px;}
 .login-deco{
   font-family:'Lora',serif;font-size:2.6rem;font-style:italic;font-weight:700;
   color:rgba(232,136,92,.18);line-height:1.2;margin-bottom:-.8rem;
@@ -832,11 +889,16 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   .tab{padding:.7rem .85rem;font-size:.75rem;}
 
   /* Login */
-  .login-wrap{width:calc(100vw - 2.4rem);max-width:420px;}
-  .login-deco{font-size:2rem;}
-  .login-card{padding:1.8rem 1.4rem;}
-  .login-title{font-size:1.35rem;}
-  .install-guide{padding:1.2rem 1rem;}
+  .login-wrap{width:calc(100vw - 2rem);max-width:400px;}
+  .login-deco{font-size:1.8rem;}
+  .login-card{padding:1.5rem 1.2rem;}
+  .login-title{font-size:1.25rem;}
+  .login-sub{font-size:.7rem;margin-bottom:1.5rem;}
+  .lf input{padding:.65rem .85rem;font-size:.9rem;}
+  .btn-login{padding:.7rem;}
+  .install-guide{margin-top:.9rem;padding:.85rem .9rem;}
+  /* PWA banner sits above iOS safari bar */
+  #pwa-banner{padding-bottom:calc(.85rem + env(safe-area-inset-bottom,0px));}
 
   /* Welcome */
   .welcome{padding:1rem 1.1rem;}
@@ -936,79 +998,103 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
       <div class="login-hint">Liên hệ giáo viên nếu quên mã học viên</div>
     </div>
 
-    <!-- Install Guide -->
+    <!-- Install Guide (compact, collapsible) -->
     <div class="install-guide">
-      <div class="install-guide-title">📱 Cài ứng dụng lên điện thoại</div>
-      <div class="install-guide-sub">Học mọi lúc mọi nơi — cài miễn phí trực tiếp từ trình duyệt, không cần App Store</div>
-
-      <div class="install-tabs">
-        <div class="install-tab" id="itab-android" onclick="switchInstallTab('android')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
-          Android / Chrome
-        </div>
-        <div class="install-tab active" id="itab-ios" onclick="switchInstallTab('ios')">
+      <div class="install-guide-header" onclick="toggleInstallGuide()">
+        <div class="install-guide-title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg>
-          iPhone / iPad
+          Cài ứng dụng lên điện thoại
         </div>
+        <span class="install-guide-chevron" id="ig-chevron">▾</span>
       </div>
 
-      <!-- iOS Steps -->
-      <div class="install-steps active" id="isteps-ios">
-        <div class="install-step">
-          <div class="install-step-num">1</div>
-          <div class="install-step-body">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
-            <div class="install-step-txt">Mở trang web bằng trình duyệt <strong>Safari</strong></div>
+      <div class="install-guide-body" id="ig-body">
+        <div class="install-tabs">
+          <div class="install-tab" id="itab-android" onclick="switchInstallTab('android')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+            Android / Chrome
+          </div>
+          <div class="install-tab active" id="itab-ios" onclick="switchInstallTab('ios')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"/></svg>
+            iPhone / iPad
           </div>
         </div>
-        <div class="install-step">
-          <div class="install-step-num">2</div>
-          <div class="install-step-body">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-            <div class="install-step-txt">Nhấn nút <strong>Chia sẻ</strong> (biểu tượng hình vuông có mũi tên lên)</div>
-          </div>
-        </div>
-        <div class="install-step">
-          <div class="install-step-num">3</div>
-          <div class="install-step-body">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <div class="install-step-txt">Kéo xuống và chọn <strong>"Thêm vào Màn hình chính"</strong></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Android Steps -->
-      <div class="install-steps" id="isteps-android">
-        <div class="install-step">
-          <div class="install-step-num">1</div>
-          <div class="install-step-body">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            <div class="install-step-txt">Mở trang web trên trình duyệt <strong>Chrome</strong></div>
+        <div class="install-steps active" id="isteps-ios">
+          <div class="install-step">
+            <div class="install-step-num">1</div>
+            <div class="install-step-body">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><polyline points="8 21 12 17 16 21"/></svg>
+              <div class="install-step-txt">Mở bằng trình duyệt <strong>Safari</strong></div>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-num">2</div>
+            <div class="install-step-body">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              <div class="install-step-txt">Nhấn nút <strong>Chia sẻ</strong> (□↑) phía dưới màn hình</div>
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-num">3</div>
+            <div class="install-step-body">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <div class="install-step-txt">Chọn <strong>"Thêm vào Màn hình chính"</strong></div>
+            </div>
           </div>
         </div>
-        <div class="install-step">
-          <div class="install-step-num">2</div>
-          <div class="install-step-body">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <div class="install-step-txt">Nhấn vào biểu tượng <strong>"Cài đặt"</strong> trên thanh địa chỉ hoặc menu ⋮</div>
+
+        <div class="install-steps" id="isteps-android">
+          <div class="install-step">
+            <div class="install-step-num">1</div>
+            <div class="install-step-body">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <div class="install-step-txt">Mở bằng trình duyệt <strong>Chrome</strong></div>
+            </div>
           </div>
-        </div>
-        <div class="install-step">
-          <div class="install-step-num">3</div>
-          <div class="install-step-body">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg>
-            <div class="install-step-txt">Xác nhận <strong>"Cài đặt"</strong> — ứng dụng sẽ xuất hiện trên màn hình chính</div>
+          <div class="install-step">
+            <div class="install-step-num">2</div>
+            <div class="install-step-body">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <div class="install-step-txt">Nhấn biểu tượng <strong>Cài đặt</strong> trên thanh địa chỉ hoặc menu ⋮</div>
+            </div>
           </div>
+          <div class="install-step">
+            <div class="install-step-num">3</div>
+            <div class="install-step-body">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="20 6 9 17 4 12"/></svg>
+              <div class="install-step-txt">Xác nhận <strong>"Cài đặt"</strong> — app xuất hiện trên màn hình chính</div>
+            </div>
+          </div>
+          <button class="install-cta" id="install-btn-android" style="display:none" onclick="triggerInstall()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Cài đặt ngay
+          </button>
         </div>
-        <button class="install-cta" id="install-btn-android" style="display:none" onclick="triggerInstall()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Cài đặt ngay
-        </button>
       </div>
     </div>
     <!-- /Install Guide -->
   </div><!-- /login-wrap -->
 </div><!-- /login-screen -->
+
+<!-- ═══ PWA INSTALL BANNER ═══ -->
+<div id="pwa-banner">
+  <div class="pwa-banner-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  </div>
+  <div class="pwa-banner-text">
+    <div class="pwa-banner-title">Cài đặt ứng dụng</div>
+    <div class="pwa-banner-sub">Học mọi lúc mọi nơi — cài miễn phí từ trình duyệt</div>
+  </div>
+  <div class="pwa-banner-btns">
+    <button class="pwa-banner-close" onclick="closePwaBanner()" aria-label="Đóng">✕</button>
+    <button class="pwa-banner-install" onclick="triggerInstall()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Cài đặt ngay
+    </button>
+  </div>
+</div>
+<!-- ═══ APP ═══ -->
 <div id="app">
   <header class="topbar">
     <div class="topbar-brand">
@@ -1016,6 +1102,10 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
       <h1>Tiếng Anh² Hiếu</h1>
     </div>
     <div class="topbar-right">
+      <button class="btn-topbar-install" id="btn-topbar-install" onclick="triggerInstall()" title="Cài đặt ứng dụng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Cài app
+      </button>
       <span class="topbar-student" id="tp-student"></span>
       <button class="btn-logout" onclick="doLogout()">Thoát</button>
     </div>
@@ -2318,29 +2408,74 @@ window.addEventListener('load', function(){
 
 /* ═══ PWA INSTALL GUIDE ═══ */
 var _deferredInstall=null;
+var _bannerDismissed=false;
+
 window.addEventListener('beforeinstallprompt',function(e){
   e.preventDefault();
   _deferredInstall=e;
+  // Show inline install btn in android steps
   var btn=document.getElementById('install-btn-android');
-  if(btn) btn.style.display='block';
+  if(btn) btn.style.display='flex';
+  // Show topbar install btn
+  var tb=document.getElementById('btn-topbar-install');
+  if(tb) tb.classList.add('show');
+  // Show banner (if not dismissed)
+  if(!_bannerDismissed){
+    var banner=document.getElementById('pwa-banner');
+    if(banner) banner.classList.add('show');
+  }
 });
+
+window.addEventListener('appinstalled',function(){
+  _deferredInstall=null;
+  var banner=document.getElementById('pwa-banner');
+  if(banner) banner.classList.remove('show');
+  var tb=document.getElementById('btn-topbar-install');
+  if(tb) tb.classList.remove('show');
+});
+
+function toggleInstallGuide(){
+  var body=document.getElementById('ig-body');
+  var chev=document.getElementById('ig-chevron');
+  if(!body||!chev) return;
+  var open=body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
 function switchInstallTab(tab){
   document.getElementById('itab-android').classList.toggle('active', tab==='android');
   document.getElementById('itab-ios').classList.toggle('active', tab==='ios');
   document.getElementById('isteps-android').classList.toggle('active', tab==='android');
   document.getElementById('isteps-ios').classList.toggle('active', tab==='ios');
 }
+
 function triggerInstall(){
   if(_deferredInstall){
     _deferredInstall.prompt();
-    _deferredInstall.userChoice.then(function(){ _deferredInstall=null; });
+    _deferredInstall.userChoice.then(function(choice){
+      _deferredInstall=null;
+      if(choice.outcome==='accepted'){
+        closePwaBanner();
+      }
+    });
   }
 }
-// Auto-switch to Android tab if on Chrome
+
+function closePwaBanner(){
+  _bannerDismissed=true;
+  var banner=document.getElementById('pwa-banner');
+  if(banner) banner.classList.remove('show');
+}
+
+// Auto-switch to Android tab if on Chrome desktop/Android
 (function(){
   var ua=navigator.userAgent||'';
   var isIOS=/iPhone|iPad|iPod/.test(ua);
   if(!isIOS && /Chrome/.test(ua)) switchInstallTab('android');
+  // Open the install guide by default on mobile to show it's there
+  if(window.innerWidth<=600){
+    // Keep collapsed on mobile — just visible as a small label
+  }
 })();
 </script>
 </body>
