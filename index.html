@@ -673,12 +673,12 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 }
 .ms-item.checked .ms-cb{
   background:var(--sage);border-color:var(--sage);color:#fff;
-  transform:scale(1.15) rotate(8deg);
+  transform:scale(1.1);
 }
 @keyframes cbCheck{
-  0%  { transform:scale(0) rotate(-20deg); }
-  60% { transform:scale(1.3) rotate(5deg); }
-  100%{ transform:scale(1.15) rotate(8deg); }
+  0%  { transform:scale(0); }
+  60% { transform:scale(1.25); }
+  100%{ transform:scale(1.1); }
 }
 .ms-item.checked .ms-cb{ animation:cbCheck .3s cubic-bezier(.34,1.56,.64,1) both; }
 .ms-item-body{flex:1;}
@@ -2398,6 +2398,21 @@ function markItemDone(hwId,date,sec,idx,forceDone){
     else { keys.push(key); }
   }
   localStorage.setItem(store,JSON.stringify(keys));
+
+  // ── Đồng bộ trạng thái tick lên Firebase để teacher thấy real-time ──
+  var nowTickDone=keys.indexOf(key)!==-1;
+  var subKeyStr=hwId+'_'+sec+'_'+idx;
+  var existingSub=getSubmission(hwId,sec,idx);
+  if(!existingSub || !existingSub.link){
+    // Chỉ ghi "ticked" nếu chưa có link thật — tránh ghi đè
+    if(nowTickDone){
+      db.ref('submissions/'+S.id+'/'+subKeyStr).set({
+        link:'', ticked:true, tickedAt:new Date().toISOString()
+      });
+    } else {
+      db.ref('submissions/'+S.id+'/'+subKeyStr).remove();
+    }
+  }
 
   var total=countHwItems(hw);
   var done=keys.length;
