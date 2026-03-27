@@ -541,9 +541,10 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   display:flex;align-items:flex-start;gap:.75rem;
   padding:.65rem .8rem;border:1px solid var(--line);
   background:var(--cream);margin-bottom:.35rem;
-  cursor:pointer;transition:all .15s;
+  cursor:pointer;transition:all .15s;user-select:none;
 }
 .ms-item:hover{border-color:var(--gold);background:#fffdf5;}
+.ms-item:active{transform:scale(.99);opacity:.85;}
 .ms-item.checked{background:#f2f9f5;border-color:var(--sage);opacity:.75;}
 .ms-item.checked .ms-item-txt{text-decoration:line-through;color:var(--muted);}
 .ms-cb{
@@ -1475,6 +1476,19 @@ function launchApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
 
+  // Event delegation for mission item ticks (avoids inline onclick escaping issues)
+  document.getElementById('missions-content').addEventListener('click',function(e){
+    var item=e.target.closest('.ms-item');
+    if(!item) return;
+    // Don't tick if clicking a link button or desc button
+    if(e.target.closest('.ms-link-btn,.ms-desc-btn,.ms-desc-panel,.ms-submit-zone')) return;
+    var hwId=item.dataset.hwid;
+    var date=item.dataset.date;
+    var sec=item.dataset.sec;
+    var idx=parseInt(item.dataset.idx,10);
+    if(hwId&&date&&sec&&!isNaN(idx)) markItemDone(hwId,date,sec,idx,false);
+  });
+
   // Real-time: student data
   db.ref('students/'+S.id).on('value',function(snap){
     if(!snap.exists()) return;
@@ -1961,8 +1975,14 @@ function renderMissions(){
     var isToday=(td>=hwStart&&td<=hwEnd);
     var isPast=hwEnd<td;
     var dayLinkData=getDayLink(S.id, h.id);
-    var isAllDone=!!(dayLinkData&&dayLinkData.link);
-    var pct=isAllDone?100:0;
+    var hasLink=!!(dayLinkData&&dayLinkData.link);
+
+    // Progress based on individual ticks (not just link)
+    var total=countHwItems(h);
+    var doneKeys=getDoneKeys(S.id,h.date);
+    var doneCount=hasLink?total:doneKeys.length;
+    var isAllDone=hasLink||(total>0&&doneCount>=total);
+    var pct=total?Math.round(doneCount/total*100):0;
 
     var secsHtml='';
     HW_SECTIONS.forEach(function(sec){
@@ -1971,15 +1991,18 @@ function renderMissions(){
       var linkLblMap={vocab:'Mở bài',reading:'Mở bài',listening:'Nghe ngay',other:'Xem bài',practice:'Mở đề'};
       secsHtml+='<div class="ms-section '+secClsMap[sec]+'"><div class="ms-sec-header"><div class="ms-sec-label">'+HW_LABELS[sec]+'</div></div>';
       items.forEach(function(item,i){
-        var openLinkBtn=item.link?'<a class="ms-link-btn" href="'+escH(item.link)+'" target="_blank" rel="noopener">'+linkLblMap[sec]+' ↗</a>':'';
+        var key=h.date+'_'+sec+'_'+i;
+        var isDone=hasLink||doneKeys.indexOf(key)!==-1;
+        var openLinkBtn=item.link?'<a class="ms-link-btn" href="'+escH(item.link)+'" target="_blank" rel="noopener" onclick="event.stopPropagation()">'+linkLblMap[sec]+' ↗</a>':'';
         var descHtml='';
         if(item.desc&&item.desc.trim()){
           var descId='desc-'+h.id+'-'+sec+'-'+i;
           descHtml='<button class="ms-desc-btn" onclick="event.stopPropagation();toggleMsDesc(\''+descId+'\')">📋 Xem hướng dẫn</button>'+
             '<div class="ms-desc-panel" id="'+descId+'">'+item.desc+'</div>';
         }
-        secsHtml+='<div class="ms-item'+(isAllDone?' checked':'')+'" id="mitem-'+h.id+'-'+sec+'-'+i+'">'+
-          '<div class="ms-cb" style="align-self:flex-start;margin-top:2px">'+(isAllDone?'✓':'')+'</div>'+
+        secsHtml+='<div class="ms-item'+(isDone?' checked':'')+'" id="mitem-'+h.id+'-'+sec+'-'+i+'"'+
+          ' data-hwid="'+h.id+'" data-date="'+h.date+'" data-sec="'+sec+'" data-idx="'+i+'">'+
+          '<div class="ms-cb" style="align-self:flex-start;margin-top:2px">'+(isDone?'✓':'')+'</div>'+
           '<div class="ms-item-body" style="flex:1">'+
             '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">'+
               '<div class="ms-item-txt">'+escH(item.text||'—')+'</div>'+openLinkBtn+
@@ -1991,9 +2014,8 @@ function renderMissions(){
       secsHtml+='</div>';
     });
 
-    var total=countHwItems(h);
     var isOpen=idx===0||isToday;
-    var r=20,circ=2*Math.PI*r,offset=circ-(isAllDone?0:circ);
+    var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
 
     // Determine day state class
     var dayClass = isToday ? 'day-today' : isAllDone ? 'day-done' : isPast ? 'day-overdue' : 'day-future';
@@ -2023,12 +2045,11 @@ function renderMissions(){
     else if(isPast)     badge='<span class="mday-badge badge-overdue">⚠️ Chưa nộp</span>';
     else                badge='<span class="mday-badge badge-future">Sắp tới</span>';
 
-    var countTxt = total ? total+' nhiệm vụ' : 'Không có nhiệm vụ';
+    var countTxt = total ? (doneCount>0&&!isAllDone ? doneCount+'/'+total+' nhiệm vụ' : total+' nhiệm vụ') : 'Không có nhiệm vụ';
 
       // Daily link zone
-      var dayLinkData=getDayLink(S.id, h.id);
-      var dayLinkHtml='<div class="day-link-zone'+(dayLinkData?' submitted':'')+'" id="daylink-zone-'+h.id+'">';
-      if(dayLinkData){
+      var dayLinkHtml='<div class="day-link-zone'+(hasLink?' submitted':'')+'" id="daylink-zone-'+h.id+'">';
+      if(hasLink){
         dayLinkHtml+=
           '<span class="day-link-lbl">🔗 Link tổng hợp:</span>'+
           '<div class="day-link-submitted">'+
@@ -2081,7 +2102,8 @@ function renderMissions(){
   // Sync all to teacher
   hw.forEach(function(h){
     var total=countHwItems(h);
-    var done=getDoneKeys(S.id,h.date).length;
+    var hasLnk=!!(getDayLink(S.id,h.id)&&getDayLink(S.id,h.id).link);
+    var done=hasLnk?total:getDoneKeys(S.id,h.date).length;
     syncProgressToTeacher(S.id,h.date,done,total);
   });
 }
@@ -2207,38 +2229,74 @@ function openResubmit(hwId,date,sec,idx){
 }
 function markItemDone(hwId,date,sec,idx,forceDone){
   var hw=(S.homework||[]).find(function(h){return h.id===hwId;}); if(!hw) return;
+  // Don't allow un-ticking if link already submitted
+  var dayLink=getDayLink(S.id,hwId);
+  if(dayLink&&dayLink.link) return;
+
   var store=DONE_STORE(S.id,date);
   var keys=getDoneKeys(S.id,date);
   var key=date+'_'+sec+'_'+idx;
   var alreadyDone=keys.indexOf(key)!==-1;
-  if(forceDone&&alreadyDone) return;
-  if(forceDone&&!alreadyDone) keys.push(key);
-  else { var p=keys.indexOf(key); if(p!==-1) keys.splice(p,1); }
+
+  if(forceDone){
+    if(!alreadyDone) keys.push(key);
+  } else {
+    // Toggle
+    if(alreadyDone){ keys.splice(keys.indexOf(key),1); }
+    else { keys.push(key); }
+  }
   localStorage.setItem(store,JSON.stringify(keys));
+
   var total=countHwItems(hw);
   var done=keys.length;
   syncProgressToTeacher(S.id,date,done,total);
 
+  // Update item visual
+  var nowDone=keys.indexOf(key)!==-1;
   var itemEl=document.getElementById('mitem-'+hwId+'-'+sec+'-'+idx);
-  if(itemEl){ var isDone=keys.indexOf(key)!==-1; itemEl.classList.toggle('checked',isDone); var cb=itemEl.querySelector('.ms-cb'); if(cb) cb.textContent=isDone?'✓':''; }
+  if(itemEl){
+    itemEl.classList.toggle('checked',nowDone);
+    var cb=itemEl.querySelector('.ms-cb'); if(cb) cb.textContent=nowDone?'✓':'';
+  }
+
+  // Update progress bar
   var pct=total?Math.round(done/total*100):0;
   var fillEl=document.getElementById('prog-fill-'+hwId); if(fillEl) fillEl.style.width=pct+'%';
+
+  // Update ring + day header
   var dayEl=document.getElementById('mday-'+hwId);
   if(dayEl){
     var r=20,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
     var ringFill=dayEl.querySelector('.ring-fill'); if(ringFill){ ringFill.style.strokeDasharray=circ; ringFill.style.strokeDashoffset=offset; }
     var ringPct=dayEl.querySelector('.ring-pct'); if(ringPct) ringPct.textContent=(done>=total&&total>0)?'✓':pct+'%';
     var ringWrap=dayEl.querySelector('.mission-ring-wrap'); if(ringWrap) ringWrap.classList.toggle('ring-done',done>=total&&total>0);
-  // Update day state class
-  if(done>=total&&total>0){
-    dayEl.classList.remove('day-today','day-future','day-overdue');
-    dayEl.classList.add('day-done');
-    var badge=dayEl.querySelector('.mday-badge');
-    if(badge){ badge.className='mday-badge badge-done'; badge.textContent='✓ Hoàn thành'; }
+    // Update count text in header
+    var countEl=dayEl.querySelector('.mday-count');
+    if(countEl) countEl.textContent=(done>0&&done<total) ? done+'/'+total+' nhiệm vụ' : total+' nhiệm vụ';
+    // Update day state class
+    if(done>=total&&total>0){
+      dayEl.classList.remove('day-today','day-future','day-overdue');
+      dayEl.classList.add('day-done');
+      var badge=dayEl.querySelector('.mday-badge');
+      if(badge){ badge.className='mday-badge badge-done'; badge.textContent='✓ Hoàn thành'; }
+    } else if(done<total){
+      // Restore appropriate state if un-ticked below 100%
+      dayEl.classList.remove('day-done');
+      var td2=today();
+      var hwEnd2=hw.endDate||hw.date;
+      var badge2=dayEl.querySelector('.mday-badge');
+      if(td2>=hw.date&&td2<=hwEnd2){
+        dayEl.classList.add('day-today');
+        if(badge2){ badge2.className='mday-badge badge-today'; badge2.textContent='📌 Đang mở'; }
+      } else if(hwEnd2<td2){
+        dayEl.classList.add('day-overdue');
+        if(badge2){ badge2.className='mday-badge badge-overdue'; badge2.textContent='⚠️ Chưa nộp'; }
+      }
+    }
   }
-  }
+
   if(date===today()){ updateMissionBadge(); renderOverview(); }
-  if(forceDone&&done===total&&total>0) showCongratsPopup(done,total);
+  if(done>=total&&total>0) showCongratsPopup(done,total);
 }
 
 /* ═══ REMINDER ═══ */
