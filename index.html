@@ -55,6 +55,114 @@
 body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
 
 /* ═══════════════════════════════
+   SURVEY BUBBLE
+═══════════════════════════════ */
+#survey-bubble {
+  position: fixed;
+  bottom: 28px;
+  right: 24px;
+  z-index: 9998;
+  display: none; /* shown after login via launchApp */
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  animation: surveyFadeIn .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes surveyFadeIn {
+  from { opacity: 0; transform: translateY(20px) scale(.85); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+@keyframes surveyFadeOut {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(.8); }
+}
+
+/* Tooltip label */
+.survey-tooltip {
+  background: var(--ink2);
+  color: var(--paper);
+  font-size: .78rem;
+  font-weight: 600;
+  padding: .45rem .85rem;
+  border-radius: 6px;
+  border: 1px solid rgba(196,98,45,.3);
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(44,30,15,.25);
+  position: relative;
+  cursor: pointer;
+  transition: background .2s;
+}
+.survey-tooltip:hover { background: #2C1E0F; }
+/* little arrow pointing right-down toward bubble */
+.survey-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -6px; right: 22px;
+  width: 10px; height: 10px;
+  background: var(--ink2);
+  border-right: 1px solid rgba(196,98,45,.3);
+  border-bottom: 1px solid rgba(196,98,45,.3);
+  transform: rotate(45deg);
+}
+
+/* Row: dismiss × + main button */
+.survey-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Dismiss button */
+.survey-dismiss {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--paper2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: .75rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.survey-dismiss:hover { background: var(--rust2); color: var(--rust); border-color: var(--rust); }
+
+/* Main bubble button */
+.survey-btn {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--orange), var(--orange2));
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 20px rgba(196,98,45,.45);
+  transition: transform .2s, box-shadow .2s;
+  font-size: 1.45rem;
+  position: relative;
+  flex-shrink: 0;
+}
+.survey-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 28px rgba(196,98,45,.55);
+}
+.survey-btn:active { transform: scale(.96); }
+
+/* Pulse ring */
+.survey-btn::before {
+  content: '';
+  position: absolute; inset: -5px;
+  border-radius: 50%;
+  border: 2px solid rgba(196,98,45,.4);
+  animation: surveyPulse 2.2s ease-out infinite;
+}
+@keyframes surveyPulse {
+  0%   { transform: scale(1);    opacity: .7; }
+  70%  { transform: scale(1.35); opacity: 0;  }
+  100% { transform: scale(1.35); opacity: 0;  }
+}
+
+/* ═══════════════════════════════
    LOGIN SCREEN
 ═══════════════════════════════ */
 #login-screen{
@@ -1476,6 +1584,10 @@ function launchApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
 
+  // Show survey bubble after login
+  var bubble=document.getElementById('survey-bubble');
+  if(bubble){ bubble.style.display='flex'; }
+
   // Event delegation for mission item ticks (avoids inline onclick escaping issues)
   document.getElementById('missions-content').addEventListener('click',function(e){
     var item=e.target.closest('.ms-item');
@@ -2562,6 +2674,25 @@ function closePwaBanner(){
     // Keep collapsed on mobile — just visible as a small label
   }
 })();
+
+/* ═══ SURVEY BUBBLE ═══ */
+function openSurvey(){
+  window.open('https://forms.gle/Uu7gyfgBYx5qHYyX9','_blank','noopener,noreferrer');
+}
+function dismissSurvey(){
+  var bubble=document.getElementById('survey-bubble');
+  if(bubble){ bubble.style.animation='surveyFadeOut .3s ease forwards'; setTimeout(function(){ bubble.style.display='none'; },300); }
+}
+<!-- ═══ SURVEY BUBBLE ═══ -->
+<div id="survey-bubble">
+  <div class="survey-tooltip" onclick="openSurvey()">
+    📋 Góp ý chất lượng khóa học
+  </div>
+  <div class="survey-row">
+    <button class="survey-dismiss" onclick="dismissSurvey()" title="Ẩn đi">✕</button>
+    <button class="survey-btn" onclick="openSurvey()" title="Khảo sát chất lượng">📋</button>
+  </div>
+</div>
 </script>
 </body>
 </html>
