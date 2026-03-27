@@ -1170,7 +1170,6 @@ var selSlot = null;
 var allSlots = {};
 var allBookings = {};
 var allScoreReqs = {};
-var allClasses = {};
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
 var DONE_STORE  = function(sid,date){ return 'missions_done_'+sid+'_'+date; };
@@ -1284,10 +1283,6 @@ function launchApp(){
   db.ref('submissions/'+S.id).on('value',function(snap){
     if(snap.exists()) S._subs=snap.val(); else S._subs={};
     renderMissions();
-  });
-  db.ref('classes').on('value',function(snap){
-    allClasses=snap.val()||{};
-    if(S){ renderScheduleTab(); renderOverview(); }
   });
 }
 
@@ -1474,13 +1469,7 @@ function renderOverview(){
   var wkStartStr=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
   var wkEndStr=weekEnd.getFullYear()+'-'+String(weekEnd.getMonth()+1).padStart(2,'0')+'-'+String(weekEnd.getDate()).padStart(2,'0');
 
-  var weeklyForOv=getWeeklyClassDates(S.id, 3);
-  var manualForOv=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});});
-  var mergedOv=manualForOv.slice();
-  weeklyForOv.forEach(function(wd){
-    if(!mergedOv.find(function(m){return m.date===wd.date&&m.title===wd.title;})) mergedOv.push(wd);
-  });
-  var allSched=mergedOv.concat(
+  var allSched=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});}).concat(
     Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';}).map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
   ).filter(function(sc){return sc.date>=td&&sc.date<=wkEndStr;}).sort(function(a,b){return a.date.localeCompare(b.date);});
 
@@ -1538,7 +1527,8 @@ function renderProgress(){
     w.mods.forEach(function(m){
       var card=document.createElement('div'); card.className='mod-card '+(m.status||'locked');
       var ico=m.status==='done'?'✓':m.status==='current'?'●':'○';
-      card.innerHTML='<div class="mod-icon">'+ico+'</div><div><div class="mod-name">'+m.name+'</div><div class="mod-type">'+(m.type||'')+'</div></div>';
+      var classBadge=m.fromClass?'<span style="font-size:.55rem;background:rgba(74,124,89,.15);color:var(--sage);border:1px solid rgba(74,124,89,.3);padding:.08rem .3rem;font-weight:700;margin-left:.3rem;vertical-align:middle;">LỚP</span>':'';
+      card.innerHTML='<div class="mod-icon">'+ico+'</div><div><div class="mod-name">'+m.name+classBadge+'</div><div class="mod-type">'+(m.type||'')+'</div></div>';
       grid.appendChild(card);
     });
   });
@@ -2107,43 +2097,11 @@ function showCongratsPopup(done,total){
 function closePopup(id){ document.getElementById(id).classList.remove('show'); }
 
 /* ═══ SCHEDULE TAB ═══ */
-function getWeeklyClassDates(svId, weeksAhead){
-  var results=[];
-  var td=today();
-  var td_d=new Date(td+'T00:00:00');
-  Object.values(allClasses).forEach(function(cls){
-    if(!(cls.members||[]).includes(svId)) return;
-    var ws=cls.weeklySchedule||[]; if(!ws.length) return;
-    for(var w=0;w<=weeksAhead;w++){
-      ws.forEach(function(sess){
-        var base=new Date(td_d); base.setDate(td_d.getDate()+w*7);
-        var jsDay=base.getDay();
-        var mon=new Date(base); mon.setDate(base.getDate()-((jsDay+6)%7));
-        var offset=sess.day===0?6:sess.day-1;
-        var target=new Date(mon); target.setDate(mon.getDate()+offset);
-        var ds=target.getFullYear()+'-'+String(target.getMonth()+1).padStart(2,'0')+'-'+String(target.getDate()).padStart(2,'0');
-        if(ds<td) return;
-        if(!results.find(function(r){return r.date===ds&&r.clsId===cls.id;}))
-          results.push({date:ds,title:cls.name,time:sess.time||'',kind:'class',clsId:cls.id,weekly:true});
-      });
-    }
-  });
-  return results.sort(function(a,b){return a.date.localeCompare(b.date);});
-}
-
 function renderScheduleTab(){
   if(!S) return;
   var td=today();
   var approvedBooks=Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';});
-  // Merge: manual schedule + weekly class schedule + 1-1 bookings
-  var weeklyDates=getWeeklyClassDates(S.id, 8);
-  var manualDates=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});});
-  // Deduplicate: if a date already exists in manualDates, skip weekly
-  var merged=manualDates.slice();
-  weeklyDates.forEach(function(wd){
-    if(!merged.find(function(m){return m.date===wd.date&&m.title===wd.title;})) merged.push(wd);
-  });
-  var items=merged.concat(
+  var items=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});}).concat(
     approvedBooks.map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
   ).filter(function(i){return i.date>=td;}).sort(function(a,b){return a.date.localeCompare(b.date);});
   var el=document.getElementById('sched-content');
