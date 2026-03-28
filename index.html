@@ -1674,6 +1674,12 @@ function launchApp(){
     var pane=document.getElementById('pane-missions');
     if(pane&&pane.classList.contains('active')) renderMissions();
   });
+  // Real-time: daylinks — đọc từ Firebase thay vì chỉ localStorage
+  db.ref('daylinks/'+S.id).on('value',function(snap){
+    S._daylinks=snap.val()||{};
+    var pane=document.getElementById('pane-missions');
+    if(pane&&pane.classList.contains('active')) renderMissions();
+  });
 }
 
 function renderAll(){
@@ -1712,7 +1718,29 @@ var HW_LINK_LBL={vocab:'Mở bài',reading:'Mở bài',listening:'Nghe ngay',oth
 var SEC_COLORS={vocab:'var(--orange)',reading:'#3E7A52',listening:'#2860A8',other:'#A07040',practice:'#1A3E80'};
 
 function countHwItems(hw){ var n=0; HW_SECTIONS.forEach(function(s){ n+=(hw[s]||[]).length; }); return n; }
-function getDoneKeys(sid,date){ try{return JSON.parse(localStorage.getItem(DONE_STORE(sid,date))||'[]');}catch{return[];} }
+function getDoneKeys(sid,date){
+  // Ưu tiên Firebase cache (S._subs) — đọc tất cả key có date prefix và ticked=true
+  if(S&&S._subs){
+    var keys=[];
+    Object.keys(S._subs).forEach(function(subKey){
+      // subKey format: hwId_sec_idx — cần map sang date_sec_idx cho UI
+      // Tìm hwId tương ứng với date này
+      var sub=S._subs[subKey];
+      if(sub&&(sub.ticked||sub.link)){
+        // Extract hwId từ subKey (phần trước _sec_idx)
+        var hw=(S.homework||[]).find(function(h){return subKey.indexOf(h.id+'_')===0&&h.date===date;});
+        if(hw){
+          var rest=subKey.slice(hw.id.length+1); // "sec_idx"
+          var parts=rest.split('_');
+          if(parts.length===2) keys.push(date+'_'+parts[0]+'_'+parts[1]);
+        }
+      }
+    });
+    return keys;
+  }
+  // Fallback localStorage (migration)
+  try{ return JSON.parse(localStorage.getItem(DONE_STORE(sid,date))||'[]'); }catch{ return []; }
+}
 function countDoneItems(sid,date,hw){ return getDoneKeys(sid,date).length; }
 
 /* Submission store: Firebase submissions/{studentId}/{hwId_sec_idx} */
@@ -2290,6 +2318,8 @@ function toggleMsDesc(id){
 /* ═══ SUBMISSION ACTIONS ═══ */
 /* ─── Daily link (nộp link tổng hợp cả ngày) ─── */
 function getDayLink(sid, hwId){
+  // Ưu tiên Firebase cache (S._daylinks), fallback localStorage
+  if(S&&S._daylinks&&S._daylinks[hwId]) return S._daylinks[hwId];
   try{ return JSON.parse(localStorage.getItem('daylink_'+sid+'_'+hwId)||'null'); }catch{ return null; }
 }
 function saveDayLink(sid, hwId, link){
@@ -2396,45 +2426,48 @@ function markItemDone(hwId,date,sec,idx,forceDone){
   var dayLink=getDayLink(S.id,hwId);
   if(dayLink&&dayLink.link) return;
 
-  var store=DONE_STORE(S.id,date);
-  var keys=getDoneKeys(S.id,date);
-  var key=date+'_'+sec+'_'+idx;
-  var alreadyDone=keys.indexOf(key)!==-1;
-
-  if(forceDone){
-    if(!alreadyDone) keys.push(key);
-  } else {
-    // Toggle
-    if(alreadyDone){ keys.splice(keys.indexOf(key),1); }
-    else { keys.push(key); }
-  }
-  localStorage.setItem(store,JSON.stringify(keys));
-
-  // ── Đồng bộ trạng thái tick lên Firebase để teacher thấy real-time ──
-  var nowTickDone=keys.indexOf(key)!==-1;
   var subKeyStr=hwId+'_'+sec+'_'+idx;
   var existingSub=getSubmission(hwId,sec,idx);
-  if(!existingSub || !existingSub.link){
-    _submissionSelfWrite=true; // báo listener đây là mình tự ghi, không re-render
-    if(nowTickDone){
-      db.ref('submissions/'+S.id+'/'+subKeyStr).set({
-        link:'', ticked:true, tickedAt:new Date().toISOString()
-      });
-    } else {
-      db.ref('submissions/'+S.id+'/'+subKeyStr).remove();
-    }
+  var alreadyDone=!!(existingSub&&(existingSub.ticked||existingSub.link));
+
+  var nowTickDone;
+  if(forceDone){
+    nowTickDone=true;
+  } else {
+    nowTickDone=!alreadyDone;
+  }
+
+  // Update S._subs local cache immediately (optimistic update for instant DOM response)
+  if(!S._subs) S._subs={};
+  if(nowTickDone){
+    S._subs[subKeyStr]={link:'',ticked:true,tickedAt:new Date().toISOString()};
+  } else {
+    delete S._subs[subKeyStr];
+  }
+  // Mirror to localStorage as fallback
+  var keys=getDoneKeys(S.id,date);
+  var key=date+'_'+sec+'_'+idx;
+  if(nowTickDone){ if(keys.indexOf(key)===-1) keys.push(key); }
+  else { var ki=keys.indexOf(key); if(ki!==-1) keys.splice(ki,1); }
+  try{ localStorage.setItem(DONE_STORE(S.id,date),JSON.stringify(keys)); }catch(e){}
+
+  // Sync to Firebase
+  _submissionSelfWrite=true;
+  if(nowTickDone&&(!existingSub||!existingSub.link)){
+    db.ref('submissions/'+S.id+'/'+subKeyStr).set(S._subs[subKeyStr]);
+  } else if(!nowTickDone&&(!existingSub||!existingSub.link)){
+    db.ref('submissions/'+S.id+'/'+subKeyStr).remove();
   }
 
   var total=countHwItems(hw);
-  var done=keys.length;
+  var done=getDoneKeys(S.id,date).length;
   syncProgressToTeacher(S.id,date,done,total);
 
   // Update item visual
-  var nowDone=keys.indexOf(key)!==-1;
   var itemEl=document.getElementById('mitem-'+hwId+'-'+sec+'-'+idx);
   if(itemEl){
-    itemEl.classList.toggle('checked',nowDone);
-    var cb=itemEl.querySelector('.ms-cb'); if(cb) cb.textContent=nowDone?'✓':'';
+    itemEl.classList.toggle('checked',nowTickDone);
+    var cb=itemEl.querySelector('.ms-cb'); if(cb) cb.textContent=nowTickDone?'✓':'';
   }
 
   // Update progress bar — animate mượt
