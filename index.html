@@ -1495,6 +1495,8 @@ var selSlot = null;
 var allSlots = {};
 var allBookings = {};
 var _submissionSelfWrite = false; // flag tránh re-render khi chính mình ghi submissions
+var _subsReady = false;     // true sau khi submissions listener fire lần đầu
+var _daylinksReady = false; // true sau khi daylinks listener fire lần đầu
 var allScoreReqs = {};
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
@@ -1601,6 +1603,8 @@ function doLogout(){
 function launchApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
+  // Reset readiness flags cho session mới
+  _subsReady=false; _daylinksReady=false;
 
   // Show survey bubble
   var bubble=document.getElementById('survey-bubble');
@@ -1667,18 +1671,22 @@ function launchApp(){
   // vì markItemDone đã update DOM trực tiếp rồi, gọi lại sẽ re-render toàn bộ + animate lại
   db.ref('submissions/'+S.id).on('value',function(snap){
     if(snap.exists()) S._subs=snap.val(); else S._subs={};
+    _subsReady=true;
     // Chỉ re-render nếu tab missions đang active VÀ không phải do chính mình tick
-    // (tức là có thay đổi từ bên ngoài, ví dụ teacher reset)
-    // Dùng flag để tránh re-render khi chính mình vừa ghi
     if(_submissionSelfWrite){ _submissionSelfWrite=false; return; }
     var pane=document.getElementById('pane-missions');
     if(pane&&pane.classList.contains('active')) renderMissions();
+    // Chạy checkReminder khi đủ data
+    if(_subsReady&&_daylinksReady) checkReminder();
   });
   // Real-time: daylinks — đọc từ Firebase thay vì chỉ localStorage
   db.ref('daylinks/'+S.id).on('value',function(snap){
     S._daylinks=snap.val()||{};
+    _daylinksReady=true;
     var pane=document.getElementById('pane-missions');
     if(pane&&pane.classList.contains('active')) renderMissions();
+    // Chạy checkReminder khi đủ data
+    if(_subsReady&&_daylinksReady) checkReminder();
   });
 }
 
@@ -1688,7 +1696,7 @@ function renderAll(){
   renderOverview(); renderProgress();
   renderScoresTab(); renderMissions();
   renderScheduleTab(); renderBookingTab();
-  checkReminder();
+  // checkReminder() KHÔNG gọi ở đây — chỉ gọi sau khi _subs và _daylinks đã load từ Firebase
 }
 function updateBookingBadge(){
   var pending=Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='pending';}).length;
@@ -2522,6 +2530,8 @@ function markItemDone(hwId,date,sec,idx,forceDone){
 
 /* ═══ REMINDER ═══ */
 function checkReminder(){
+  // Guard: chỉ chạy khi cả subs lẫn daylinks đã sẵn sàng từ Firebase
+  if(!_subsReady||!_daylinksReady) return;
   var td=today();
 
   // Find ALL overdue homework (endDate < today, not fully done)
@@ -2530,20 +2540,25 @@ function checkReminder(){
     var hwEnd=h.endDate||h.date;
     if(hwEnd>=td) return; // not past
     var dayLinkData=getDayLink(S.id,h.id);
-    if(dayLinkData&&dayLinkData.link) return; // fully submitted
+    if(dayLinkData&&dayLinkData.link) return; // fully submitted via link
     var total=countHwItems(h); if(!total) return;
     var done=getDoneKeys(S.id,h.date).length;
-    if(done>=total) return; // all checked
+    if(done>=total) return; // all ticked
     overdueList.push({h:h,done:done,total:total,hwEnd:hwEnd});
   });
 
-  if(!overdueList.length) return;
+  // Ẩn banner nếu không còn quá hạn (đã nộp đủ)
+  if(!overdueList.length){
+    var bannerEl=document.getElementById('reminder-banner');
+    if(bannerEl) bannerEl.style.display='none';
+    return;
+  }
 
-  // Only show popup once per login session (not per day — show every login)
+  // Only show popup once per login session
   var sessionKey='reminder_session_'+S.id+'_'+td;
   var alreadyShownToday=sessionStorage.getItem(sessionKey);
 
-  // Always show banner regardless
+  // Always update banner (số liệu mới nhất)
   showOverdueBanner(overdueList);
 
   if(alreadyShownToday) return;
