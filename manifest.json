@@ -2,7 +2,7 @@
   "name": "Tiếng Anh² Hiếu · Nhật Ký Học Tập",
   "short_name": "TA² Hiếu",
   "description": "Nhật ký học tập Tiếng Anh cùng anh Hiếu",
-  "start_url": "/student-site/index.html",
+  "start_url": "/student-site/",
   "scope": "/student-site/",
   "display": "standalone",
   "background_color": "#3D2B18",
