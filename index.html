@@ -1723,6 +1723,7 @@ function launchApp(){
   db.ref('classes').on('value',function(snap){
     allClasses=snap.val()||{};
     renderScheduleTab();
+    renderOverview();
   });
 }
 
