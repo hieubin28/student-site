@@ -1498,6 +1498,7 @@ var _submissionSelfWrite = false; // flag tránh re-render khi chính mình ghi 
 var _subsReady = false;     // true sau khi submissions listener fire lần đầu
 var _daylinksReady = false; // true sau khi daylinks listener fire lần đầu
 var allScoreReqs = {};
+var allClasses = {};
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
 var DONE_STORE  = function(sid,date){ return 'missions_done_'+sid+'_'+date; };
@@ -1687,6 +1688,11 @@ function launchApp(){
     if(pane&&pane.classList.contains('active')) renderMissions();
     // Chạy checkReminder khi đủ data
     if(_subsReady&&_daylinksReady) checkReminder();
+  });
+  // Real-time: classes — để lấy lịch học theo tuần của lớp
+  db.ref('classes').on('value',function(snap){
+    allClasses=snap.val()||{};
+    renderScheduleTab();
   });
 }
 
@@ -2634,7 +2640,32 @@ function renderScheduleTab(){
   if(!S) return;
   var td=today();
   var approvedBooks=Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';});
-  var items=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});}).concat(
+  // Generate upcoming class sessions from weeklySchedule of student's class
+  var clsItems=[];
+  Object.values(allClasses).forEach(function(cls){
+    if(!(cls.members||[]).includes(S.id)) return;
+    var ws=cls.weeklySchedule||[];
+    if(!ws.length) return;
+    // Generate next 8 weeks of sessions
+    var now=new Date(); now.setHours(0,0,0,0);
+    for(var w=0;w<8;w++){
+      ws.forEach(function(session){
+        var d=new Date(now.getTime());
+        // Find next occurrence of this weekday
+        var diff=(session.day-d.getDay()+7)%(7);
+        d.setDate(d.getDate()+w*7+diff);
+        var iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        if(iso>=td) clsItems.push({date:iso,title:cls.name||'Lớp học',time:session.time||'',kind:'class'});
+      });
+    }
+  });
+  // Deduplicate by date+title
+  var seen={};
+  clsItems=clsItems.filter(function(x){
+    var k=x.date+'|'+x.title;
+    if(seen[k]) return false; seen[k]=true; return true;
+  });
+  var items=(S.schedule||[]).map(function(s){return Object.assign({},s,{kind:'class'});}).concat(clsItems).concat(
     approvedBooks.map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
   ).filter(function(i){return i.date>=td;}).sort(function(a,b){return a.date.localeCompare(b.date);});
   var el=document.getElementById('sched-content');
