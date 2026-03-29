@@ -1932,7 +1932,27 @@ function renderOverview(){
   var wkStartStr=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
   var wkEndStr=weekEnd.getFullYear()+'-'+String(weekEnd.getMonth()+1).padStart(2,'0')+'-'+String(weekEnd.getDate()).padStart(2,'0');
 
-  var allSched=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});}).concat(
+  // Generate lịch lớp từ weeklySchedule (giống renderScheduleTab)
+  var clsSchedOv=[];
+  Object.values(allClasses).forEach(function(cls){
+    if(!(cls.members||[]).includes(S.id)) return;
+    var ws=cls.weeklySchedule||[]; if(!ws.length) return;
+    var now=new Date(); now.setHours(0,0,0,0);
+    for(var w=0;w<3;w++){
+      ws.forEach(function(session){
+        var d=new Date(now.getTime());
+        var diff=(session.day-d.getDay()+7)%7;
+        d.setDate(d.getDate()+w*7+diff);
+        var iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        if(iso>=td&&iso<=wkEndStr) clsSchedOv.push({date:iso,title:cls.name||'Lớp học',time:session.time||'',kind:'class'});
+      });
+    }
+  });
+  // Deduplicate
+  var seenOv={};
+  clsSchedOv=clsSchedOv.filter(function(x){var k=x.date+'|'+x.title;if(seenOv[k])return false;seenOv[k]=true;return true;});
+
+  var allSched=(S.schedule||[]).map(function(sc){return Object.assign({},sc,{kind:'class'});}).concat(clsSchedOv).concat(
     Object.values(allBookings).filter(function(b){return b.studentId===S.id&&b.status==='approved';}).map(function(b){return {date:b.date,title:'Buổi 1-1 với giáo viên',time:b.time,kind:'oneone'};})
   ).filter(function(sc){return sc.date>=td&&sc.date<=wkEndStr;}).sort(function(a,b){return a.date.localeCompare(b.date);});
 
