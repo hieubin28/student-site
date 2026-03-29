@@ -1121,6 +1121,82 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   .stat-num{font-size:1.3rem;}
   .mday-cal-day{font-size:1.4rem;}
 }
+
+/* ══ FEE TAB ══ */
+.fee-header{
+  background:var(--paper);border:1px solid var(--border);
+  padding:1.2rem 1.4rem;margin-bottom:1rem;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;
+}
+.fee-title-row{display:flex;align-items:center;gap:.85rem;}
+.fee-icon{font-size:1.6rem;line-height:1;}
+.fee-heading{font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--ink);}
+.fee-sub{font-size:.73rem;color:var(--muted);margin-top:.15rem;}
+.fee-month-nav{display:flex;align-items:center;gap:.55rem;}
+.fee-nav-btn{
+  background:none;border:1px solid var(--border);color:var(--ink2);
+  width:30px;height:30px;cursor:pointer;font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s,color .15s;
+}
+.fee-nav-btn:hover{border-color:var(--orange);color:var(--orange);}
+.fee-month-label{font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;color:var(--ink);min-width:110px;text-align:center;}
+
+/* Summary cards */
+.fee-summary-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.1rem;}
+.fee-stat{background:var(--paper);border:1px solid var(--border);padding:1rem 1.1rem;border-top:3px solid var(--border);}
+.fee-stat.present{border-top-color:var(--sage);}
+.fee-stat.absent{border-top-color:var(--rust);}
+.fee-stat.total{border-top-color:var(--orange);}
+.fee-stat-num{font-family:'Lora',serif;font-size:1.8rem;font-weight:700;line-height:1;}
+.fee-stat.present .fee-stat-num{color:var(--sage);}
+.fee-stat.absent  .fee-stat-num{color:var(--rust);}
+.fee-stat.total   .fee-stat-num{color:var(--orange);}
+.fee-stat-lbl{font-size:.68rem;color:var(--muted);margin-top:.25rem;}
+.fee-total-amt{font-size:1rem;font-weight:700;margin-top:.3rem;}
+.fee-stat.total .fee-total-amt{color:var(--orange);}
+
+/* Session list */
+.fee-session-list{background:var(--paper);border:1px solid var(--border);overflow:hidden;}
+.fee-list-hd{
+  font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);padding:.7rem 1.1rem;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.fee-row{
+  display:flex;align-items:center;gap:.8rem;
+  padding:.65rem 1.1rem;border-bottom:1px solid var(--line);
+  transition:background .12s;
+}
+.fee-row:last-child{border-bottom:none;}
+.fee-row:hover{background:var(--paper2);}
+.fee-row-date{
+  font-family:'Lora',serif;font-size:1.2rem;font-weight:700;
+  min-width:32px;text-align:center;line-height:1;
+}
+.fee-row.present .fee-row-date{color:var(--sage);}
+.fee-row.absent  .fee-row-date{color:var(--rust);}
+.fee-row-meta{flex:1;}
+.fee-row-wd{font-size:.78rem;font-weight:500;color:var(--ink);}
+.fee-row-sub{font-size:.68rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:.08rem;}
+.fee-row-badge{
+  font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:.2rem .55rem;
+}
+.fee-row.present .fee-row-badge{background:var(--sage2);color:var(--sage);}
+.fee-row.absent  .fee-row-badge{background:var(--rust2);color:var(--rust);}
+.fee-row-amt{
+  font-family:'JetBrains Mono',monospace;font-size:.78rem;
+  font-weight:600;min-width:80px;text-align:right;
+}
+.fee-row.present .fee-row-amt{color:var(--orange);}
+.fee-row.absent  .fee-row-amt{color:var(--muted);text-decoration:line-through;}
+.fee-empty{padding:2rem;text-align:center;color:var(--muted);font-style:italic;font-size:.85rem;}
+@media(max-width:600px){
+  .fee-summary-row{grid-template-columns:1fr 1fr;}
+  .fee-summary-row .fee-stat.total{grid-column:1/-1;}
+  .fee-header{flex-direction:column;align-items:flex-start;}
+}
 </style>
 </head>
 <body>
@@ -1261,6 +1337,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <div class="tab" data-tab="missions"  onclick="goTab(this)" id="tab-missions">✅ Nhiệm vụ</div>
     <div class="tab" data-tab="schedule"  onclick="goTab(this)">Lịch học</div>
     <div class="tab" data-tab="booking"   onclick="goTab(this)" id="tab-booking">Book 1-1 🗓</div>
+    <div class="tab" data-tab="fee"       onclick="goTab(this)" id="tab-fee">💰 Học phí</div>
   </nav>
 
   <div class="main">
@@ -1473,6 +1550,26 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
       </div>
     </div>
 
+  <!-- ══ FEE ══ -->
+  <div class="pane" id="pane-fee">
+    <div class="fee-header">
+      <div class="fee-title-row">
+        <span class="fee-icon">💰</span>
+        <div>
+          <div class="fee-heading">Học phí</div>
+          <div class="fee-sub" id="fee-price-label">Đơn giá: đang tải...</div>
+        </div>
+      </div>
+      <div class="fee-month-nav">
+        <button class="fee-nav-btn" onclick="feeChangeMonth(-1)">‹</button>
+        <span class="fee-month-label" id="fee-month-label">Tháng 3/2026</span>
+        <button class="fee-nav-btn" onclick="feeChangeMonth(1)">›</button>
+      </div>
+    </div>
+    <div class="fee-summary-row" id="fee-summary-row"></div>
+    <div class="fee-session-list" id="fee-session-list"></div>
+  </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -1529,6 +1626,9 @@ var _subsReady = false;     // true sau khi submissions listener fire lần đ�
 var _daylinksReady = false; // true sau khi daylinks listener fire lần đầu
 var allScoreReqs = {};
 var allClasses = {};
+var allAttendanceFee = {}; // attendance data for fee tab
+var _feeMonth = new Date().getMonth()+1; // 1-12
+var _feeYear  = new Date().getFullYear();
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
 var DONE_STORE  = function(sid,date){ return 'missions_done_'+sid+'_'+date; };
@@ -1580,6 +1680,7 @@ function goTab(el){
       if(S) renderMissions();
     }, 30);
   }
+  if(el.dataset.tab==='fee') renderFeeTab();
 }
 
 /* ═══ LOGIN / LOGOUT ═══ */
@@ -1725,6 +1826,12 @@ function launchApp(){
     renderScheduleTab();
     renderOverview();
   });
+  // Real-time: attendance for fee tab
+  db.ref('attendance/'+S.id).on('value',function(snap){
+    allAttendanceFee=snap.val()||{};
+    var pane=document.getElementById('pane-fee');
+    if(pane&&pane.classList.contains('active')) renderFeeTab();
+  });
 }
 
 function renderAll(){
@@ -1733,6 +1840,8 @@ function renderAll(){
   renderOverview(); renderProgress();
   renderScoresTab(); renderMissions();
   renderScheduleTab(); renderBookingTab();
+  var feePn=document.getElementById('pane-fee');
+  if(feePn&&feePn.classList.contains('active')) renderFeeTab();
   // checkReminder() KHÔNG gọi ở đây — chỉ gọi sau khi _subs và _daylinks đã load từ Firebase
 }
 function updateBookingBadge(){
@@ -2758,6 +2867,124 @@ function renderScheduleTab(){
         '<span class="sched-tag '+tagCls+'">'+tagLbl+'</span>'+
       '</div>';
     block.appendChild(row);
+  });
+}
+
+
+/* ═══ FEE TAB ═══ */
+function fmtMoney(n){
+  if(!n) return '0 ₫';
+  return n.toLocaleString('vi-VN')+'  ₫';
+}
+function fmtMoneyShort(n){
+  if(!n||isNaN(n)) return '—';
+  if(n>=1000000) return (n/1000000).toFixed(n%1000000===0?0:1)+'tr ₫';
+  if(n>=1000) return (n/1000).toFixed(0)+'k ₫';
+  return n+'₫';
+}
+function feeChangeMonth(delta){
+  _feeMonth+=delta;
+  if(_feeMonth>12){_feeMonth=1;_feeYear++;}
+  if(_feeMonth<1){_feeMonth=12;_feeYear--;}
+  renderFeeTab();
+}
+function renderFeeTab(){
+  if(!S) return;
+  var price=S.pricePerSession||0;
+  var priceEl=document.getElementById('fee-price-label');
+  if(priceEl) priceEl.textContent=price?('Đơn giá: '+fmtMoney(price)+'/buổi'):'Đơn giá: chưa thiết lập';
+  var mlEl=document.getElementById('fee-month-label');
+  if(mlEl) mlEl.textContent='Tháng '+_feeMonth+'/'+_feeYear;
+
+  // Collect all scheduled dates this month from attendance keys + S.schedule + class weeklySchedule
+  var td=today();
+  var mm=String(_feeMonth).padStart(2,'0');
+  var prefix=_feeYear+'-'+mm;
+
+  // Build set of all session dates in this month
+  var sessionDates={};
+
+  // From S.schedule (individual schedule)
+  (S.schedule||[]).forEach(function(sc){
+    if(sc.date&&sc.date.startsWith(prefix)&&sc.date<=td) sessionDates[sc.date]={title:sc.title||'Buổi học',time:sc.time||''};
+  });
+
+  // From class weeklySchedule — generate all occurrences in this month up to today
+  Object.values(allClasses).forEach(function(cls){
+    if(!(cls.members||[]).includes(S.id)) return;
+    var ws=cls.weeklySchedule||[]; if(!ws.length) return;
+    // Iterate every day in the month
+    var daysInMonth=new Date(_feeYear,_feeMonth,0).getDate();
+    for(var day=1;day<=daysInMonth;day++){
+      var d=new Date(_feeYear,_feeMonth-1,day);
+      var iso=_feeYear+'-'+mm+'-'+String(day).padStart(2,'0');
+      if(iso>td) break;
+      ws.forEach(function(session){
+        if(d.getDay()===session.day){
+          sessionDates[iso]={title:cls.name||'Lớp học',time:session.time||''};
+        }
+      });
+    }
+  });
+
+  // Also include any attendance records (teacher may have marked manually)
+  Object.keys(allAttendanceFee).forEach(function(date){
+    if(date.startsWith(prefix)&&date<=td&&!sessionDates[date]){
+      sessionDates[date]={title:'Buổi học',time:''};
+    }
+  });
+
+  var dates=Object.keys(sessionDates).sort();
+  var presentDates=dates.filter(function(d){return allAttendanceFee[d]&&allAttendanceFee[d].status==='present';});
+  var absentDates =dates.filter(function(d){return allAttendanceFee[d]&&allAttendanceFee[d].status==='absent';});
+  var unmarkedDates=dates.filter(function(d){return !allAttendanceFee[d];});
+  var presentCount=presentDates.length;
+  var totalAmt=presentCount*price;
+
+  // Summary
+  var sumEl=document.getElementById('fee-summary-row');
+  sumEl.innerHTML=
+    '<div class="fee-stat present">'+
+      '<div class="fee-stat-num">'+presentCount+'</div>'+
+      '<div class="fee-stat-lbl">Buổi có mặt</div>'+
+    '</div>'+
+    '<div class="fee-stat absent">'+
+      '<div class="fee-stat-num">'+(absentDates.length+unmarkedDates.length)+'</div>'+
+      '<div class="fee-stat-lbl">Buổi vắng / chưa điểm</div>'+
+    '</div>'+
+    '<div class="fee-stat total">'+
+      '<div class="fee-stat-num">'+fmtMoneyShort(totalAmt)+'</div>'+
+      '<div class="fee-stat-lbl">Tổng học phí tháng này</div>'+
+      (price?'<div class="fee-total-amt">'+presentCount+' buổi × '+fmtMoneyShort(price)+'</div>':'<div style="font-size:.68rem;color:var(--muted);margin-top:.25rem">Giáo viên chưa thiết lập đơn giá</div>')+
+    '</div>';
+
+  // Session list
+  var listEl=document.getElementById('fee-session-list');
+  if(!dates.length){
+    listEl.innerHTML='<div class="fee-empty">Không có buổi học nào trong tháng '+_feeMonth+'/'+_feeYear+'</div>';
+    return;
+  }
+  var DAYS_VI=['CN','T2','T3','T4','T5','T6','T7'];
+  listEl.innerHTML='<div class="fee-list-hd"><span>Buổi học trong tháng ('+dates.length+' buổi đã qua)</span><span>Học phí</span></div>';
+  dates.forEach(function(date){
+    var att=allAttendanceFee[date];
+    var isPresent=att&&att.status==='present';
+    var isAbsent=att&&att.status==='absent';
+    var cls=isPresent?'present':isAbsent?'absent':'absent';
+    var badge=isPresent?'✓ Có mặt':isAbsent?'✗ Vắng':'⏳ Chưa điểm';
+    var d=new Date(date+'T00:00:00');
+    var wd=DAYS_VI[d.getDay()];
+    var info=sessionDates[date];
+    var row=document.createElement('div'); row.className='fee-row '+cls;
+    row.innerHTML=
+      '<div class="fee-row-date">'+d.getDate()+'</div>'+
+      '<div class="fee-row-meta">'+
+        '<div class="fee-row-wd">'+wd+', '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+(info.title?' — '+escH(info.title):'')+'</div>'+
+        (info.time?'<div class="fee-row-sub">⏰ '+info.time+'</div>':'')+
+      '</div>'+
+      '<span class="fee-row-badge">'+badge+'</span>'+
+      '<div class="fee-row-amt">'+(isPresent&&price?fmtMoney(price):'—')+'</div>';
+    listEl.appendChild(row);
   });
 }
 
