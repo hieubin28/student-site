@@ -1196,6 +1196,21 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   .fee-summary-row{grid-template-columns:1fr 1fr;}
   .fee-summary-row .fee-stat.total{grid-column:1/-1;}
   .fee-header{flex-direction:column;align-items:flex-start;}
+  .receipt-box{max-height:95vh;border-radius:0;}
+  .receipt-ov{padding:.5rem;}
+  .receipt-doc{padding:1.3rem 1.1rem 1rem;}
+  .receipt-meta-grid{grid-template-columns:1fr 1fr;gap:.4rem .8rem;}
+  .receipt-summary{gap:.4rem;}
+  .receipt-sum-card{padding:.6rem .3rem;}
+  .receipt-sum-num{font-size:1.3rem;}
+  .receipt-payment{flex-direction:column;align-items:center;gap:.8rem;}
+  .receipt-qr-wrap img{width:130px;height:130px;}
+  .receipt-bank-info{width:100%;}
+  .receipt-session-table{font-size:.68rem;}
+  .receipt-session-table th,.receipt-session-table td{padding:.35rem .4rem;}
+  .receipt-actions{padding:.75rem 1rem;gap:.5rem;}
+  .receipt-btn{flex:1;text-align:center;padding:.55rem .6rem;}
+  .qr-zoom-ov img{width:min(90vw,320px);height:min(90vw,320px);}
 }
 
 /* ══ RECEIPT MODAL ══ */
@@ -1207,7 +1222,8 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .receipt-ov.show{opacity:1;pointer-events:all;}
 .receipt-box{
   background:#fff;width:100%;max-width:520px;max-height:90vh;
-  overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.22);
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  box-shadow:0 8px 40px rgba(0,0,0,.22);
   animation:receiptSlide .25s ease;
 }
 @keyframes receiptSlide{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -1260,7 +1276,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .receipt-session-table .rs-amt{font-family:'JetBrains Mono',monospace;text-align:right;font-weight:600;}
 .receipt-session-table .rs-total-row td{font-weight:800;border-top:2px solid #e8e0d5;padding-top:.6rem;color:#2c2417;}
 .receipt-session-table .rs-total-row .rs-amt{color:#e07a2a;font-size:.85rem;}
-.receipt-payment{display:flex;gap:1.4rem;align-items:flex-start;border:1px solid #e8e0d5;padding:1rem 1.1rem;margin-bottom:1.2rem;background:#faf8f5;}
+.receipt-payment{display:flex;gap:1.4rem;align-items:flex-start;border:1px solid #e8e0d5;padding:1rem 1.1rem;margin-bottom:1.2rem;background:#faf8f5;flex-wrap:wrap;}
 .receipt-qr-wrap{flex-shrink:0;}
 .receipt-qr-wrap img{width:110px;height:110px;display:block;border:1px solid #e8e0d5;}
 .receipt-bank-info{flex:1;}
@@ -1277,6 +1293,8 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   opacity:0;pointer-events:none;transition:opacity .2s;cursor:pointer;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0);
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
 }
 .qr-zoom-ov.show{opacity:1;pointer-events:all;}
 .qr-zoom-ov img{
@@ -3227,57 +3245,79 @@ function closeReceipt(){
 }
 
 function printReceipt(){
-  var docEl = document.getElementById('receipt-doc');
+  var docEl=document.getElementById('receipt-doc');
   if(!docEl) return;
-  var content = docEl.innerHTML;
-  var win = window.open('','_blank','width=700,height=900');
-  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Biên lai học phí</title>');
-  win.document.write('<link rel="preconnect" href="https://fonts.googleapis.com">');
-  win.document.write('<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Lora:wght@700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">');
-  win.document.write('<style>');
-  win.document.write('*{box-sizing:border-box;margin:0;padding:0;}');
-  win.document.write('body{font-family:"Be Vietnam Pro","Segoe UI",sans-serif;color:#2c2417;background:#fff;padding:2rem 2.2rem;}');
-  win.document.write('.receipt-doc-header{display:flex;align-items:center;gap:.9rem;padding-bottom:1.1rem;border-bottom:2.5px solid #8b6f47;margin-bottom:1.3rem;}');
-  win.document.write('.receipt-brand{font-size:1.1rem;font-weight:800;color:#8b6f47;letter-spacing:-.02em;line-height:1.2;}');
-  win.document.write('.receipt-brand-sub{font-size:.65rem;font-weight:500;color:#a0907a;letter-spacing:.08em;margin-top:.15rem;}');
-  win.document.write('.receipt-doc-title{text-align:right;flex:1;}');
-  win.document.write('.receipt-doc-title h2{font-size:1.2rem;font-weight:800;color:#2c2417;margin:0;}');
-  win.document.write('.receipt-id{font-size:.62rem;color:#a0907a;font-family:"JetBrains Mono",monospace;margin-top:.2rem;}');
-  win.document.write('.receipt-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.2rem;margin-bottom:1.3rem;font-size:.78rem;}');
-  win.document.write('.receipt-meta-item label{font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a0907a;display:block;margin-bottom:.1rem;}');
-  win.document.write('.receipt-meta-item span{font-weight:600;color:#2c2417;}');
-  win.document.write('.receipt-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1.3rem;}');
-  win.document.write('.receipt-sum-card{text-align:center;padding:.75rem .5rem;border:1px solid #e8e0d5;border-top:3px solid #e8e0d5;}');
-  win.document.write('.receipt-sum-card.present{border-top-color:#4e8a6e;}.receipt-sum-card.absent{border-top-color:#c0604a;}.receipt-sum-card.total{border-top-color:#e07a2a;}');
-  win.document.write('.receipt-sum-num{font-size:1.6rem;font-weight:800;font-family:"Lora",serif;line-height:1;}');
-  win.document.write('.receipt-sum-card.present .receipt-sum-num{color:#4e8a6e;}.receipt-sum-card.absent .receipt-sum-num{color:#c0604a;}.receipt-sum-card.total .receipt-sum-num{color:#e07a2a;}');
-  win.document.write('.receipt-sum-lbl{font-size:.6rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a0907a;margin-top:.3rem;}');
-  win.document.write('.receipt-sum-sub{font-size:.68rem;color:#8b6f47;font-weight:600;margin-top:.2rem;}');
-  win.document.write('.receipt-session-table{width:100%;border-collapse:collapse;font-size:.74rem;margin-bottom:1.4rem;}');
-  win.document.write('.receipt-session-table th{font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a0907a;padding:.45rem .6rem;border-bottom:2px solid #e8e0d5;text-align:left;}');
-  win.document.write('.receipt-session-table td{padding:.4rem .6rem;border-bottom:1px solid #f0ebe3;}');
-  win.document.write('.rs-present{color:#4e8a6e;font-weight:700;}.rs-absent{color:#c0604a;}');
-  win.document.write('.rs-amt{font-family:"JetBrains Mono",monospace;text-align:right;font-weight:600;display:block;}');
-  win.document.write('.rs-total-row td{font-weight:800;border-top:2px solid #e8e0d5;padding-top:.6rem;color:#2c2417;}');
-  win.document.write('.rs-total-row .rs-amt{color:#e07a2a;font-size:.85rem;}');
-  win.document.write('.receipt-payment{display:flex;gap:1.4rem;align-items:flex-start;border:1px solid #e8e0d5;padding:1rem 1.1rem;margin-bottom:1.2rem;background:#faf8f5;}');
-  win.document.write('.receipt-qr-wrap img{width:110px;height:110px;display:block;border:1px solid #e8e0d5;}');
-  win.document.write('.receipt-bank-name{font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#c00;margin-bottom:.4rem;}');
-  win.document.write('.receipt-bank-row{font-size:.75rem;margin-bottom:.2rem;color:#2c2417;}');
-  win.document.write('.receipt-bank-row strong{display:block;font-size:.68rem;font-weight:700;color:#a0907a;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.05rem;}');
-  win.document.write('.receipt-transfer-note{font-size:.7rem;background:#fff8f0;border:1px solid #f0d8b0;padding:.5rem .8rem;margin-top:.6rem;color:#8b6f47;font-weight:600;}');
-  win.document.write('.receipt-transfer-note span{font-family:"JetBrains Mono",monospace;}');
-  win.document.write('.receipt-footer{text-align:center;font-size:.64rem;color:#a0907a;padding-top:.9rem;border-top:1px solid #e8e0d5;margin-top:.5rem;}');
-  win.document.write('.receipt-footer strong{color:#8b6f47;}');
-  win.document.write('.receipt-qr-wrap img{cursor:default !important;}');
-  win.document.write('@page{margin:1.2cm;size:A5 portrait;}');
-  win.document.write('@media print{body{padding:0;}}');
-  win.document.write('</style></head><body>');
-  win.document.write(content);
-  win.document.write('</body></html>');
-  win.document.close();
-  win.focus();
-  setTimeout(function(){ win.print(); }, 600);
+  var content=docEl.innerHTML;
+
+  // Build standalone CSS string for the print window
+  var css=[
+    '*{box-sizing:border-box;margin:0;padding:0;}',
+    'body{font-family:"Be Vietnam Pro","Segoe UI",sans-serif;color:#2c2417;background:#fff;padding:2rem 2.2rem;}',
+    '.receipt-doc-header{display:flex;align-items:center;gap:.9rem;padding-bottom:1.1rem;border-bottom:2.5px solid #8b6f47;margin-bottom:1.3rem;}',
+    '.receipt-brand{font-size:1.1rem;font-weight:800;color:#8b6f47;line-height:1.2;}',
+    '.receipt-brand-sub{font-size:.65rem;font-weight:500;color:#a0907a;letter-spacing:.08em;margin-top:.15rem;}',
+    '.receipt-doc-title{text-align:right;flex:1;}',
+    '.receipt-doc-title h2{font-size:1.2rem;font-weight:800;color:#2c2417;margin:0;}',
+    '.receipt-id{font-size:.62rem;color:#a0907a;font-family:monospace;margin-top:.2rem;}',
+    '.receipt-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.2rem;margin-bottom:1.3rem;font-size:.78rem;}',
+    '.receipt-meta-item label{font-size:.62rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a0907a;display:block;margin-bottom:.1rem;}',
+    '.receipt-meta-item span{font-weight:600;color:#2c2417;}',
+    '.receipt-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1.3rem;}',
+    '.receipt-sum-card{text-align:center;padding:.75rem .5rem;border:1px solid #e8e0d5;border-top:3px solid #e8e0d5;}',
+    '.receipt-sum-card.present{border-top-color:#4e8a6e;}.receipt-sum-card.absent{border-top-color:#c0604a;}.receipt-sum-card.total{border-top-color:#e07a2a;}',
+    '.receipt-sum-num{font-size:1.6rem;font-weight:800;line-height:1;}',
+    '.receipt-sum-card.present .receipt-sum-num{color:#4e8a6e;}.receipt-sum-card.absent .receipt-sum-num{color:#c0604a;}.receipt-sum-card.total .receipt-sum-num{color:#e07a2a;}',
+    '.receipt-sum-lbl{font-size:.6rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a0907a;margin-top:.3rem;}',
+    '.receipt-sum-sub{font-size:.68rem;color:#8b6f47;font-weight:600;margin-top:.2rem;}',
+    '.receipt-session-table{width:100%;border-collapse:collapse;font-size:.74rem;margin-bottom:1.4rem;}',
+    '.receipt-session-table th{font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a0907a;padding:.45rem .6rem;border-bottom:2px solid #e8e0d5;text-align:left;}',
+    '.receipt-session-table td{padding:.4rem .6rem;border-bottom:1px solid #f0ebe3;}',
+    '.rs-present{color:#4e8a6e;font-weight:700;}.rs-absent{color:#c0604a;}',
+    '.rs-amt{font-family:monospace;text-align:right;font-weight:600;display:block;}',
+    '.rs-total-row td{font-weight:800;border-top:2px solid #e8e0d5;padding-top:.6rem;}',
+    '.rs-total-row .rs-amt{color:#e07a2a;font-size:.85rem;}',
+    '.receipt-payment{display:flex;gap:1.4rem;align-items:flex-start;border:1px solid #e8e0d5;padding:1rem 1.1rem;margin-bottom:1.2rem;background:#faf8f5;}',
+    '.receipt-qr-wrap img{width:110px;height:110px;display:block;border:1px solid #e8e0d5;cursor:default;}',
+    '.receipt-bank-info{flex:1;}',
+    '.receipt-bank-name{font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#c00;margin-bottom:.4rem;}',
+    '.receipt-bank-row{font-size:.75rem;margin-bottom:.2rem;color:#2c2417;}',
+    '.receipt-bank-row strong{display:block;font-size:.68rem;font-weight:700;color:#a0907a;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.05rem;}',
+    '.receipt-transfer-note{font-size:.7rem;background:#fff8f0;border:1px solid #f0d8b0;padding:.5rem .8rem;margin-top:.6rem;color:#8b6f47;font-weight:600;}',
+    '.receipt-transfer-note span{font-family:monospace;}',
+    '.receipt-footer{text-align:center;font-size:.64rem;color:#a0907a;padding-top:.9rem;border-top:1px solid #e8e0d5;margin-top:.5rem;}',
+    '.receipt-footer strong{color:#8b6f47;}',
+    '@page{margin:1.2cm;size:A5 portrait;}'
+  ].join('\n');
+
+  // Use hidden iframe — works on both desktop and mobile without popup blocker
+  var iframe=document.getElementById('receipt-print-iframe');
+  if(!iframe){
+    iframe=document.createElement('iframe');
+    iframe.id='receipt-print-iframe';
+    iframe.style.cssText='position:fixed;top:-9999px;left:-9999px;width:0;height:0;border:none;visibility:hidden;';
+    document.body.appendChild(iframe);
+  }
+  var doc=iframe.contentDocument||iframe.contentWindow.document;
+  doc.open();
+  doc.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Biên lai học phí</title><style>'+css+'</style></head><body>'+content+'</body></html>');
+  doc.close();
+  iframe.onload=function(){
+    try{
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }catch(e){
+      // Fallback for browsers that block iframe print
+      var win=window.open('','_blank');
+      if(win){
+        win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Biên lai</title><style>'+css+'</style></head><body>'+content+'</body></html>');
+        win.document.close();
+        win.focus();
+        win.print();
+      } else {
+        alert('Trình duyệt đã chặn cửa sổ in. Vui lòng cho phép popup cho trang này và thử lại.');
+      }
+    }
+  };
 }
 
 function openQrZoom(){
