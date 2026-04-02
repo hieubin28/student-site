@@ -1341,7 +1341,172 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .receipt-qr-wrap img{cursor:zoom-in;transition:opacity .15s;}
 .receipt-qr-wrap img:hover{opacity:.85;}
 
-
+/* ══ ERROR LOG TAB ══ */
+.el-section-hd{
+  font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:1.2rem 0 .6rem;
+}
+.el-view-toggle{
+  display:flex;gap:.4rem;margin-bottom:1.1rem;
+}
+.el-view-btn{
+  flex:1;padding:.55rem;border:1px solid var(--border);background:var(--paper);
+  color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;font-size:.75rem;
+  font-weight:500;cursor:pointer;transition:all .15s;
+}
+.el-view-btn.active{
+  background:var(--orange);color:#fff;border-color:var(--orange);font-weight:600;
+}
+/* Form card */
+.el-form-card{
+  background:var(--paper);border:1px solid var(--border);padding:1.2rem;margin-bottom:1rem;
+}
+.el-form-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.7rem;}
+.el-form-input{
+  width:100%;padding:.5rem .7rem;background:var(--cream);border:1px solid var(--border);
+  color:var(--ink);font-family:'Be Vietnam Pro',sans-serif;font-size:.83rem;outline:none;
+  transition:border-color .15s;
+}
+.el-form-input:focus{border-color:var(--orange);}
+.el-form-label{
+  display:block;font-size:.63rem;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;
+}
+/* Error type grid */
+.el-error-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;
+}
+.el-error-item{
+  background:var(--cream);border:1px solid var(--border);padding:.55rem .7rem;
+  display:flex;align-items:center;justify-content:space-between;gap:.4rem;
+}
+.el-error-name{
+  font-size:.75rem;color:var(--ink);flex:1;line-height:1.3;cursor:help;
+}
+.el-stepper{display:flex;align-items:center;gap:.3rem;flex-shrink:0;}
+.el-stepper button{
+  width:22px;height:22px;border:1px solid var(--border);background:var(--paper);
+  color:var(--ink);font-size:.85rem;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;transition:all .12s;font-weight:700;
+  line-height:1;
+}
+.el-stepper button:hover{border-color:var(--orange);color:var(--orange);}
+.el-stepper-val{
+  font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:600;
+  color:var(--ink);min-width:16px;text-align:center;
+}
+.el-stepper-val.has-errors{color:var(--orange);}
+/* Expand details area */
+.el-details-wrap{
+  border-top:1px solid var(--border);margin-top:.8rem;padding-top:.8rem;
+  display:none;
+}
+.el-details-wrap.open{display:block;}
+.el-detail-row{
+  display:grid;grid-template-columns:70px 70px 1fr 1fr 90px;gap:.4rem;
+  margin-bottom:.4rem;align-items:center;
+}
+.el-detail-row input,.el-detail-row select{
+  padding:.35rem .5rem;border:1px solid var(--border);background:var(--cream);
+  color:var(--ink);font-family:'Be Vietnam Pro',sans-serif;font-size:.75rem;
+  outline:none;width:100%;
+}
+.el-detail-row input:focus,.el-detail-row select:focus{border-color:var(--orange);}
+.el-detail-hd{
+  display:grid;grid-template-columns:70px 70px 1fr 1fr 90px;gap:.4rem;
+  margin-bottom:.3rem;
+}
+.el-detail-hd span{font-size:.6rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+.el-rm-row{
+  background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;
+  padding:.2rem;transition:color .12s;
+}
+.el-rm-row:hover{color:var(--rust);}
+.el-add-row-btn{
+  background:none;border:1px dashed var(--border);color:var(--muted);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.73rem;padding:.4rem;
+  cursor:pointer;width:100%;margin-top:.3rem;transition:all .15s;
+}
+.el-add-row-btn:hover{border-color:var(--orange);color:var(--orange);}
+/* Toggle details btn */
+.el-toggle-details{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.72rem;padding:.4rem .8rem;
+  cursor:pointer;margin-top:.7rem;transition:all .15s;display:flex;align-items:center;gap:.3rem;
+}
+.el-toggle-details:hover{border-color:var(--orange);color:var(--orange);}
+/* Submit btn */
+.el-submit-btn{
+  width:100%;padding:.7rem;background:var(--orange);color:#fff;border:none;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.85rem;font-weight:600;
+  cursor:pointer;margin-top:.9rem;transition:opacity .15s;
+}
+.el-submit-btn:hover{opacity:.88;}
+.el-submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+/* Tooltip */
+.el-tooltip-wrap{position:relative;display:inline-block;}
+.el-tooltip{
+  position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:var(--ink2);color:#fff;font-size:.68rem;padding:.4rem .65rem;
+  white-space:nowrap;z-index:50;pointer-events:none;opacity:0;
+  transition:opacity .15s;line-height:1.4;max-width:220px;white-space:normal;text-align:center;
+}
+.el-tooltip-wrap:hover .el-tooltip,.el-tooltip-wrap.tip-open .el-tooltip{opacity:1;}
+/* ── Dashboard ── */
+.el-dash-stats{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;margin-bottom:1.1rem;
+}
+.el-stat-card{
+  background:var(--paper);border:1px solid var(--border);
+  padding:.85rem 1rem;text-align:center;
+}
+.el-stat-num{
+  font-family:'Lora',serif;font-size:1.7rem;font-weight:700;color:var(--orange);line-height:1;
+}
+.el-stat-lbl{font-size:.63rem;color:var(--muted);margin-top:.25rem;letter-spacing:.04em;}
+.el-bar-section{background:var(--paper);border:1px solid var(--border);padding:1rem 1.1rem;margin-bottom:1rem;}
+.el-bar-title{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;}
+.el-bar-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem;}
+.el-bar-name{font-size:.73rem;color:var(--ink);min-width:120px;flex-shrink:0;}
+.el-bar-track{flex:1;background:var(--line);height:8px;position:relative;}
+.el-bar-fill{height:100%;background:var(--orange);transition:width .4s;}
+.el-bar-fill.rd{background:var(--sky);}
+.el-bar-count{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);min-width:20px;text-align:right;}
+.el-history-item{
+  background:var(--paper);border:1px solid var(--border);
+  margin-bottom:.5rem;overflow:hidden;
+}
+.el-history-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.65rem .9rem;cursor:pointer;
+}
+.el-history-hd:hover{background:var(--paper2);}
+.el-history-meta{font-size:.73rem;color:var(--ink);}
+.el-history-date{font-size:.63rem;color:var(--muted);margin-top:.1rem;}
+.el-history-badges{display:flex;gap:.3rem;align-items:center;flex-shrink:0;}
+.el-badge{
+  font-size:.6rem;font-weight:700;padding:.15rem .45rem;
+  background:var(--orange3);color:var(--orange);border:1px solid var(--orange3);
+}
+.el-badge.rd{background:var(--sky2);color:var(--sky);border-color:var(--sky2);}
+.el-history-body{padding:.65rem .9rem;border-top:1px solid var(--line);display:none;}
+.el-history-body.open{display:block;}
+.el-detail-table{width:100%;border-collapse:collapse;font-size:.72rem;margin-top:.4rem;}
+.el-detail-table th{font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--muted);padding:.3rem .4rem;border-bottom:1px solid var(--line);text-align:left;}
+.el-detail-table td{padding:.35rem .4rem;border-bottom:1px solid var(--line);}
+.el-detail-table tr:last-child td{border-bottom:none;}
+.el-reviewed-yes{color:var(--sage);font-size:.65rem;}
+.el-reviewed-no{color:var(--muted);font-size:.65rem;}
+.el-reviewed-later{color:var(--orange);font-size:.65rem;}
+/* mobile */
+@media(max-width:500px){
+  .el-form-row{grid-template-columns:1fr;}
+  .el-error-grid{grid-template-columns:1fr;}
+  .el-dash-stats{grid-template-columns:1fr 1fr;}
+  .el-detail-row{grid-template-columns:55px 55px 1fr;grid-template-rows:auto auto;}
+  .el-detail-row .el-detail-para,.el-detail-row .el-detail-rev{grid-column:1/-1;}
+}
 
 </style>
 </head>
@@ -1484,6 +1649,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <div class="tab" data-tab="schedule"  onclick="goTab(this)">Lịch học</div>
     <div class="tab" data-tab="booking"   onclick="goTab(this)" id="tab-booking">Book 1-1 🗓</div>
     <div class="tab" data-tab="fee"       onclick="goTab(this)" id="tab-fee">💰 Học phí</div>
+    <div class="tab" data-tab="errorlog"  onclick="goTab(this)" id="tab-errorlog">📒 Nhật ký lỗi</div>
   </nav>
 
   <div class="main">
@@ -1719,6 +1885,88 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <div class="fee-session-list" id="fee-session-list"></div>
   </div>
 
+  <!-- ══ ERROR LOG ══ -->
+  <div class="pane" id="pane-errorlog">
+    <div class="el-view-toggle">
+      <button class="el-view-btn active" id="el-btn-form" onclick="elShowView('form')">✏️ Nhập log mới</button>
+      <button class="el-view-btn" id="el-btn-dash" onclick="elShowView('dash')">📊 Dashboard</button>
+    </div>
+
+    <!-- FORM VIEW -->
+    <div id="el-view-form">
+      <div class="el-form-card">
+        <div class="el-form-row">
+          <div>
+            <label class="el-form-label">Ngày luyện đề</label>
+            <input class="el-form-input" id="el-date" type="date">
+          </div>
+          <div>
+            <label class="el-form-label">Loại luyện</label>
+            <select class="el-form-input" id="el-session-type">
+              <option value="full">Full test</option>
+              <option value="part">Part lẻ</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="el-form-label">Tên đề</label>
+          <input class="el-form-input" id="el-test-name" type="text" placeholder="VD: ETS 2024 Test 1, Actual Test Vol.2..." list="el-test-suggestions" autocomplete="off">
+          <datalist id="el-test-suggestions"></datalist>
+        </div>
+      </div>
+
+      <!-- Listening errors -->
+      <div class="el-section-hd">🎧 Listening — Số lỗi theo loại</div>
+      <div class="el-form-card">
+        <div class="el-error-grid" id="el-ls-grid">
+          <!-- rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Reading errors -->
+      <div class="el-section-hd">📖 Reading — Số lỗi theo loại</div>
+      <div class="el-form-card">
+        <div class="el-error-grid" id="el-rd-grid">
+          <!-- rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Detail toggle -->
+      <button class="el-toggle-details" id="el-toggle-detail-btn" onclick="elToggleDetails()">
+        <span id="el-toggle-detail-ico">＋</span> Thêm chi tiết từng câu sai
+      </button>
+
+      <!-- Detail rows -->
+      <div class="el-details-wrap" id="el-details-wrap">
+        <div class="el-section-hd" style="margin-top:0">Chi tiết từng câu sai</div>
+        <div class="el-detail-hd">
+          <span>Part</span><span>Số câu</span><span>Nội dung</span><span>Paraphrase</span><span>Đã ôn?</span>
+        </div>
+        <div id="el-detail-rows"></div>
+        <button class="el-add-row-btn" onclick="elAddDetailRow()">+ Thêm câu</button>
+      </div>
+
+      <button class="el-submit-btn" onclick="elSubmit()">💾 Lưu nhật ký lỗi</button>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="el-view-dash" style="display:none">
+      <div class="el-dash-stats" id="el-dash-stats">
+        <!-- rendered by JS -->
+      </div>
+      <div class="el-bar-section">
+        <div class="el-bar-title">🎧 Listening — Top lỗi</div>
+        <div id="el-ls-bars"></div>
+      </div>
+      <div class="el-bar-section">
+        <div class="el-bar-title">📖 Reading — Top lỗi</div>
+        <div id="el-rd-bars"></div>
+      </div>
+      <div class="el-section-hd">Lịch sử các buổi luyện</div>
+      <div id="el-history-list"></div>
+    </div>
+  </div>
+
   </div><!-- /main -->
 
 <!-- ══ RECEIPT MODAL ══ -->
@@ -1851,6 +2099,7 @@ function goTab(el){
     }, 30);
   }
   if(el.dataset.tab==='fee') renderFeeTab();
+  if(el.dataset.tab==='errorlog') elInitTab();
 }
 
 /* ═══ LOGIN / LOGOUT ═══ */
@@ -3639,6 +3888,357 @@ function closePwaBanner(){
     // Keep collapsed on mobile — just visible as a small label
   }
 })();
+
+/* ═══════════════════════════════════════════
+   ERROR LOG MODULE
+═══════════════════════════════════════════ */
+
+var EL_LS_TYPES = [
+  { key:'distractor',    label:'Distractor',       tip:'Nghe ra nhưng bị lừa bởi đáp án có từ giống bài nghe, sai về nghĩa/logic.' },
+  { key:'miss_keyword',  label:'Miss từ khoá',     tip:'Nghe không ra từ / cụm từ quan trọng trong audio.' },
+  { key:'inference',     label:'Inference',        tip:'Câu hỏi dạng implied/suggested/most likely — suy luận sai.' },
+  { key:'no_read_q',     label:'Không đọc đề kịp', tip:'Chưa đọc xong 3 câu hỏi trước khi audio bắt đầu.' },
+  { key:'paraphrase',    label:'Paraphrase',       tip:'Không nhận ra từ trong đáp án là paraphrase của từ trong audio.' },
+  { key:'graphic',       label:'Graphic',          tip:'Câu liên quan đến bảng/sơ đồ đi kèm — đọc graphic chậm hoặc bỏ sót.' }
+];
+var EL_RD_TYPES = [
+  { key:'vocabulary',    label:'Từ vựng',          tip:'Không biết nghĩa từ / chọn sai từ loại (Part 5/6).' },
+  { key:'grammar',       label:'Ngữ pháp',         tip:'Sai cấu trúc ngữ pháp: tense, voice, connector... (Part 5/6).' },
+  { key:'text_logic',    label:'Logic văn bản',    tip:'Chọn sai câu điền vào đoạn vì không bắt được mạch văn (Part 6).' },
+  { key:'detail_error',  label:'Đọc sai chi tiết', tip:'Đọc sai / nhầm thông tin cụ thể trong bài (Part 7).' },
+  { key:'inference_r',   label:'Inference R',      tip:'Câu hỏi implied/inferred/suggested — suy luận sai (Part 7).' },
+  { key:'cross_ref',     label:'Cross-reference',  tip:'Câu cần đối chiếu 2-3 đoạn văn / passage (Double/Triple).' },
+  { key:'no_time',       label:'Không đủ thời gian',tip:'Hết giờ, không kịp đọc hoặc phải đoán mò.' }
+];
+
+var _elCounts = {}; // { ls: {distractor:0,...}, rd: {vocabulary:0,...} }
+var _elSessions = {}; // all sessions from Firebase
+var _elDetailRows = []; // array of detail row objects
+
+function _elInitCounts(){
+  _elCounts = { ls:{}, rd:{} };
+  EL_LS_TYPES.forEach(function(t){ _elCounts.ls[t.key]=0; });
+  EL_RD_TYPES.forEach(function(t){ _elCounts.rd[t.key]=0; });
+}
+
+function elInitTab(){
+  if(!S) return;
+  _elInitCounts();
+  _elDetailRows = [];
+
+  // Pre-fill date from today
+  var todayStr = today();
+  var dateEl = document.getElementById('el-date');
+  if(dateEl && !dateEl.value) dateEl.value = todayStr;
+
+  // Pre-fill test name from latest score entry
+  var nameEl = document.getElementById('el-test-name');
+  if(nameEl && !nameEl.value && S.scores && S.scores.length){
+    var latest = S.scores[S.scores.length-1];
+    if(latest.testName) nameEl.value = latest.testName;
+  }
+
+  // Build autocomplete suggestions from all past score test names + past error log sessions
+  var suggestions = new Set();
+  if(S.scores) S.scores.forEach(function(s){ if(s.testName) suggestions.add(s.testName); });
+  if(_elSessions){
+    Object.values(_elSessions).forEach(function(sess){ if(sess.testName) suggestions.add(sess.testName); });
+  }
+  var dl = document.getElementById('el-test-suggestions');
+  if(dl){ dl.innerHTML=''; suggestions.forEach(function(v){ var opt=document.createElement('option'); opt.value=v; dl.appendChild(opt); }); }
+
+  // Render stepper grids
+  elRenderGrid('el-ls-grid', EL_LS_TYPES, 'ls');
+  elRenderGrid('el-rd-grid', EL_RD_TYPES, 'rd');
+
+  // Ensure detail rows section starts empty
+  document.getElementById('el-detail-rows').innerHTML = '';
+
+  // Load sessions from Firebase
+  db.ref('students/'+S.id+'/errorLog').once('value').then(function(snap){
+    _elSessions = snap.val() || {};
+    // Refresh autocomplete
+    var suggestions2 = new Set();
+    if(S.scores) S.scores.forEach(function(s){ if(s.testName) suggestions2.add(s.testName); });
+    Object.values(_elSessions).forEach(function(sess){ if(sess.testName) suggestions2.add(sess.testName); });
+    var dl2 = document.getElementById('el-test-suggestions');
+    if(dl2){ dl2.innerHTML=''; suggestions2.forEach(function(v){ var opt=document.createElement('option'); opt.value=v; dl2.appendChild(opt); }); }
+  });
+}
+
+function elRenderGrid(containerId, types, section){
+  var grid = document.getElementById(containerId);
+  if(!grid) return;
+  grid.innerHTML = '';
+  types.forEach(function(t){
+    var val = (_elCounts[section] && _elCounts[section][t.key]) || 0;
+    var item = document.createElement('div');
+    item.className = 'el-error-item';
+    item.innerHTML =
+      '<div class="el-tooltip-wrap el-error-name" data-tip="'+t.tip+'">'
+        +t.label
+        +'<span class="el-tooltip">'+t.tip+'</span>'
+      +'</div>'
+      +'<div class="el-stepper">'
+        +'<button type="button" onclick="elStep(\''+section+'\',\''+t.key+'\',-1,this)">−</button>'
+        +'<span class="el-stepper-val'+(val>0?' has-errors':'')+'" id="el-'+section+'-'+t.key+'">'+val+'</span>'
+        +'<button type="button" onclick="elStep(\''+section+'\',\''+t.key+'\',1,this)">+</button>'
+      +'</div>';
+    // tap tooltip for mobile
+    item.querySelector('.el-error-name').addEventListener('click', function(){
+      this.classList.toggle('tip-open');
+    });
+    grid.appendChild(item);
+  });
+}
+
+function elStep(section, key, delta, btn){
+  if(!_elCounts[section]) _elCounts[section]={};
+  var cur = _elCounts[section][key] || 0;
+  var nv = Math.max(0, cur + delta);
+  _elCounts[section][key] = nv;
+  var valEl = document.getElementById('el-'+section+'-'+key);
+  if(valEl){
+    valEl.textContent = nv;
+    valEl.className = 'el-stepper-val' + (nv > 0 ? ' has-errors' : '');
+  }
+}
+
+function elToggleDetails(){
+  var wrap = document.getElementById('el-details-wrap');
+  var ico  = document.getElementById('el-toggle-detail-ico');
+  var open = wrap.classList.toggle('open');
+  ico.textContent = open ? '−' : '＋';
+  if(open && _elDetailRows.length === 0) elAddDetailRow();
+}
+
+function elAddDetailRow(){
+  var container = document.getElementById('el-detail-rows');
+  var idx = _elDetailRows.length;
+  _elDetailRows.push({part:'', qNum:'', content:'', paraphrase:'', reviewed:'no'});
+
+  var row = document.createElement('div');
+  row.className = 'el-detail-row';
+  row.dataset.idx = idx;
+  row.innerHTML =
+    '<select class="el-detail-part" onchange="elUpdateDetail('+idx+',\'part\',this.value)">'
+      +'<option value="">Part</option>'
+      +'<option>Part 1</option><option>Part 2</option><option>Part 3</option><option>Part 4</option>'
+      +'<option>Part 5</option><option>Part 6</option><option>Part 7</option>'
+    +'</select>'
+    +'<input type="text" placeholder="Q?" maxlength="5" onchange="elUpdateDetail('+idx+',\'qNum\',this.value)">'
+    +'<input type="text" placeholder="Nội dung / lý do sai" onchange="elUpdateDetail('+idx+',\'content\',this.value)">'
+    +'<input type="text" placeholder="Paraphrase / từ cần nhớ" onchange="elUpdateDetail('+idx+',\'paraphrase\',this.value)" class="el-detail-para">'
+    +'<select class="el-detail-rev" onchange="elUpdateDetail('+idx+',\'reviewed\',this.value)">'
+      +'<option value="no">⏳ Chưa</option>'
+      +'<option value="yes">✅ Rồi</option>'
+      +'<option value="later">🔁 Xem lại</option>'
+    +'</select>'
+    +'<button type="button" class="el-rm-row" onclick="elRemoveDetailRow(this,'+idx+')">✕</button>';
+  container.appendChild(row);
+}
+
+function elUpdateDetail(idx, field, val){
+  if(_elDetailRows[idx]) _elDetailRows[idx][field] = val;
+}
+
+function elRemoveDetailRow(btn, idx){
+  var row = btn.closest('.el-detail-row');
+  if(row) row.remove();
+  _elDetailRows[idx] = null;
+}
+
+function elSubmit(){
+  if(!S) return;
+  var testName = (document.getElementById('el-test-name').value||'').trim();
+  var dateVal  = document.getElementById('el-date').value;
+  var sessType = document.getElementById('el-session-type').value;
+  if(!testName){ showToast('⚠️ Vui lòng nhập tên đề'); return; }
+  if(!dateVal){  showToast('⚠️ Vui lòng chọn ngày');  return; }
+
+  var lsTotal = 0, rdTotal = 0;
+  EL_LS_TYPES.forEach(function(t){ lsTotal += (_elCounts.ls[t.key]||0); });
+  EL_RD_TYPES.forEach(function(t){ rdTotal += (_elCounts.rd[t.key]||0); });
+
+  var details = _elDetailRows.filter(function(r){ return r && (r.part||r.content); });
+
+  var sessionId = Date.now().toString();
+  var payload = {
+    date: dateVal,
+    testName: testName,
+    sessionType: sessType,
+    listening: JSON.parse(JSON.stringify(_elCounts.ls)),
+    reading:   JSON.parse(JSON.stringify(_elCounts.rd)),
+    lsTotal: lsTotal,
+    rdTotal: rdTotal,
+    savedAt: new Date().toISOString()
+  };
+  if(details.length) payload.details = details;
+
+  var btn = document.querySelector('.el-submit-btn');
+  btn.disabled = true; btn.textContent = 'Đang lưu...';
+
+  db.ref('students/'+S.id+'/errorLog/'+sessionId).set(payload).then(function(){
+    _elSessions[sessionId] = payload;
+    showToast('✅ Đã lưu nhật ký lỗi!');
+    // reset form
+    _elInitCounts();
+    _elDetailRows = [];
+    elRenderGrid('el-ls-grid', EL_LS_TYPES, 'ls');
+    elRenderGrid('el-rd-grid', EL_RD_TYPES, 'rd');
+    document.getElementById('el-detail-rows').innerHTML = '';
+    document.getElementById('el-details-wrap').classList.remove('open');
+    document.getElementById('el-toggle-detail-ico').textContent = '＋';
+    document.getElementById('el-test-name').value = '';
+    btn.disabled = false; btn.textContent = '💾 Lưu nhật ký lỗi';
+    // auto-switch to dashboard
+    elShowView('dash');
+  }).catch(function(e){
+    showToast('❌ Lỗi khi lưu: '+e.message);
+    btn.disabled = false; btn.textContent = '💾 Lưu nhật ký lỗi';
+  });
+}
+
+function elShowView(view){
+  document.getElementById('el-view-form').style.display = view==='form' ? '' : 'none';
+  document.getElementById('el-view-dash').style.display = view==='dash' ? '' : 'none';
+  document.getElementById('el-btn-form').classList.toggle('active', view==='form');
+  document.getElementById('el-btn-dash').classList.toggle('active', view==='dash');
+  if(view==='dash') elRenderDash();
+}
+
+function elRenderDash(){
+  if(!S) return;
+  db.ref('students/'+S.id+'/errorLog').once('value').then(function(snap){
+    _elSessions = snap.val() || {};
+    var sessions = Object.values(_elSessions).sort(function(a,b){ return b.date.localeCompare(a.date); });
+
+    // Aggregate totals
+    var lsTotals={}, rdTotals={};
+    EL_LS_TYPES.forEach(function(t){ lsTotals[t.key]=0; });
+    EL_RD_TYPES.forEach(function(t){ rdTotals[t.key]=0; });
+    var totalLs=0, totalRd=0, totalReviewed=0, totalPending=0, totalLater=0;
+    sessions.forEach(function(sess){
+      if(sess.listening) EL_LS_TYPES.forEach(function(t){ lsTotals[t.key]+=(sess.listening[t.key]||0); totalLs+=(sess.listening[t.key]||0); });
+      if(sess.reading)   EL_RD_TYPES.forEach(function(t){ rdTotals[t.key]+=(sess.reading[t.key]||0);   totalRd+=(sess.reading[t.key]||0); });
+      if(sess.details) sess.details.forEach(function(d){
+        if(d.reviewed==='yes') totalReviewed++;
+        else if(d.reviewed==='later') totalLater++;
+        else totalPending++;
+      });
+    });
+
+    // Stat cards
+    var statsEl = document.getElementById('el-dash-stats');
+    statsEl.innerHTML =
+      elStatCard(sessions.length, 'Buổi đã log')
+      +elStatCard(totalLs, 'Tổng lỗi Listening')
+      +elStatCard(totalRd, 'Tổng lỗi Reading')
+      +elStatCard(totalReviewed, '✅ Đã ôn lại');
+
+    // Bars Listening
+    var maxLs = Math.max(1, Math.max.apply(null, EL_LS_TYPES.map(function(t){ return lsTotals[t.key]; })));
+    var lsBarsEl = document.getElementById('el-ls-bars');
+    lsBarsEl.innerHTML = '';
+    EL_LS_TYPES.slice().sort(function(a,b){ return lsTotals[b.key]-lsTotals[a.key]; }).forEach(function(t){
+      var cnt = lsTotals[t.key];
+      if(!cnt) return;
+      lsBarsEl.innerHTML += '<div class="el-bar-row">'
+        +'<div class="el-bar-name">'+t.label+'</div>'
+        +'<div class="el-bar-track"><div class="el-bar-fill" style="width:'+Math.round(cnt/maxLs*100)+'%"></div></div>'
+        +'<div class="el-bar-count">'+cnt+'</div>'
+        +'</div>';
+    });
+    if(!lsBarsEl.innerHTML) lsBarsEl.innerHTML='<div style="font-size:.75rem;color:var(--muted);font-style:italic">Chưa có dữ liệu</div>';
+
+    // Bars Reading
+    var maxRd = Math.max(1, Math.max.apply(null, EL_RD_TYPES.map(function(t){ return rdTotals[t.key]; })));
+    var rdBarsEl = document.getElementById('el-rd-bars');
+    rdBarsEl.innerHTML = '';
+    EL_RD_TYPES.slice().sort(function(a,b){ return rdTotals[b.key]-rdTotals[a.key]; }).forEach(function(t){
+      var cnt = rdTotals[t.key];
+      if(!cnt) return;
+      rdBarsEl.innerHTML += '<div class="el-bar-row">'
+        +'<div class="el-bar-name">'+t.label+'</div>'
+        +'<div class="el-bar-track"><div class="el-bar-fill rd" style="width:'+Math.round(cnt/maxRd*100)+'%"></div></div>'
+        +'<div class="el-bar-count">'+cnt+'</div>'
+        +'</div>';
+    });
+    if(!rdBarsEl.innerHTML) rdBarsEl.innerHTML='<div style="font-size:.75rem;color:var(--muted);font-style:italic">Chưa có dữ liệu</div>';
+
+    // History list
+    var histEl = document.getElementById('el-history-list');
+    histEl.innerHTML = '';
+    if(!sessions.length){
+      histEl.innerHTML='<div class="empty">Chưa có buổi nào được log</div>';
+      return;
+    }
+    sessions.forEach(function(sess, i){
+      var _d=sess.date.split('-'); var dStr=_d[2]+'/'+_d[1]+'/'+_d[0];
+      var item = document.createElement('div');
+      item.className = 'el-history-item';
+      var lsSum=sess.lsTotal||0, rdSum=sess.rdTotal||0;
+      item.innerHTML =
+        '<div class="el-history-hd" onclick="elToggleHistoryItem(this)">'
+          +'<div>'
+            +'<div class="el-history-meta">'+escHtml(sess.testName||'—')+(sess.sessionType==='full'?' · Full test':' · Part lẻ')+'</div>'
+            +'<div class="el-history-date">📅 '+dStr+'</div>'
+          +'</div>'
+          +'<div class="el-history-badges">'
+            +(lsSum?'<span class="el-badge">🎧 '+lsSum+'</span>':'')
+            +(rdSum?'<span class="el-badge rd">📖 '+rdSum+'</span>':'')
+            +'<span style="color:var(--muted);font-size:.75rem">▾</span>'
+          +'</div>'
+        +'</div>'
+        +'<div class="el-history-body" id="el-hb-'+i+'">'
+          +elHistoryBodyHTML(sess)
+        +'</div>';
+      histEl.appendChild(item);
+    });
+  });
+}
+
+function elStatCard(num, lbl){
+  return '<div class="el-stat-card"><div class="el-stat-num">'+num+'</div><div class="el-stat-lbl">'+lbl+'</div></div>';
+}
+
+function elHistoryBodyHTML(sess){
+  var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.7rem;">';
+  // Listening breakdown
+  html += '<div><div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;">🎧 LISTENING</div>';
+  var hasLs = false;
+  if(sess.listening) EL_LS_TYPES.forEach(function(t){
+    var v = sess.listening[t.key]||0;
+    if(v){ html+='<div style="font-size:.73rem;display:flex;justify-content:space-between;margin-bottom:.2rem"><span>'+t.label+'</span><span style="font-weight:700;color:var(--orange)">'+v+'</span></div>'; hasLs=true; }
+  });
+  if(!hasLs) html+='<div style="font-size:.72rem;color:var(--muted);font-style:italic">Không có lỗi</div>';
+  html += '</div>';
+  // Reading breakdown
+  html += '<div><div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;">📖 READING</div>';
+  var hasRd = false;
+  if(sess.reading) EL_RD_TYPES.forEach(function(t){
+    var v = sess.reading[t.key]||0;
+    if(v){ html+='<div style="font-size:.73rem;display:flex;justify-content:space-between;margin-bottom:.2rem"><span>'+t.label+'</span><span style="font-weight:700;color:var(--sky)">'+v+'</span></div>'; hasRd=true; }
+  });
+  if(!hasRd) html+='<div style="font-size:.72rem;color:var(--muted);font-style:italic">Không có lỗi</div>';
+  html += '</div></div>';
+  // Detail rows
+  if(sess.details && sess.details.length){
+    html += '<div style="font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;">Chi tiết câu sai</div>';
+    html += '<table class="el-detail-table"><thead><tr><th>Part</th><th>Câu</th><th>Nội dung</th><th>Paraphrase</th><th>Ôn</th></tr></thead><tbody>';
+    sess.details.forEach(function(d){
+      var revHtml = d.reviewed==='yes'?'<span class="el-reviewed-yes">✅</span>':d.reviewed==='later'?'<span class="el-reviewed-later">🔁</span>':'<span class="el-reviewed-no">⏳</span>';
+      html+='<tr><td>'+(d.part||'—')+'</td><td>'+(d.qNum||'—')+'</td><td>'+escHtml(d.content||'')+'</td><td>'+escHtml(d.paraphrase||'')+'</td><td>'+revHtml+'</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  return html;
+}
+
+function elToggleHistoryItem(hd){
+  var body = hd.nextElementSibling;
+  if(body) body.classList.toggle('open');
+}
 
 /* ═══ SURVEY BUBBLE ═══ */
 function openSurvey(){
