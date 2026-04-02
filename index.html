@@ -975,6 +975,36 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .se-pending{background:rgba(196,98,45,.12);color:var(--gold);}
 .se-approved{background:rgba(62,122,82,.12);color:var(--sage);}
 .se-rejected{background:rgba(184,64,48,.12);color:var(--rust);}
+.se-actions{display:flex;align-items:center;flex-shrink:0;margin-left:.4rem;}
+.se-edit-btn{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  font-size:.72rem;padding:.25rem .5rem;cursor:pointer;
+  transition:all .15s;line-height:1;
+}
+.se-edit-btn:hover{border-color:var(--orange);color:var(--orange);}
+/* Score edit overlay */
+.score-edit-ov{
+  position:fixed;inset:0;z-index:3000;background:rgba(44,30,15,.55);
+  display:none;align-items:center;justify-content:center;padding:1rem;
+}
+.score-edit-ov.open{display:flex;}
+.score-edit-modal{
+  background:var(--paper);width:100%;max-width:480px;padding:1.4rem;
+  max-height:90vh;overflow-y:auto;
+}
+.score-edit-modal h4{font-family:'Lora',serif;font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:1rem;}
+.score-edit-row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:.7rem;}
+.score-edit-lbl{display:block;font-size:.63rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;}
+.score-edit-input{width:100%;padding:.5rem .7rem;background:var(--cream);border:1px solid var(--border);color:var(--ink);font-family:'Be Vietnam Pro',sans-serif;font-size:.83rem;outline:none;transition:border-color .15s;}
+.score-edit-input:focus{border-color:var(--orange);}
+.score-edit-parts{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-bottom:.7rem;}
+.score-edit-footer{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem;border-top:1px solid var(--line);padding-top:.9rem;align-items:center;}
+.score-edit-del{background:none;border:1px solid var(--rust);color:var(--rust);font-family:'Be Vietnam Pro',sans-serif;font-size:.77rem;padding:.4rem .85rem;cursor:pointer;transition:all .15s;margin-right:auto;}
+.score-edit-del:hover{background:var(--rust2);color:var(--rust);}
+.score-edit-cancel{background:none;border:1px solid var(--border);color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;font-size:.77rem;padding:.4rem .85rem;cursor:pointer;}
+.score-edit-save{background:var(--orange);color:#fff;border:none;font-family:'Be Vietnam Pro',sans-serif;font-size:.77rem;font-weight:600;padding:.4rem 1rem;cursor:pointer;transition:opacity .15s;}
+.score-edit-save:hover{opacity:.87;}
+@media(max-width:500px){.score-edit-row{grid-template-columns:1fr;}.score-edit-parts{grid-template-columns:repeat(4,1fr);}}
 .se-expand-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;padding:.1rem .3rem;transition:color .15s;}
 .se-expand-btn:hover{color:var(--gold);}
 .se-parts-detail{display:none;margin-top:.6rem;padding:.6rem .7rem;background:var(--paper);border:1px solid var(--line);}
@@ -1874,8 +1904,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
           <div style="color:var(--border);font-size:1.2rem">=</div>
           <div><span style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Tổng ước tính</span><div style="font-family:'Lora',serif;font-size:1.6rem;font-weight:700;color:var(--gold)" id="sc-total-preview">—</div></div>
         </div>
-        <button class="btn-submit-score" onclick="submitScoreReq()">Gửi để giáo viên duyệt →</button>
-        <div style="font-size:.72rem;color:var(--muted);margin-top:.6rem;">⏳ Điểm sẽ được lưu chính thức sau khi giáo viên xác nhận.</div>
+        <button class="btn-submit-score" onclick="submitScoreReq()">💾 Lưu điểm →</button>
       </div>
 
       <!-- Score list -->
@@ -2093,6 +2122,46 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   </div>
 </div>
 
+<!-- ══ SCORE EDIT MODAL ══ -->
+<div class="score-edit-ov" id="score-edit-ov" onclick="if(event.target===this)closeScoreEdit()">
+  <div class="score-edit-modal">
+    <h4>✏️ Chỉnh sửa bài test</h4>
+    <div>
+      <label class="score-edit-lbl">Tên bài test</label>
+      <input class="score-edit-input" id="se-testname" type="text" placeholder="VD: ETS 2024 Test 1..." style="margin-bottom:.7rem">
+    </div>
+    <div class="score-edit-row">
+      <div>
+        <label class="score-edit-lbl">Ngày làm bài</label>
+        <input class="score-edit-input" id="se-date" type="date">
+      </div>
+      <div>
+        <label class="score-edit-lbl">Tổng điểm</label>
+        <input class="score-edit-input" id="se-score" type="number" min="10" max="990" placeholder="650">
+      </div>
+    </div>
+    <label class="score-edit-lbl">Số câu đúng từng part <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(tuỳ chọn)</span></label>
+    <div class="score-edit-parts">
+      <div><label class="score-edit-lbl" style="color:var(--sky)">P1 /6</label><input class="score-edit-input" id="se-p1" type="number" min="0" max="6" placeholder="—" oninput="seAutoCalc()"></div>
+      <div><label class="score-edit-lbl" style="color:var(--sky)">P2 /25</label><input class="score-edit-input" id="se-p2" type="number" min="0" max="25" placeholder="—" oninput="seAutoCalc()"></div>
+      <div><label class="score-edit-lbl" style="color:var(--sky)">P3 /39</label><input class="score-edit-input" id="se-p3" type="number" min="0" max="39" placeholder="—" oninput="seAutoCalc()"></div>
+      <div><label class="score-edit-lbl" style="color:var(--sky)">P4 /30</label><input class="score-edit-input" id="se-p4" type="number" min="0" max="30" placeholder="—" oninput="seAutoCalc()"></div>
+      <div><label class="score-edit-lbl" style="color:var(--sage)">P5 /30</label><input class="score-edit-input" id="se-p5" type="number" min="0" max="30" placeholder="—" oninput="seAutoCalc()"></div>
+      <div><label class="score-edit-lbl" style="color:var(--sage)">P6 /16</label><input class="score-edit-input" id="se-p6" type="number" min="0" max="16" placeholder="—" oninput="seAutoCalc()"></div>
+      <div><label class="score-edit-lbl" style="color:var(--sage)">P7 /54</label><input class="score-edit-input" id="se-p7" type="number" min="0" max="54" placeholder="—" oninput="seAutoCalc()"></div>
+    </div>
+    <div>
+      <label class="score-edit-lbl">Ghi chú</label>
+      <input class="score-edit-input" id="se-note" type="text" placeholder="Tự học, thi thử ETS...">
+    </div>
+    <div class="score-edit-footer">
+      <button class="score-edit-del" onclick="deleteScore()">🗑 Xoá bài test này</button>
+      <button class="score-edit-cancel" onclick="closeScoreEdit()">Huỷ</button>
+      <button class="score-edit-save" onclick="saveScoreEdit()">Lưu →</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /app -->
 
 
@@ -2304,11 +2373,7 @@ function launchApp(){
     renderBookingTab();
   });
   // Real-time: score requests for this student
-  db.ref('scoreRequests').on('value',function(snap){
-    allScoreReqs=snap.val()||{};
-    updateScoreBadge();
-    renderScoresTab();
-  });
+  // (scoreRequests listener removed — students save directly)
   // Real-time: goal (sync từ Firebase, migrate nếu có localStorage)
   db.ref('goals/'+S.id).on('value',function(snap){
     if(snap.exists()){
@@ -2390,8 +2455,7 @@ function updateMissionBadge(){
 }
 function updateScoreBadge(){
   if(!S) return;
-  var pending=Object.values(allScoreReqs).filter(function(r){return r.studentId===S.id&&r.status==='pending';}).length;
-  document.getElementById('tab-scores').innerHTML='🎯 Điểm số'+(pending?'<span class="badge" style="background:var(--gold);color:var(--ink)">'+pending+'</span>':'');
+  document.getElementById('tab-scores').innerHTML='🎯 Điểm số';
 }
 
 /* ═══ HW helpers ═══ */
@@ -2690,7 +2754,6 @@ function renderScoresTab(){
   if(!S) return;
   var scores=S.scores||[];
   var goal=getGoal(S.id);
-  var myReqs=Object.values(allScoreReqs).filter(function(r){return r.studentId===S.id;}).sort(function(a,b){return b.submittedAt.localeCompare(a.submittedAt);});
 
   // Goal card — cập nhật đúng IDs trong HTML
   var goalNumEl=document.getElementById('sc-goal-num');
@@ -2734,22 +2797,19 @@ function renderScoresTab(){
     buildScoreChart(scores,goal?goal.target:null);
   } else if(chartWrap){ chartWrap.style.display='none'; }
 
-  // History — dùng sc-list (ID trong HTML)
+  // History
   var histEl=document.getElementById('sc-list');
   if(histEl){
     histEl.innerHTML='';
-    if(!scores.length&&!myReqs.length){ histEl.innerHTML='<div class="empty">Chưa có điểm nào</div>'; }
+    if(!scores.length){ histEl.innerHTML='<div class="empty">Chưa có điểm nào</div>'; }
     else {
-      // Pending requests
-      myReqs.filter(function(r){return r.status==='pending';}).forEach(function(r){
-        var d=document.createElement('div'); d.className='score-entry pending';
-        d.innerHTML=seHTML(r.score, r.testName, r.date, r.parts, r.note, false, '⏳ Chờ duyệt', 'se-pending');
-        histEl.appendChild(d);
-      });
-      // Approved scores
       scores.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).forEach(function(s,i){
         var d=document.createElement('div'); d.className='score-entry';
-        d.innerHTML=seHTML(s.score, s.testName, s.date, s.parts, s.note, i===0, i===0?'✅ Mới nhất':null, 'se-approved');
+        var origIdx=(S.scores||[]).indexOf(s); // original index for edit/delete
+        d.innerHTML=seHTML(s.score, s.testName, s.date, s.parts, s.note, i===0, i===0?'✅ Mới nhất':null, 'se-approved')
+          +'<div class="se-actions">'
+            +'<button class="se-edit-btn" data-idx="'+origIdx+'" onclick="openScoreEdit('+origIdx+')">✏️</button>'
+          +'</div>';
         histEl.appendChild(d);
       });
     }
@@ -2844,7 +2904,7 @@ function onManualTotal(){
 }
 function submitScoreReq(){
   var score=parseInt(document.getElementById('sc-score-input').value);
-  var dateRaw=document.getElementById('sc-date').value; // yyyy-mm-dd from date input
+  var dateRaw=document.getElementById('sc-date').value;
   var testName=document.getElementById('sc-testname').value.trim();
   var note=document.getElementById('sc-note').value.trim();
   if(!score||score<10||score>990){ alert('Nhập điểm hợp lệ (10–990)!'); return; }
@@ -2854,18 +2914,20 @@ function submitScoreReq(){
     var v=parseInt(document.getElementById('sc-'+k).value);
     if(!isNaN(v)&&v>=0&&String(document.getElementById('sc-'+k).value).trim()!=='') parts[k]=v;
   });
-  var id='scr'+Date.now();
-  db.ref('scoreRequests/'+id).set({
-    id:id, studentId:S.id, studentName:S.name,
-    score:score, date:dateRaw, testName:testName, note:note, parts:parts,
-    status:'pending', submittedAt:new Date().toISOString()
-  });
+  var entry={score:score,date:dateRaw};
+  if(testName) entry.testName=testName;
+  if(note) entry.note=note;
+  if(Object.keys(parts).length) entry.parts=parts;
+  var scores=(S.scores||[]).slice();
+  scores.push(entry);
+  scores.sort(function(a,b){return a.date.localeCompare(b.date);});
+  db.ref('students/'+S.id+'/scores').set(scores);
   // Clear form
   ['sc-score-input','sc-date','sc-testname','sc-note','sc-p1','sc-p2','sc-p3','sc-p4','sc-p5','sc-p6','sc-p7'].forEach(function(eid){
     var el=document.getElementById(eid); if(el) el.value='';
   });
   document.getElementById('sc-preview').style.display='none';
-  toast('✅ Đã gửi điểm! Giáo viên sẽ duyệt sớm.');
+  toast('✅ Đã lưu điểm!');
 }
 
 /* ═══ MISSIONS ═══ */
@@ -4436,6 +4498,77 @@ function elPrefillAndSwitch(testName, date){
   var dateEl = document.getElementById('el-date');
   if(nameEl) nameEl.value = testName;
   if(dateEl) dateEl.value = date;
+}
+
+/* ═══ SCORE EDIT ═══ */
+var _seEditIdx = -1;
+function openScoreEdit(idx){
+  var scores = (S.scores||[]).slice().sort(function(a,b){return b.date.localeCompare(a.date);});
+  // idx is from sorted array, find in original
+  var s = scores[idx];
+  if(!s) return;
+  _seEditIdx = (S.scores||[]).indexOf(s);
+  document.getElementById('se-testname').value = s.testName||'';
+  document.getElementById('se-date').value = s.date||'';
+  document.getElementById('se-score').value = s.score||'';
+  document.getElementById('se-note').value = s.note||'';
+  var parts = s.parts||{};
+  ['p1','p2','p3','p4','p5','p6','p7'].forEach(function(k){
+    var el=document.getElementById('se-'+k);
+    if(el) el.value = parts[k]!==undefined ? parts[k] : '';
+  });
+  document.getElementById('score-edit-ov').classList.add('open');
+}
+function closeScoreEdit(){
+  document.getElementById('score-edit-ov').classList.remove('open');
+  _seEditIdx = -1;
+}
+function seAutoCalc(){
+  var p1=parseInt(document.getElementById('se-p1').value)||0;
+  var p2=parseInt(document.getElementById('se-p2').value)||0;
+  var p3=parseInt(document.getElementById('se-p3').value)||0;
+  var p4=parseInt(document.getElementById('se-p4').value)||0;
+  var p5=parseInt(document.getElementById('se-p5').value)||0;
+  var p6=parseInt(document.getElementById('se-p6').value)||0;
+  var p7=parseInt(document.getElementById('se-p7').value)||0;
+  var hasAny=(p1||p2||p3||p4||p5||p6||p7);
+  if(!hasAny) return;
+  var ls=LS_SCALE[Math.min(100,p1+p2+p3+p4)];
+  var rd=RD_SCALE[Math.min(100,p5+p6+p7)];
+  document.getElementById('se-score').value=ls+rd;
+}
+function saveScoreEdit(){
+  if(_seEditIdx<0) return;
+  var score=parseInt(document.getElementById('se-score').value);
+  var date=document.getElementById('se-date').value;
+  if(!score||score<10||score>990){ toast('Điểm phải từ 10–990!'); return; }
+  if(!date){ toast('Chọn ngày làm bài!'); return; }
+  var testName=document.getElementById('se-testname').value.trim();
+  var note=document.getElementById('se-note').value.trim();
+  var parts={};
+  ['p1','p2','p3','p4','p5','p6','p7'].forEach(function(k){
+    var v=parseInt(document.getElementById('se-'+k).value);
+    if(!isNaN(v)&&String(document.getElementById('se-'+k).value).trim()!=='') parts[k]=v;
+  });
+  var scores=(S.scores||[]).slice();
+  var entry={score:score,date:date};
+  if(testName) entry.testName=testName;
+  if(note) entry.note=note;
+  if(Object.keys(parts).length) entry.parts=parts;
+  scores[_seEditIdx]=entry;
+  scores.sort(function(a,b){return a.date.localeCompare(b.date);});
+  db.ref('students/'+S.id+'/scores').set(scores);
+  closeScoreEdit();
+  toast('✅ Đã cập nhật bài test!');
+}
+function deleteScore(){
+  if(_seEditIdx<0) return;
+  if(!confirm('Xoá bài test này?')) return;
+  var scores=(S.scores||[]).slice();
+  scores.splice(_seEditIdx,1);
+  db.ref('students/'+S.id+'/scores').set(scores);
+  closeScoreEdit();
+  toast('🗑 Đã xoá bài test.');
 }
 
 function elToggleGuide(){
