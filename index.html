@@ -949,15 +949,29 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .chart-axis{font-family:'JetBrains Mono',monospace;font-size:9px;fill:var(--muted);}
 
 /* Score entry list */
-.score-entry{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border:1px solid var(--line);background:var(--cream);margin-bottom:.35rem;}
+.score-entry{padding:.75rem .9rem;border:1px solid var(--line);background:var(--cream);margin-bottom:.45rem;}
 .score-entry.pending{border-color:rgba(196,98,45,.3);background:rgba(196,98,45,.04);}
 .score-entry.rejected{opacity:.45;}
-.se-score{font-family:'Lora',serif;font-size:1.4rem;font-weight:700;color:var(--gold);min-width:48px;line-height:1;}
+.se-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.7rem;margin-bottom:.5rem;}
+.se-top-left{display:flex;align-items:baseline;gap:.75rem;flex:1;min-width:0;}
+.se-score{font-family:'Lora',serif;font-size:1.7rem;font-weight:700;color:var(--gold);line-height:1;flex-shrink:0;}
 .se-score.latest{color:var(--sage);}
-.se-body{flex:1;}
-.se-date{font-size:.78rem;font-weight:500;}
-.se-parts{font-size:.68rem;color:var(--muted);margin-top:.1rem;font-family:'JetBrains Mono',monospace;}
-.se-badge{font-size:.62rem;font-weight:700;padding:.18rem .5rem;white-space:nowrap;}
+.se-title-wrap{flex:1;min-width:0;}
+.se-testname{font-size:.88rem;font-weight:600;color:var(--ink);line-height:1.3;word-break:break-word;}
+.se-testname-fallback{font-size:.82rem;color:var(--muted);font-style:italic;}
+.se-date{font-size:.67rem;color:var(--muted);margin-top:.2rem;display:flex;align-items:center;gap:.25rem;}
+.se-parts-row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;}
+.se-parts-group{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;}
+.se-parts-ico{font-size:.7rem;opacity:.7;flex-shrink:0;}
+.se-part-chip{
+  font-family:'JetBrains Mono',monospace;font-size:.73rem;font-weight:500;
+  padding:.18rem .45rem;background:var(--paper);border:1px solid var(--line);
+  color:var(--ink);line-height:1.3;
+}
+.se-part-chip.ls{border-color:rgba(58,104,152,.25);background:var(--sky2);color:var(--sky);}
+.se-part-chip.rd{border-color:rgba(74,124,89,.25);background:var(--sage2);color:var(--sage);}
+.se-note{font-size:.7rem;color:var(--muted);margin-top:.4rem;font-style:italic;}
+.se-badge{font-size:.62rem;font-weight:700;padding:.18rem .5rem;white-space:nowrap;flex-shrink:0;}
 .se-pending{background:rgba(196,98,45,.12);color:var(--gold);}
 .se-approved{background:rgba(62,122,82,.12);color:var(--sage);}
 .se-rejected{background:rgba(184,64,48,.12);color:var(--rust);}
@@ -2726,20 +2740,57 @@ function renderScoresTab(){
     histEl.innerHTML='';
     if(!scores.length&&!myReqs.length){ histEl.innerHTML='<div class="empty">Chưa có điểm nào</div>'; }
     else {
+      // Pending requests
       myReqs.filter(function(r){return r.status==='pending';}).forEach(function(r){
         var d=document.createElement('div'); d.className='score-entry pending';
-        var partsHtml=''; if(r.parts&&Object.keys(r.parts).length){ partsHtml='<div class="se-parts">'+Object.entries(r.parts).map(function(e){return e[0].toUpperCase()+':'+e[1];}).join(' · ')+'</div>'; }
-        d.innerHTML='<div class="se-score">'+r.score+'</div><div class="se-body"><div class="se-date">'+(r.testName?'<strong>'+escH(r.testName)+'</strong> · ':'')+r.date+'</div>'+partsHtml+(r.note?'<div class="se-parts" style="color:var(--muted)">'+escH(r.note)+'</div>':'')+'</div><span class="se-badge se-pending">⏳ Chờ duyệt</span>';
+        d.innerHTML=seHTML(r.score, r.testName, r.date, r.parts, r.note, false, '⏳ Chờ duyệt', 'se-pending');
         histEl.appendChild(d);
       });
+      // Approved scores
       scores.slice().sort(function(a,b){return b.date.localeCompare(a.date);}).forEach(function(s,i){
         var d=document.createElement('div'); d.className='score-entry';
-        var partsHtml=''; if(s.parts&&Object.keys(s.parts).length){ partsHtml='<div class="se-parts">'+Object.entries(s.parts).map(function(e){return e[0].toUpperCase()+':'+e[1];}).join(' · ')+'</div>'; }
-        d.innerHTML='<div class="se-score'+(i===0?' latest':'')+'">'+s.score+'</div><div class="se-body"><div class="se-date">'+(s.testName?'<strong>'+escH(s.testName)+'</strong> · ':'')+s.date+'</div>'+partsHtml+(s.note?'<div class="se-parts" style="color:var(--muted)">'+escH(s.note)+'</div>':'')+'</div>'+(i===0?'<span class="se-badge se-approved">✅ Mới nhất</span>':'');
+        d.innerHTML=seHTML(s.score, s.testName, s.date, s.parts, s.note, i===0, i===0?'✅ Mới nhất':null, 'se-approved');
         histEl.appendChild(d);
       });
     }
   }
+}
+
+function seHTML(score, testName, date, parts, note, isLatest, badgeText, badgeClass){
+  // Format date
+  var dateStr=date||'';
+  if(dateStr.match(/^\d{4}-\d{2}-\d{2}$/)){var _p=dateStr.split('-');dateStr=_p[2]+'/'+_p[1]+'/'+_p[0];}
+
+  // Parts chips
+  var lsChips='', rdChips='';
+  if(parts&&Object.keys(parts).length){
+    ['p1','p2','p3','p4'].forEach(function(k){
+      if(parts[k]!==undefined) lsChips+='<span class="se-part-chip ls">'+k.toUpperCase()+':'+parts[k]+'</span>';
+    });
+    ['p5','p6','p7'].forEach(function(k){
+      if(parts[k]!==undefined) rdChips+='<span class="se-part-chip rd">'+k.toUpperCase()+':'+parts[k]+'</span>';
+    });
+  }
+  var partsHTML='';
+  if(lsChips||rdChips){
+    partsHTML='<div class="se-parts-row">'
+      +(lsChips?'<div class="se-parts-group"><span class="se-parts-ico">🎧</span>'+lsChips+'</div>':'')
+      +(rdChips?'<div class="se-parts-group"><span class="se-parts-ico">📖</span>'+rdChips+'</div>':'')
+      +'</div>';
+  }
+
+  return '<div class="se-top">'
+    +'<div class="se-top-left">'
+      +'<div class="se-score'+(isLatest?' latest':'')+'">'+score+'</div>'
+      +'<div class="se-title-wrap">'
+        +(testName?'<div class="se-testname">'+escH(testName)+'</div>':'<div class="se-testname-fallback">Không có tên đề</div>')
+        +(dateStr?'<div class="se-date">📅 '+dateStr+'</div>':'')
+      +'</div>'
+    +'</div>'
+    +(badgeText?'<span class="se-badge '+badgeClass+'">'+badgeText+'</span>':'')
+  +'</div>'
+  +partsHTML
+  +(note?'<div class="se-note">'+escH(note)+'</div>':'');
 }
 function buildScoreChart(scores,goalTarget){
   var svg=document.getElementById('score-chart-svg'); if(!svg) return;
