@@ -1965,13 +1965,11 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
             <div class="el-guide-section-title el-guide-ls">🎧 Phân loại lỗi — Listening</div>
             <div class="el-guide-table">
               <div class="el-guide-row"><span class="el-guide-term">Miss từ khoá</span><span class="el-guide-def">Nghe không ra từ / cụm từ quan trọng trong audio</span></div>
-              <div class="el-guide-row"><span class="el-guide-term">Distractor</span><span class="el-guide-def">Nghe ra nhưng bị lừa bởi đáp án có từ giống bài nghe, sai về nghĩa/logic</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Distractor</span><span class="el-guide-def">Bị lừa bởi đáp án sai — do từ đồng âm/phát âm gần giống (bẫy âm thanh), dùng đúng từ trong câu hỏi nhưng khác nghĩa hoặc cùng trường từ vựng (bẫy từ vựng), hoặc nghe có vẻ đúng nhưng sai logic</span></div>
               <div class="el-guide-row"><span class="el-guide-term">Inference</span><span class="el-guide-def">Câu hỏi dạng implied/suggested/most likely — suy luận sai</span></div>
               <div class="el-guide-row"><span class="el-guide-term">Không đọc đề kịp</span><span class="el-guide-def">Chưa đọc xong 3 câu hỏi trước khi audio bắt đầu</span></div>
               <div class="el-guide-row"><span class="el-guide-term">Paraphrase</span><span class="el-guide-def">Không nhận ra từ trong đáp án là paraphrase của từ trong audio</span></div>
               <div class="el-guide-row"><span class="el-guide-term">Graphic</span><span class="el-guide-def">Câu liên quan đến bảng/sơ đồ đi kèm — đọc graphic chậm hoặc bỏ sót</span></div>
-              <div class="el-guide-row"><span class="el-guide-term">Bẫy âm thanh</span><span class="el-guide-def">Đáp án dùng từ đồng âm hoặc phát âm gần giống từ trong câu hỏi</span></div>
-              <div class="el-guide-row"><span class="el-guide-term">Bẫy từ vựng</span><span class="el-guide-def">Đáp án dùng đúng từ trong câu hỏi nhưng khác nghĩa, hoặc cùng trường từ vựng nhưng sai</span></div>
               <div class="el-guide-row"><span class="el-guide-term">Từ mới</span><span class="el-guide-def">Gặp từ chưa biết nghĩa/phát âm trong câu hỏi, đáp án hoặc bài nghe</span></div>
               <div class="el-guide-row"><span class="el-guide-term">Tốc độ đọc nhanh</span><span class="el-guide-def">Tốc độ audio quá nhanh, không theo kịp nội dung</span></div>
               <div class="el-guide-row"><span class="el-guide-term">Ngữ điệu / Giọng lạ</span><span class="el-guide-def">Giọng địa phương (Anh, Úc, Canada…) hoặc ngữ điệu không quen gây nghe nhầm</span></div>
@@ -3993,14 +3991,12 @@ function closePwaBanner(){
 ═══════════════════════════════════════════ */
 
 var EL_LS_TYPES = [
-  { key:'distractor',    label:'Distractor',         tip:'Nghe ra nhưng bị lừa bởi đáp án có từ giống bài nghe, sai về nghĩa/logic.' },
+  { key:'distractor',    label:'Distractor',         tip:'Bị lừa bởi đáp án sai — có thể do: từ đồng âm/phát âm gần giống (bẫy âm thanh), dùng đúng từ trong câu hỏi nhưng khác nghĩa hoặc cùng trường từ vựng (bẫy từ vựng), hoặc nghe có vẻ đúng nhưng sai về logic/ngữ nghĩa.' },
   { key:'miss_keyword',  label:'Miss từ khoá',       tip:'Nghe không ra từ / cụm từ quan trọng trong audio.' },
   { key:'inference',     label:'Inference',           tip:'Câu hỏi dạng implied/suggested/most likely — suy luận sai.' },
   { key:'no_read_q',     label:'Không đọc đề kịp',   tip:'Chưa đọc xong 3 câu hỏi trước khi audio bắt đầu.' },
   { key:'paraphrase',    label:'Paraphrase',          tip:'Không nhận ra từ trong đáp án là paraphrase của từ trong audio.' },
   { key:'graphic',       label:'Graphic',             tip:'Câu liên quan đến bảng/sơ đồ đi kèm — đọc graphic chậm hoặc bỏ sót.' },
-  { key:'sound_trap',    label:'Bẫy âm thanh',        tip:'Đáp án dùng từ đồng âm hoặc phát âm gần giống từ trong câu hỏi.' },
-  { key:'vocab_trap',    label:'Bẫy từ vựng',         tip:'Đáp án dùng đúng từ trong câu hỏi nhưng khác nghĩa, hoặc cùng trường từ vựng nhưng sai.' },
   { key:'new_word',      label:'Từ mới',              tip:'Gặp từ chưa biết nghĩa/phát âm trong câu hỏi, đáp án hoặc bài nghe.' },
   { key:'speed',         label:'Tốc độ đọc nhanh',   tip:'Tốc độ audio quá nhanh, không theo kịp nội dung.' },
   { key:'accent',        label:'Ngữ điệu / Giọng lạ',tip:'Giọng địa phương (Anh, Úc, Canada…) hoặc ngữ điệu không quen gây nghe nhầm.' }
