@@ -4086,7 +4086,11 @@ function elRenderGrid(containerId, types, section){
       +'</div>';
     // tap tooltip for mobile
     item.querySelector('.el-error-name').addEventListener('click', function(){
-      this.classList.toggle('tip-open');
+      var isOpen = this.classList.contains('tip-open');
+      // Đóng tất cả tooltip đang mở
+      document.querySelectorAll('.el-error-name.tip-open').forEach(function(el){ el.classList.remove('tip-open'); });
+      // Nếu item này chưa mở thì mở lên, nếu đã mở thì đóng lại (toggle)
+      if(!isOpen) this.classList.add('tip-open');
     });
     grid.appendChild(item);
   });
@@ -4390,6 +4394,13 @@ function elToggleGuide(){
   var open = body.classList.toggle('open');
   chev.classList.toggle('open', open);
 }
+
+// Đóng tooltip lỗi khi tap ra ngoài
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.el-error-name')){
+    document.querySelectorAll('.el-error-name.tip-open').forEach(function(el){ el.classList.remove('tip-open'); });
+  }
+});
 
 /* ═══ SURVEY BUBBLE ═══ */
 function openSurvey(){
