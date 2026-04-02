@@ -1509,6 +1509,50 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   .el-detail-row .el-detail-para,.el-detail-row .el-detail-rev{grid-column:1/-1;}
 }
 
+/* ── Error log guide panel ── */
+.el-guide-panel{
+  border:1px solid var(--border);background:var(--paper);
+  margin-bottom:.85rem;overflow:hidden;
+}
+.el-guide-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.6rem .85rem;cursor:pointer;user-select:none;
+  transition:background .15s;
+}
+.el-guide-hd:hover{background:var(--paper2);}
+.el-guide-hd-left{display:flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:600;color:var(--ink);}
+.el-guide-ico{font-size:.85rem;}
+.el-guide-chev{font-size:.65rem;color:var(--muted);transition:transform .2s;}
+.el-guide-chev.open{transform:rotate(180deg);}
+.el-guide-body{display:none;padding:.75rem .85rem .85rem;border-top:1px solid var(--line);}
+.el-guide-body.open{display:block;}
+.el-guide-section{margin-bottom:.9rem;}
+.el-guide-section-title{
+  font-size:.62rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.5rem;
+}
+.el-guide-ls{color:var(--orange)!important;}
+.el-guide-rd{color:var(--sky)!important;}
+.el-guide-steps{display:flex;flex-direction:column;gap:.3rem;}
+.el-guide-step{display:flex;align-items:baseline;gap:.5rem;font-size:.75rem;color:var(--ink);line-height:1.4;}
+.el-guide-step-n{
+  flex-shrink:0;width:16px;height:16px;border-radius:50%;
+  background:var(--orange3);color:var(--orange);font-size:.6rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;margin-top:.05rem;
+}
+.el-guide-table{display:flex;flex-direction:column;}
+.el-guide-row{
+  display:grid;grid-template-columns:120px 1fr;gap:.5rem;
+  padding:.3rem 0;border-bottom:1px solid var(--line);align-items:baseline;
+}
+.el-guide-row:last-child{border-bottom:none;}
+.el-guide-term{font-size:.72rem;font-weight:600;color:var(--ink);}
+.el-guide-def{font-size:.72rem;color:var(--muted);line-height:1.4;}
+@media(max-width:500px){
+  .el-guide-row{grid-template-columns:1fr;gap:.05rem;}
+  .el-guide-def{padding-left:.3rem;}
+}
+
 </style>
 </head>
 <body>
@@ -1894,6 +1938,55 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 
     <!-- FORM VIEW -->
     <div id="el-view-form">
+
+      <!-- Guide panel — always collapsed -->
+      <div class="el-guide-panel" id="el-guide-panel">
+        <div class="el-guide-hd" onclick="elToggleGuide()">
+          <span class="el-guide-hd-left">
+            <span class="el-guide-ico">📖</span>
+            <span>Hướng dẫn &amp; phân loại lỗi</span>
+          </span>
+          <span class="el-guide-chev" id="el-guide-chev">▾</span>
+        </div>
+        <div class="el-guide-body" id="el-guide-body">
+          <!-- Cách ghi log -->
+          <div class="el-guide-section">
+            <div class="el-guide-section-title">📝 Cách ghi log</div>
+            <div class="el-guide-steps">
+              <div class="el-guide-step"><span class="el-guide-step-n">1</span>Sau khi sửa bài, chọn ngày + tên đề + loại luyện.</div>
+              <div class="el-guide-step"><span class="el-guide-step-n">2</span>Nhấn +/− để đếm số lỗi theo từng loại.</div>
+              <div class="el-guide-step"><span class="el-guide-step-n">3</span>Muốn ghi chi tiết từng câu → bấm "Thêm chi tiết từng câu sai".</div>
+              <div class="el-guide-step"><span class="el-guide-step-n">4</span>Sau mỗi 3 đề, xem Dashboard → loại lỗi nào &gt; 3 lần = điểm yếu cần drill riêng.</div>
+            </div>
+          </div>
+          <!-- Listening errors -->
+          <div class="el-guide-section">
+            <div class="el-guide-section-title el-guide-ls">🎧 Phân loại lỗi — Listening</div>
+            <div class="el-guide-table">
+              <div class="el-guide-row"><span class="el-guide-term">Miss từ khoá</span><span class="el-guide-def">Nghe không ra từ / cụm từ quan trọng trong audio</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Distractor</span><span class="el-guide-def">Nghe ra nhưng bị lừa bởi đáp án có từ giống bài nghe, sai về nghĩa/logic</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Inference</span><span class="el-guide-def">Câu hỏi dạng implied/suggested/most likely — suy luận sai</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Không đọc đề kịp</span><span class="el-guide-def">Chưa đọc xong 3 câu hỏi trước khi audio bắt đầu</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Paraphrase</span><span class="el-guide-def">Không nhận ra từ trong đáp án là paraphrase của từ trong audio</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Graphic</span><span class="el-guide-def">Câu liên quan đến bảng/sơ đồ đi kèm — đọc graphic chậm hoặc bỏ sót</span></div>
+            </div>
+          </div>
+          <!-- Reading errors -->
+          <div class="el-guide-section" style="margin-bottom:0">
+            <div class="el-guide-section-title el-guide-rd">📖 Phân loại lỗi — Reading</div>
+            <div class="el-guide-table">
+              <div class="el-guide-row"><span class="el-guide-term">Từ vựng</span><span class="el-guide-def">Không biết nghĩa từ / chọn sai từ loại (Part 5/6)</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Ngữ pháp</span><span class="el-guide-def">Sai cấu trúc ngữ pháp: tense, voice, connector… (Part 5/6)</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Logic văn bản</span><span class="el-guide-def">Chọn sai câu điền vào đoạn vì không bắt được mạch văn (Part 6)</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Đọc sai chi tiết</span><span class="el-guide-def">Đọc sai / nhầm thông tin cụ thể trong bài (Part 7)</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Inference R</span><span class="el-guide-def">Câu hỏi implied/inferred/suggested — suy luận sai (Part 7)</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Cross-reference</span><span class="el-guide-def">Câu cần đối chiếu 2–3 đoạn văn / passage (Double/Triple)</span></div>
+              <div class="el-guide-row"><span class="el-guide-term">Không đủ thời gian</span><span class="el-guide-def">Hết giờ, không kịp đọc hoặc phải đoán mò</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="el-form-card">
         <div class="el-form-row">
           <div>
@@ -4281,6 +4374,14 @@ function elPrefillAndSwitch(testName, date){
   var dateEl = document.getElementById('el-date');
   if(nameEl) nameEl.value = testName;
   if(dateEl) dateEl.value = date;
+}
+
+function elToggleGuide(){
+  var body = document.getElementById('el-guide-body');
+  var chev = document.getElementById('el-guide-chev');
+  if(!body||!chev) return;
+  var open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
 }
 
 /* ═══ SURVEY BUBBLE ═══ */
