@@ -135,38 +135,40 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .install-cta:hover{background:var(--orange2);}
 .install-cta svg{width:13px;height:13px;}
 
-/* ── PWA Install Banner (Chrome-style) ── */
+/* ── PWA Install Banner → compact bubble ── */
 #pwa-banner{
-  position:fixed;bottom:0;left:0;right:0;z-index:9999;
-  background:#fff;border-top:1px solid #e0e0e0;
-  box-shadow:0 -2px 16px rgba(0,0,0,.12);
-  padding:.85rem 1rem;
-  display:none;align-items:center;gap:.85rem;
+  position:fixed;bottom:5rem;left:1rem;z-index:9998;
+  background:var(--ink2);color:#fff;
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
+  padding:.55rem .75rem .55rem .65rem;
+  display:none;align-items:center;gap:.55rem;
   font-family:'Be Vietnam Pro',sans-serif;
+  border-radius:2px;max-width:240px;
 }
 #pwa-banner.show{display:flex;}
 .pwa-banner-icon{
-  width:44px;height:44px;border-radius:10px;flex-shrink:0;
-  background:var(--ink2);display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
   color:var(--orange2);
 }
-.pwa-banner-icon svg{width:22px;height:22px;}
+.pwa-banner-icon svg{width:16px;height:16px;}
 .pwa-banner-text{flex:1;min-width:0;}
-.pwa-banner-title{font-size:.85rem;font-weight:600;color:#1a1a1a;margin-bottom:.15rem;}
-.pwa-banner-sub{font-size:.72rem;color:#666;line-height:1.3;}
-.pwa-banner-btns{display:flex;align-items:center;gap:.5rem;flex-shrink:0;}
+.pwa-banner-title{font-size:.72rem;font-weight:600;color:#fff;line-height:1.2;}
+.pwa-banner-sub{display:none;}
+.pwa-banner-btns{display:flex;align-items:center;gap:.3rem;flex-shrink:0;}
 .pwa-banner-close{
-  background:none;border:none;color:#888;font-size:1.1rem;cursor:pointer;
-  padding:.2rem .4rem;line-height:1;
+  background:none;border:none;color:rgba(255,255,255,.45);font-size:.9rem;cursor:pointer;
+  padding:.1rem .25rem;line-height:1;transition:color .15s;
 }
+.pwa-banner-close:hover{color:#fff;}
 .pwa-banner-install{
-  background:#1a73e8;color:#fff;border:none;border-radius:4px;
-  font-family:'Be Vietnam Pro',sans-serif;font-size:.78rem;font-weight:600;
-  padding:.45rem .9rem;cursor:pointer;transition:background .2s;white-space:nowrap;
-  display:flex;align-items:center;gap:.35rem;
+  background:var(--orange);color:#fff;border:none;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.68rem;font-weight:600;
+  padding:.3rem .6rem;cursor:pointer;transition:opacity .2s;white-space:nowrap;
+  display:flex;align-items:center;gap:.25rem;
 }
-.pwa-banner-install:hover{background:#1558b0;}
-.pwa-banner-install svg{width:14px;height:14px;}
+.pwa-banner-install:hover{opacity:.85;}
+.pwa-banner-install svg{width:11px;height:11px;}
 
 /* ═══════════════════════════════
    SURVEY BUBBLE
@@ -1040,8 +1042,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   .lf input{padding:.65rem .85rem;font-size:.9rem;}
   .btn-login{padding:.7rem;}
   .install-guide{margin-top:.9rem;padding:.85rem .9rem;}
-  /* PWA banner sits above iOS safari bar */
-  #pwa-banner{padding-bottom:calc(.85rem + env(safe-area-inset-bottom,0px));}
+  /* PWA banner — compact bubble, no override needed */
 
   /* Welcome */
   .welcome{padding:1rem 1.1rem;}
@@ -4165,32 +4166,67 @@ function elRenderDash(){
     });
     if(!rdBarsEl.innerHTML) rdBarsEl.innerHTML='<div style="font-size:.75rem;color:var(--muted);font-style:italic">Chưa có dữ liệu</div>';
 
-    // History list
+    // History list — merge errorLog sessions + score entries
     var histEl = document.getElementById('el-history-list');
     histEl.innerHTML = '';
-    if(!sessions.length){
+
+    // Build unified timeline from errorLog sessions
+    var elMap = {}; // date+testName key → session
+    sessions.forEach(function(sess){
+      var k = sess.date + '||' + (sess.testName||'');
+      elMap[k] = sess;
+    });
+
+    // Also include score entries that have no matching errorLog session
+    var scoreEntries = (S && S.scores) ? S.scores.slice() : [];
+    var combined = sessions.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+
+    // Add score-only entries (have a testName, no errorLog match)
+    scoreEntries.forEach(function(sc){
+      if(!sc.testName) return;
+      var k = sc.date + '||' + sc.testName;
+      if(!elMap[k]){
+        combined.push({ _scoreOnly:true, date:sc.date, testName:sc.testName, score:sc.score, lsTotal:0, rdTotal:0 });
+      } else {
+        // Attach score info to existing errorLog session
+        elMap[k]._score = sc.score;
+      }
+    });
+    // Re-sort
+    combined.sort(function(a,b){ return b.date.localeCompare(a.date); });
+
+    if(!combined.length){
       histEl.innerHTML='<div class="empty">Chưa có buổi nào được log</div>';
       return;
     }
-    sessions.forEach(function(sess, i){
+    combined.forEach(function(sess, i){
       var _d=sess.date.split('-'); var dStr=_d[2]+'/'+_d[1]+'/'+_d[0];
       var item = document.createElement('div');
       item.className = 'el-history-item';
       var lsSum=sess.lsTotal||0, rdSum=sess.rdTotal||0;
+      var scoreTag = (sess._score||sess.score) ? '<span class="el-badge" style="background:var(--orange3);color:var(--orange)">🎯 '+(sess._score||sess.score)+'đ</span>' : '';
+      var typeTag = sess._scoreOnly
+        ? '<span style="font-size:.62rem;color:var(--muted);font-style:italic">Chưa có log lỗi</span>'
+        : (lsSum||rdSum ? '' : '<span style="font-size:.62rem;color:var(--muted);font-style:italic">0 lỗi</span>');
+
       item.innerHTML =
         '<div class="el-history-hd" onclick="elToggleHistoryItem(this)">'
           +'<div>'
-            +'<div class="el-history-meta">'+escHtml(sess.testName||'—')+(sess.sessionType==='full'?' · Full test':' · Part lẻ')+'</div>'
+            +'<div class="el-history-meta">'+escHtml(sess.testName||'—')+(sess.sessionType==='full'?' · Full test':sess.sessionType==='part'?' · Part lẻ':'')+'</div>'
             +'<div class="el-history-date">📅 '+dStr+'</div>'
           +'</div>'
           +'<div class="el-history-badges">'
+            +scoreTag
             +(lsSum?'<span class="el-badge">🎧 '+lsSum+'</span>':'')
             +(rdSum?'<span class="el-badge rd">📖 '+rdSum+'</span>':'')
+            +typeTag
             +'<span style="color:var(--muted);font-size:.75rem">▾</span>'
           +'</div>'
         +'</div>'
         +'<div class="el-history-body" id="el-hb-'+i+'">'
-          +elHistoryBodyHTML(sess)
+          +(sess._scoreOnly
+            ? '<div style="font-size:.78rem;color:var(--muted);font-style:italic;padding:.3rem 0">Chưa nhập nhật ký lỗi cho buổi này. <button style="background:none;border:none;color:var(--orange);cursor:pointer;font-family:\'Be Vietnam Pro\',sans-serif;font-size:.78rem;text-decoration:underline;" onclick="elPrefillAndSwitch(\''+escHtml(sess.testName||'')+'\',\''+sess.date+'\')">Nhập ngay →</button></div>'
+            : elHistoryBodyHTML(sess))
         +'</div>';
       histEl.appendChild(item);
     });
@@ -4237,6 +4273,14 @@ function elHistoryBodyHTML(sess){
 function elToggleHistoryItem(hd){
   var body = hd.nextElementSibling;
   if(body) body.classList.toggle('open');
+}
+
+function elPrefillAndSwitch(testName, date){
+  elShowView('form');
+  var nameEl = document.getElementById('el-test-name');
+  var dateEl = document.getElementById('el-date');
+  if(nameEl) nameEl.value = testName;
+  if(dateEl) dateEl.value = date;
 }
 
 /* ═══ SURVEY BUBBLE ═══ */
