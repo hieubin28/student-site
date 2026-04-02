@@ -1645,11 +1645,10 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <div class="tab active" data-tab="overview" onclick="goTab(this)">Tổng quan</div>
     <div class="tab" data-tab="progress"  onclick="goTab(this)">Tiến độ học</div>
     <div class="tab" data-tab="scores"    onclick="goTab(this)" id="tab-scores">🎯 Điểm số</div>
+    <div class="tab" data-tab="errorlog"  onclick="goTab(this)" id="tab-errorlog">📒 Nhật ký lỗi</div>
     <div class="tab" data-tab="missions"  onclick="goTab(this)" id="tab-missions">✅ Nhiệm vụ</div>
     <div class="tab" data-tab="schedule"  onclick="goTab(this)">Lịch học</div>
     <div class="tab" data-tab="booking"   onclick="goTab(this)" id="tab-booking">Book 1-1 🗓</div>
-    <div class="tab" data-tab="fee"       onclick="goTab(this)" id="tab-fee">💰 Học phí</div>
-    <div class="tab" data-tab="errorlog"  onclick="goTab(this)" id="tab-errorlog">📒 Nhật ký lỗi</div>
   </nav>
 
   <div class="main">
@@ -4053,8 +4052,8 @@ function elSubmit(){
   var testName = (document.getElementById('el-test-name').value||'').trim();
   var dateVal  = document.getElementById('el-date').value;
   var sessType = document.getElementById('el-session-type').value;
-  if(!testName){ showToast('⚠️ Vui lòng nhập tên đề'); return; }
-  if(!dateVal){  showToast('⚠️ Vui lòng chọn ngày');  return; }
+  if(!testName){ toast('⚠️ Vui lòng nhập tên đề'); return; }
+  if(!dateVal){  toast('⚠️ Vui lòng chọn ngày');  return; }
 
   var lsTotal = 0, rdTotal = 0;
   EL_LS_TYPES.forEach(function(t){ lsTotal += (_elCounts.ls[t.key]||0); });
@@ -4080,7 +4079,7 @@ function elSubmit(){
 
   db.ref('students/'+S.id+'/errorLog/'+sessionId).set(payload).then(function(){
     _elSessions[sessionId] = payload;
-    showToast('✅ Đã lưu nhật ký lỗi!');
+    toast('✅ Đã lưu nhật ký lỗi!');
     // reset form
     _elInitCounts();
     _elDetailRows = [];
@@ -4094,7 +4093,7 @@ function elSubmit(){
     // auto-switch to dashboard
     elShowView('dash');
   }).catch(function(e){
-    showToast('❌ Lỗi khi lưu: '+e.message);
+    toast('❌ Lỗi khi lưu: '+e.message);
     btn.disabled = false; btn.textContent = '💾 Lưu nhật ký lỗi';
   });
 }
