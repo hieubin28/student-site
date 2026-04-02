@@ -936,6 +936,27 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .goal-edit-btn:hover{border-color:var(--gold);color:var(--gold);}
 
 .score-history-card{background:var(--paper);border:1px solid var(--border);padding:1.4rem;}
+/* Stat cards grid */
+.sc-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+.sc-stat-item{background:var(--cream);border:1px solid var(--line);padding:.7rem .8rem;text-align:center;}
+.sc-stat-val{font-family:'Lora',serif;font-size:1.35rem;font-weight:700;color:var(--orange);line-height:1;}
+.sc-stat-val.green{color:var(--sage);}
+.sc-stat-val.blue{color:var(--sky);}
+.sc-stat-val.muted{color:var(--muted);font-size:1rem;}
+.sc-stat-lbl{font-size:.6rem;color:var(--muted);margin-top:.25rem;letter-spacing:.04em;}
+.sc-stat-trend{font-size:.75rem;font-weight:600;margin-top:.15rem;}
+.sc-stat-trend.up{color:var(--sage);}
+.sc-stat-trend.down{color:var(--rust);}
+.sc-stat-trend.flat{color:var(--muted);}
+.sc-encourage{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.5rem;padding:1.2rem .8rem;text-align:center;
+  background:var(--orange4);border:1px dashed rgba(196,98,45,.3);
+}
+.sc-encourage-ico{font-size:1.6rem;}
+.sc-encourage-txt{font-size:.78rem;color:var(--ink);font-weight:500;line-height:1.4;}
+.sc-encourage-sub{font-size:.68rem;color:var(--muted);}
+
 
 /* Chart */
 .score-chart-wrap{position:relative;height:120px;margin:1rem 0 .5rem;}
@@ -1834,10 +1855,8 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 
         <!-- Chart -->
         <div class="score-history-card">
-          <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem;">LỊCH SỬ ĐIỂM</div>
-          <div class="score-chart-wrap" id="sc-chart-wrap">
-            <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:.82rem;font-style:italic;">Chưa có điểm nào</div>
-          </div>
+          <div style="font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem;">THỐNG KÊ</div>
+          <div id="sc-stat-cards"></div>
         </div>
       </div>
 
@@ -2791,11 +2810,7 @@ function renderScoresTab(){
   }
 
   // Chart
-  var chartWrap=document.getElementById('score-chart-wrap');
-  if(chartWrap&&scores.length>=2){
-    chartWrap.style.display='block';
-    buildScoreChart(scores,goal?goal.target:null);
-  } else if(chartWrap){ chartWrap.style.display='none'; }
+  renderScoreStats(scores, goal);
 
   // History
   var histEl=document.getElementById('sc-list');
@@ -2852,6 +2867,56 @@ function seHTML(score, testName, date, parts, note, isLatest, badgeText, badgeCl
   +partsHTML
   +(note?'<div class="se-note">'+escH(note)+'</div>':'');
 }
+function renderScoreStats(scores, goal){
+  var el = document.getElementById('sc-stat-cards');
+  if(!el) return;
+  if(!scores.length){
+    el.innerHTML='<div class="sc-encourage"><div class="sc-encourage-ico">📊</div><div class="sc-encourage-txt">Làm thêm bài test để xem thống kê</div><div class="sc-encourage-sub">Nhập điểm đầu tiên bên dưới nhé!</div></div>';
+    return;
+  }
+  var vals = scores.map(function(s){return s.score;});
+  var latest = vals[vals.length-1];
+  var best = Math.max.apply(null,vals);
+  var worst = Math.min.apply(null,vals);
+  var avg = Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length);
+
+  if(scores.length===1){
+    el.innerHTML='<div class="sc-encourage"><div class="sc-encourage-ico">🎯</div>'
+      +'<div class="sc-encourage-txt">Bài test đầu tiên: <strong>'+latest+'</strong> điểm</div>'
+      +'<div class="sc-encourage-sub">Làm thêm bài để theo dõi tiến độ!</div></div>';
+    return;
+  }
+
+  // Trend: compare last 2 scores
+  var prev = vals[vals.length-2];
+  var diff = latest - prev;
+  var trendHtml, trendClass;
+  if(diff>0){ trendHtml='▲ +'+diff+' so với lần trước'; trendClass='up'; }
+  else if(diff<0){ trendHtml='▼ '+diff+' so với lần trước'; trendClass='down'; }
+  else { trendHtml='→ Giữ nguyên'; trendClass='flat'; }
+
+  // Gap to goal
+  var goalTarget = goal&&goal.target ? goal.target : null;
+  var gapHtml='';
+  if(goalTarget){
+    var gap=goalTarget-latest;
+    if(gap<=0) gapHtml='<div class="sc-stat-trend up">✅ Đã đạt mục tiêu!</div>';
+    else gapHtml='<div class="sc-stat-trend flat">Còn <strong>'+gap+'đ</strong> → '+goalTarget+'</div>';
+  }
+
+  el.innerHTML='<div class="sc-stat-grid">'
+    +'<div class="sc-stat-item"><div class="sc-stat-val">'+scores.length+'</div><div class="sc-stat-lbl">Bài test</div></div>'
+    +'<div class="sc-stat-item"><div class="sc-stat-val green">'+best+'</div><div class="sc-stat-lbl">Cao nhất</div></div>'
+    +'<div class="sc-stat-item"><div class="sc-stat-val blue">'+avg+'</div><div class="sc-stat-lbl">Trung bình</div></div>'
+    +'<div class="sc-stat-item"><div class="sc-stat-val muted">'+worst+'</div><div class="sc-stat-lbl">Thấp nhất</div></div>'
+    +'</div>'
+    +'<div style="margin-top:.7rem;padding:.6rem .7rem;background:var(--cream);border:1px solid var(--line);">'
+      +'<div style="font-size:.62rem;color:var(--muted);margin-bottom:.25rem;letter-spacing:.04em">GẦN NHẤT · '+latest+'đ</div>'
+      +'<div class="sc-stat-trend '+trendClass+'">'+trendHtml+'</div>'
+      +gapHtml
+    +'</div>';
+}
+
 function buildScoreChart(scores,goalTarget){
   var svg=document.getElementById('score-chart-svg'); if(!svg) return;
   var w=svg.clientWidth||400; var h=120;
