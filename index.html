@@ -5091,14 +5091,19 @@ function vocabLookup(word){
         var ph=entry.phonetics.find(function(p){return p.text;});
         if(ph) ipa=ph.text;
       }
-      // Part of speech + definition + example
+      // Part of speech — collect ALL unique pos from all meanings
       var pos='', def='', ex='';
       if(entry.meanings&&entry.meanings.length){
-        var m=entry.meanings[0];
-        pos=m.partOfSpeech||'';
-        if(m.definitions&&m.definitions.length){
-          def=m.definitions[0].definition||'';
-          ex=m.definitions[0].example||'';
+        var allPos=[];
+        entry.meanings.forEach(function(m){
+          if(m.partOfSpeech&&allPos.indexOf(m.partOfSpeech)===-1) allPos.push(m.partOfSpeech);
+        });
+        pos=allPos.join(', ');
+        // Definition + example: pick from first meaning that has them
+        var firstM=entry.meanings[0];
+        if(firstM.definitions&&firstM.definitions.length){
+          def=firstM.definitions[0].definition||'';
+          ex=firstM.definitions[0].example||'';
         }
       }
       var ipaEl=document.getElementById('vi-ipa');
