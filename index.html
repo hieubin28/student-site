@@ -139,11 +139,13 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 }
 .vocab-review-btn:hover{opacity:.85;}
 .vocab-del-btn{
+  width:22px;height:22px;border-radius:50%;
   background:none;border:1px solid var(--border);color:var(--muted);
-  padding:.22rem .5rem;font-size:.68rem;cursor:pointer;
-  font-family:'Be Vietnam Pro',sans-serif;transition:all .15s;
+  font-size:.72rem;font-weight:700;cursor:pointer;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;flex-shrink:0;
 }
-.vocab-del-btn:hover{border-color:var(--rust);color:var(--rust);}
+.vocab-del-btn:hover{background:var(--rust2);border-color:var(--rust);color:var(--rust);}
 /* SRS banner vocab */
 .vocab-srs-banner-box{
   background:linear-gradient(135deg,var(--ink2),#3A2008);
@@ -2277,9 +2279,10 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
         <label class="vocab-lbl">Nghĩa tiếng Anh <span style="font-weight:400;color:var(--muted)">(gợi ý tự động, có thể sửa)</span></label>
         <input class="vocab-input" id="vi-def" type="text" placeholder="Definition in English..." autocomplete="off">
       </div>
-      <div class="vocab-add-col" style="flex:2">
-        <label class="vocab-lbl">Nghĩa tiếng Việt <span style="font-weight:400;color:var(--muted)">(tuỳ chọn)</span></label>
+      <div class="vocab-add-col" style="flex:2;position:relative">
+        <label class="vocab-lbl">Nghĩa tiếng Việt <span style="font-weight:400;color:var(--muted)">(tự động dịch)</span></label>
         <input class="vocab-input" id="vi-vi" type="text" placeholder="Nghĩa bằng tiếng Việt..." autocomplete="off">
+        <span class="vocab-lookup-spinner" id="vi-spinner-vi" style="display:none;position:absolute;right:.6rem;bottom:.55rem;">⟳</span>
       </div>
     </div>
     <div class="vocab-add-row">
@@ -4993,7 +4996,7 @@ function vocabRender(){
         '</div>'+
         '<div class="vocab-card-actions">'+
           (vocabIsDue(w)?'<button class="vocab-review-btn" onclick="vocabMarkReviewed(\''+w.id+'\')">✅ Đã ôn</button>':'')+
-          '<button class="vocab-del-btn" onclick="vocabDelete(\''+w.id+'\')">🗑</button>'+
+          '<button class="vocab-del-btn" onclick="vocabDelete(\''+w.id+'\')" title="Xoá từ này">✕</button>'+
         '</div>'+
       '</div>';
     });
@@ -5062,6 +5065,12 @@ function vocabDelete(id){
 function vocabWordInput(inp){
   clearTimeout(_vocabLookupTimer);
   var word=(inp.value||'').trim();
+  // Clear all autocompleted fields whenever word changes
+  var fields=['vi-ipa','vi-pos','vi-def','vi-vi','vi-ex'];
+  fields.forEach(function(fid){
+    var el=document.getElementById(fid);
+    if(el) el.value='';
+  });
   if(word.length<2) return;
   _vocabLookupTimer=setTimeout(function(){ vocabLookup(word); },600);
 }
@@ -5075,14 +5084,14 @@ function vocabLookup(word){
       if(spinner) spinner.style.display='none';
       if(!Array.isArray(data)||!data.length) return;
       var entry=data[0];
-      // IPA — pick first phonetic text
+      // IPA
       var ipa='';
       if(entry.phonetic) ipa=entry.phonetic;
       else if(entry.phonetics){
         var ph=entry.phonetics.find(function(p){return p.text;});
         if(ph) ipa=ph.text;
       }
-      // Part of speech + definition — first meaning
+      // Part of speech + definition + example
       var pos='', def='', ex='';
       if(entry.meanings&&entry.meanings.length){
         var m=entry.meanings[0];
@@ -5092,19 +5101,42 @@ function vocabLookup(word){
           ex=m.definitions[0].example||'';
         }
       }
-      // Only fill empty fields (don't overwrite manual input)
       var ipaEl=document.getElementById('vi-ipa');
       var posEl=document.getElementById('vi-pos');
       var defEl=document.getElementById('vi-def');
       var exEl =document.getElementById('vi-ex');
-      if(ipaEl&&!ipaEl.value&&ipa) ipaEl.value=ipa;
-      if(posEl&&!posEl.value&&pos) posEl.value=pos;
-      if(defEl&&!defEl.value&&def) defEl.value=def;
-      if(exEl &&!exEl.value &&ex)  exEl.value=ex;
+      if(ipaEl) ipaEl.value=ipa;
+      if(posEl) posEl.value=pos;
+      if(defEl) defEl.value=def;
+      if(exEl)  exEl.value=ex;
+      // After EN definition is ready, translate to VI
+      if(def) vocabTranslateVI(def);
     })
     .catch(function(){
       if(spinner) spinner.style.display='none';
-      // Silently fail — user can fill manually
+    });
+}
+
+function vocabTranslateVI(text){
+  var spVI=document.getElementById('vi-spinner-vi');
+  if(spVI) spVI.style.display='inline';
+  // MyMemory free translation API — EN → VI
+  var url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair=en|vi';
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(spVI) spVI.style.display='none';
+      var viEl=document.getElementById('vi-vi');
+      if(!viEl) return;
+      var translated=(data&&data.responseData&&data.responseData.translatedText)||'';
+      // MyMemory returns English unchanged when it can't translate — skip if same
+      if(translated && translated.toLowerCase()!==text.toLowerCase()){
+        // Capitalise first letter
+        viEl.value=translated.charAt(0).toUpperCase()+translated.slice(1);
+      }
+    })
+    .catch(function(){
+      if(spVI) spVI.style.display='none';
     });
 }
 
