@@ -5114,8 +5114,9 @@ function vocabLookup(word){
       if(posEl) posEl.value=pos;
       if(defEl) defEl.value=def;
       if(exEl)  exEl.value=ex;
-      // After EN definition is ready, translate to VI
-      if(def) vocabTranslateVI(def);
+      // Translate the word itself (not the definition) to Vietnamese
+      var wordToTranslate=document.getElementById('vi-word').value.trim();
+      if(wordToTranslate) vocabTranslateVI(wordToTranslate);
     })
     .catch(function(){
       if(spinner) spinner.style.display='none';
