@@ -54,6 +54,110 @@
 
 body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
 
+/* ══ VOCAB TAB ══ */
+.vocab-filter-bar{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.1rem;}
+.vocab-part-btn{
+  padding:.32rem .85rem;font-size:.75rem;font-weight:600;
+  background:var(--paper);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;transition:all .15s;font-family:'Be Vietnam Pro',sans-serif;
+}
+.vocab-part-btn:hover{border-color:var(--orange);color:var(--orange);}
+.vocab-part-btn.active{background:var(--orange);border-color:var(--orange);color:#fff;}
+.vocab-add-card{background:var(--paper);border:1px solid var(--border);padding:1.3rem;margin-bottom:1.2rem;}
+.vocab-add-title{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.9rem;}
+.vocab-add-row{display:flex;gap:.7rem;margin-bottom:.65rem;flex-wrap:wrap;}
+.vocab-add-col{display:flex;flex-direction:column;min-width:0;}
+.vocab-lbl{font-size:.65rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;}
+.vocab-input{
+  padding:.48rem .7rem;border:1px solid var(--border);background:var(--cream);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.85rem;color:var(--ink);
+  outline:none;transition:border-color .15s;width:100%;
+}
+.vocab-input:focus{border-color:var(--orange);}
+.vocab-input::placeholder{color:var(--muted);}
+.vocab-lookup-spinner{
+  position:absolute;right:.6rem;top:50%;transform:translateY(-50%);
+  font-size:1rem;color:var(--orange);animation:vocabSpin 1s linear infinite;
+}
+@keyframes vocabSpin{to{transform:translateY(-50%) rotate(360deg);}}
+.vocab-add-btn{
+  background:var(--orange);color:#fff;border:none;
+  padding:.55rem 1.4rem;font-family:'Be Vietnam Pro',sans-serif;
+  font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s;margin-top:.3rem;
+}
+.vocab-add-btn:hover{background:var(--orange2);}
+.vocab-stats-row{display:flex;gap:.7rem;margin-bottom:1.1rem;flex-wrap:wrap;}
+.vocab-stat-pill{
+  background:var(--paper);border:1px solid var(--border);
+  padding:.5rem 1rem;font-size:.78rem;font-weight:600;color:var(--ink);
+  display:flex;align-items:center;gap:.4rem;
+}
+.vocab-stat-pill .vsp-num{font-family:'Lora',serif;font-size:1.3rem;font-weight:700;color:var(--orange);}
+.vocab-stat-pill .vsp-lbl{font-size:.68rem;color:var(--muted);font-weight:400;}
+/* Word cards */
+.vocab-section-hd{
+  font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin:.9rem 0 .5rem;display:flex;align-items:center;gap:.5rem;
+}
+.vocab-section-hd::after{content:'';flex:1;height:1px;background:var(--line);}
+.vocab-card{
+  background:var(--paper);border:1px solid var(--border);
+  padding:.85rem 1.1rem;margin-bottom:.55rem;
+  display:flex;align-items:flex-start;gap:.9rem;
+  transition:border-color .12s,background .12s;position:relative;
+}
+.vocab-card:hover{border-color:var(--orange3);}
+.vocab-card-body{flex:1;min-width:0;}
+.vocab-word{font-family:'Lora',serif;font-size:1.15rem;font-weight:700;color:var(--ink);line-height:1.2;}
+.vocab-ipa{font-size:.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:.1rem;}
+.vocab-pos-badge{
+  display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:.05em;
+  text-transform:uppercase;padding:.1rem .4rem;margin-left:.4rem;
+  background:var(--orange4);color:var(--orange);border:1px solid var(--orange3);
+  vertical-align:middle;
+}
+.vocab-def{font-size:.82rem;color:var(--ink);margin-top:.35rem;line-height:1.55;}
+.vocab-def-vi{font-size:.78rem;color:var(--muted);margin-top:.15rem;font-style:italic;}
+.vocab-ex{font-size:.75rem;color:var(--sky);margin-top:.2rem;font-style:italic;}
+.vocab-meta{display:flex;align-items:center;gap:.55rem;margin-top:.5rem;flex-wrap:wrap;}
+.vocab-part-tag{
+  font-size:.58rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:.15rem .5rem;background:var(--sky2);color:var(--sky);border:1px solid rgba(58,104,152,.2);
+}
+.vocab-date-tag{font-size:.65rem;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.vocab-srs-tag{
+  font-size:.6rem;font-weight:700;padding:.15rem .45rem;
+}
+.vocab-srs-due{background:var(--rust2);color:var(--rust);border:1px solid rgba(176,58,42,.2);}
+.vocab-srs-ok{background:var(--sage2);color:var(--sage);border:1px solid rgba(74,124,89,.2);}
+.vocab-srs-soon{background:var(--orange4);color:var(--orange);border:1px solid var(--orange3);}
+.vocab-card-actions{display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;flex-shrink:0;}
+.vocab-review-btn{
+  padding:.3rem .7rem;font-size:.7rem;font-weight:600;
+  background:var(--sage);color:#fff;border:none;cursor:pointer;
+  font-family:'Be Vietnam Pro',sans-serif;transition:opacity .15s;white-space:nowrap;
+}
+.vocab-review-btn:hover{opacity:.85;}
+.vocab-del-btn{
+  background:none;border:1px solid var(--border);color:var(--muted);
+  padding:.22rem .5rem;font-size:.68rem;cursor:pointer;
+  font-family:'Be Vietnam Pro',sans-serif;transition:all .15s;
+}
+.vocab-del-btn:hover{border-color:var(--rust);color:var(--rust);}
+/* SRS banner vocab */
+.vocab-srs-banner-box{
+  background:linear-gradient(135deg,var(--ink2),#3A2008);
+  border:1px solid rgba(196,98,45,.35);border-left:4px solid var(--orange);
+  padding:1rem 1.2rem;margin-bottom:1.1rem;
+  display:flex;align-items:flex-start;gap:.9rem;
+}
+@media(max-width:720px){
+  .vocab-add-row{flex-direction:column;gap:.5rem;}
+  .vocab-add-col{flex:unset!important;width:100%;}
+  .vocab-card{flex-direction:column;gap:.6rem;}
+  .vocab-card-actions{flex-direction:row;align-self:flex-start;}
+}
+
 /* ═══════════════════════════════
    LOGIN SCREEN
 ═══════════════════════════════ */
@@ -1756,6 +1860,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <div class="tab" data-tab="progress"  onclick="goTab(this)">Tiến độ học</div>
     <div class="tab" data-tab="scores"    onclick="goTab(this)" id="tab-scores">🎯 Điểm số</div>
     <div class="tab" data-tab="errorlog"  onclick="goTab(this)" id="tab-errorlog">📒 Nhật ký lỗi</div>
+    <div class="tab" data-tab="vocab"     onclick="goTab(this)" id="tab-vocab">📖 Từ vựng</div>
     <div class="tab" data-tab="missions"  onclick="goTab(this)" id="tab-missions">✅ Nhiệm vụ</div>
     <div class="tab" data-tab="schedule"  onclick="goTab(this)">Lịch học</div>
     <div class="tab" data-tab="booking"   onclick="goTab(this)" id="tab-booking">Book 1-1 🗓</div>
@@ -2128,6 +2233,91 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 
   </div><!-- /main -->
 
+<!-- ══ VOCAB PANE ══ -->
+<div class="pane" id="pane-vocab">
+  <div class="main" style="max-width:1060px;margin:0 auto;padding:1.8rem;">
+
+  <!-- SRS Reminder Banner (vocab) -->
+  <div id="vocab-srs-banner" style="display:none"></div>
+
+  <!-- Part filter bar -->
+  <div class="vocab-filter-bar">
+    <button class="vocab-part-btn active" data-part="all" onclick="vocabSetPart(this)">Tất cả</button>
+    <button class="vocab-part-btn" data-part="1" onclick="vocabSetPart(this)">Part 1</button>
+    <button class="vocab-part-btn" data-part="2" onclick="vocabSetPart(this)">Part 2</button>
+    <button class="vocab-part-btn" data-part="3" onclick="vocabSetPart(this)">Part 3</button>
+    <button class="vocab-part-btn" data-part="4" onclick="vocabSetPart(this)">Part 4</button>
+    <button class="vocab-part-btn" data-part="5" onclick="vocabSetPart(this)">Part 5</button>
+    <button class="vocab-part-btn" data-part="6" onclick="vocabSetPart(this)">Part 6</button>
+    <button class="vocab-part-btn" data-part="7" onclick="vocabSetPart(this)">Part 7</button>
+  </div>
+
+  <!-- Add word form -->
+  <div class="vocab-add-card">
+    <div class="vocab-add-title">➕ Thêm từ mới</div>
+    <div class="vocab-add-row">
+      <div class="vocab-add-col" style="flex:2">
+        <label class="vocab-lbl">Từ tiếng Anh</label>
+        <div style="position:relative">
+          <input class="vocab-input" id="vi-word" type="text" placeholder="VD: accomplish" autocomplete="off" oninput="vocabWordInput(this)">
+          <span class="vocab-lookup-spinner" id="vi-spinner" style="display:none">⟳</span>
+        </div>
+      </div>
+      <div class="vocab-add-col" style="flex:1">
+        <label class="vocab-lbl">Phiên âm IPA</label>
+        <input class="vocab-input" id="vi-ipa" type="text" placeholder="Tự động..." autocomplete="off">
+      </div>
+      <div class="vocab-add-col" style="flex:1">
+        <label class="vocab-lbl">Từ loại</label>
+        <input class="vocab-input" id="vi-pos" type="text" placeholder="noun, verb..." autocomplete="off">
+      </div>
+    </div>
+    <div class="vocab-add-row">
+      <div class="vocab-add-col" style="flex:3">
+        <label class="vocab-lbl">Nghĩa tiếng Anh <span style="font-weight:400;color:var(--muted)">(gợi ý tự động, có thể sửa)</span></label>
+        <input class="vocab-input" id="vi-def" type="text" placeholder="Definition in English..." autocomplete="off">
+      </div>
+      <div class="vocab-add-col" style="flex:2">
+        <label class="vocab-lbl">Nghĩa tiếng Việt <span style="font-weight:400;color:var(--muted)">(tuỳ chọn)</span></label>
+        <input class="vocab-input" id="vi-vi" type="text" placeholder="Nghĩa bằng tiếng Việt..." autocomplete="off">
+      </div>
+    </div>
+    <div class="vocab-add-row">
+      <div class="vocab-add-col" style="flex:1">
+        <label class="vocab-lbl">Part TOEIC</label>
+        <select class="vocab-input" id="vi-part">
+          <option value="1">Part 1</option>
+          <option value="2">Part 2</option>
+          <option value="3">Part 3</option>
+          <option value="4">Part 4</option>
+          <option value="5" selected>Part 5</option>
+          <option value="6">Part 6</option>
+          <option value="7">Part 7</option>
+        </select>
+      </div>
+      <div class="vocab-add-col" style="flex:1">
+        <label class="vocab-lbl">Ngày gặp từ</label>
+        <input class="vocab-input" id="vi-date" type="date">
+      </div>
+      <div class="vocab-add-col" style="flex:2">
+        <label class="vocab-lbl">Ví dụ <span style="font-weight:400;color:var(--muted)">(tuỳ chọn)</span></label>
+        <input class="vocab-input" id="vi-ex" type="text" placeholder="Example sentence..." autocomplete="off">
+      </div>
+    </div>
+    <button class="vocab-add-btn" onclick="vocabAddWord()">💾 Lưu từ</button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="vocab-stats-row" id="vocab-stats-row"></div>
+
+  <!-- Word list -->
+  <div id="vocab-list-wrap">
+    <div class="empty" style="padding:2rem;text-align:center;color:var(--muted)">Chưa có từ nào. Thêm từ đầu tiên nhé!</div>
+  </div>
+
+  </div>
+</div>
+
 <!-- ══ RECEIPT MODAL ══ -->
 <div class="receipt-ov" id="receipt-ov" onclick="if(event.target===this)closeReceipt()">
   <div class="receipt-box" id="receipt-box">
@@ -2299,6 +2489,7 @@ function goTab(el){
   }
   if(el.dataset.tab==='fee') renderFeeTab();
   if(el.dataset.tab==='errorlog') elInitTab();
+  if(el.dataset.tab==='vocab') vocabInitTab();
 }
 
 /* ═══ LOGIN / LOGOUT ═══ */
@@ -2445,6 +2636,14 @@ function launchApp(){
     allAttendanceFee=snap.val()||{};
     var pane=document.getElementById('pane-fee');
     if(pane&&pane.classList.contains('active')) renderFeeTab();
+  });
+  // Vocab: load once for SRS check badge
+  db.ref('vocab/'+S.id).once('value').then(function(snap){
+    _vocabWords=[];
+    var raw=snap.val()||{};
+    Object.keys(raw).forEach(function(k){ _vocabWords.push(Object.assign({id:k},raw[k])); });
+    _vocabWords.sort(function(a,b){return (b.addedDate||'').localeCompare(a.addedDate||'');});
+    vocabCheckSRS();
   });
 }
 
@@ -4650,6 +4849,264 @@ document.addEventListener('click', function(e){
     document.querySelectorAll('.el-error-name.tip-open').forEach(function(el){ el.classList.remove('tip-open'); });
   }
 });
+
+/* ═══════════════════════════════════════════
+   VOCAB MODULE
+═══════════════════════════════════════════ */
+
+/* SRS intervals in days: review 1, 3, 7, 14, 30 */
+var SRS_INTERVALS = [1, 3, 7, 14, 30];
+var _vocabFilter = 'all';
+var _vocabLookupTimer = null;
+var _vocabWords = []; // local cache
+
+function vocabInitTab(){
+  if(!S) return;
+  // Set default date = today
+  var di = document.getElementById('vi-date');
+  if(di && !di.value) di.value = today();
+  // Load from Firebase
+  db.ref('vocab/'+S.id).once('value').then(function(snap){
+    _vocabWords = [];
+    var raw = snap.val() || {};
+    Object.keys(raw).forEach(function(k){ _vocabWords.push(Object.assign({id:k}, raw[k])); });
+    _vocabWords.sort(function(a,b){ return (b.addedDate||'').localeCompare(a.addedDate||''); });
+    vocabRender();
+    vocabCheckSRS();
+  });
+}
+
+/* ── SRS helpers ── */
+function vocabNextReview(word){
+  var rep = word.repCount || 0;
+  var interval = SRS_INTERVALS[Math.min(rep, SRS_INTERVALS.length-1)];
+  var base = word.lastReview || word.addedDate || today();
+  var d = new Date(base + 'T00:00:00');
+  d.setDate(d.getDate() + interval);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function vocabIsDue(word){
+  return vocabNextReview(word) <= today();
+}
+function vocabSrsLabel(word){
+  var nr = vocabNextReview(word);
+  var td = today();
+  if(nr <= td) return {cls:'vocab-srs-due', txt:'🔴 Đến hạn ôn'};
+  var diff = Math.ceil((new Date(nr+'T00:00:00') - new Date(td+'T00:00:00'))/(86400000));
+  if(diff <= 3) return {cls:'vocab-srs-soon', txt:'🟡 Ôn sau '+diff+' ngày'};
+  return {cls:'vocab-srs-ok', txt:'✅ Ôn sau '+diff+' ngày'};
+}
+
+/* ── Check SRS on app open ── */
+function vocabCheckSRS(){
+  if(!_vocabWords.length) return;
+  var due = _vocabWords.filter(vocabIsDue);
+  var bannerEl = document.getElementById('vocab-srs-banner');
+  var tabEl = document.getElementById('tab-vocab');
+  if(!due.length){
+    if(bannerEl) bannerEl.style.display='none';
+    if(tabEl) tabEl.innerHTML='📖 Từ vựng';
+    return;
+  }
+  // Badge on tab
+  if(tabEl) tabEl.innerHTML='📖 Từ vựng<span class="badge">'+due.length+'</span>';
+  // Show banner only once per session
+  var sessionKey='vocab_srs_'+S.id+'_'+today();
+  if(sessionStorage.getItem(sessionKey)) return;
+  sessionStorage.setItem(sessionKey,'1');
+  if(bannerEl){
+    bannerEl.style.display='block';
+    bannerEl.innerHTML='<div class="vocab-srs-banner-box">'+
+      '<div class="reminder-ico">📖</div>'+
+      '<div class="reminder-body">'+
+        '<div class="reminder-title">Có <strong>'+due.length+' từ vựng</strong> đến hạn ôn tập hôm nay!</div>'+
+        '<div class="reminder-text">Ôn lại các từ đã tích luỹ để nhớ lâu hơn. Vào tab <strong>Từ vựng</strong> để xem.</div>'+
+      '</div>'+
+      '<button class="reminder-close" onclick="document.getElementById(\'vocab-srs-banner\').style.display=\'none\'">✕</button>'+
+    '</div>';
+  }
+}
+
+/* ── Part filter ── */
+function vocabSetPart(btn){
+  document.querySelectorAll('.vocab-part-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  _vocabFilter = btn.dataset.part;
+  vocabRender();
+}
+
+/* ── Render ── */
+function vocabRender(){
+  var statsEl = document.getElementById('vocab-stats-row');
+  var listEl  = document.getElementById('vocab-list-wrap');
+  if(!statsEl||!listEl) return;
+
+  var filtered = _vocabFilter==='all'
+    ? _vocabWords
+    : _vocabWords.filter(function(w){ return String(w.part)===_vocabFilter; });
+
+  var total = _vocabWords.length;
+  var dueCount = _vocabWords.filter(vocabIsDue).length;
+  var partCounts = {};
+  _vocabWords.forEach(function(w){ partCounts[w.part]=(partCounts[w.part]||0)+1; });
+
+  statsEl.innerHTML =
+    '<div class="vocab-stat-pill"><span class="vsp-num">'+total+'</span><span class="vsp-lbl">tổng số từ</span></div>'+
+    '<div class="vocab-stat-pill"><span class="vsp-num" style="color:var(--rust)">'+dueCount+'</span><span class="vsp-lbl">đến hạn ôn</span></div>'+
+    Object.keys(partCounts).sort().map(function(p){
+      return '<div class="vocab-stat-pill"><span class="vsp-num" style="font-size:.95rem;color:var(--sky)">'+partCounts[p]+'</span><span class="vsp-lbl">Part '+p+'</span></div>';
+    }).join('');
+
+  if(!filtered.length){
+    listEl.innerHTML='<div class="empty" style="padding:2rem;text-align:center;color:var(--muted)">'+(total?'Không có từ nào cho bộ lọc này.':'Chưa có từ nào. Thêm từ đầu tiên nhé!')+'</div>';
+    return;
+  }
+
+  // Group by part
+  var groups = {};
+  filtered.forEach(function(w){
+    var k = 'Part '+w.part;
+    if(!groups[k]) groups[k]=[];
+    groups[k].push(w);
+  });
+
+  var html='';
+  Object.keys(groups).sort().forEach(function(gk){
+    html+='<div class="vocab-section-hd">'+gk+' <span style="font-size:.68rem;color:var(--muted);font-style:italic;font-weight:400">('+groups[gk].length+' từ)</span></div>';
+    groups[gk].forEach(function(w){
+      var srs=vocabSrsLabel(w);
+      html+='<div class="vocab-card" id="vcard-'+w.id+'">'+
+        '<div class="vocab-card-body">'+
+          '<div>'+
+            '<span class="vocab-word">'+escH(w.word||'')+'</span>'+
+            (w.pos?'<span class="vocab-pos-badge">'+escH(w.pos)+'</span>':'')+
+          '</div>'+
+          (w.ipa?'<div class="vocab-ipa">'+escH(w.ipa)+'</div>':'')+
+          (w.def?'<div class="vocab-def">'+escH(w.def)+'</div>':'')+
+          (w.vi?'<div class="vocab-def-vi">🇻🇳 '+escH(w.vi)+'</div>':'')+
+          (w.example?'<div class="vocab-ex">💬 '+escH(w.example)+'</div>':'')+
+          '<div class="vocab-meta">'+
+            '<span class="vocab-part-tag">Part '+w.part+'</span>'+
+            '<span class="vocab-date-tag">'+fmtD(w.addedDate||'')+'</span>'+
+            '<span class="vocab-srs-tag '+srs.cls+'">'+srs.txt+'</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="vocab-card-actions">'+
+          (vocabIsDue(w)?'<button class="vocab-review-btn" onclick="vocabMarkReviewed(\''+w.id+'\')">✅ Đã ôn</button>':'')+
+          '<button class="vocab-del-btn" onclick="vocabDelete(\''+w.id+'\')">🗑</button>'+
+        '</div>'+
+      '</div>';
+    });
+  });
+  listEl.innerHTML=html;
+}
+
+/* ── Add word ── */
+function vocabAddWord(){
+  if(!S) return;
+  var word=(document.getElementById('vi-word').value||'').trim();
+  if(!word){ toast('⚠️ Nhập từ tiếng Anh trước!'); return; }
+  var ipa  =(document.getElementById('vi-ipa').value||'').trim();
+  var pos  =(document.getElementById('vi-pos').value||'').trim();
+  var def  =(document.getElementById('vi-def').value||'').trim();
+  var vi   =(document.getElementById('vi-vi').value||'').trim();
+  var ex   =(document.getElementById('vi-ex').value||'').trim();
+  var part =document.getElementById('vi-part').value||'5';
+  var date =document.getElementById('vi-date').value||today();
+
+  var id='v'+Date.now();
+  var entry={word:word,part:parseInt(part),addedDate:date,repCount:0};
+  if(ipa) entry.ipa=ipa;
+  if(pos) entry.pos=pos;
+  if(def) entry.def=def;
+  if(vi)  entry.vi=vi;
+  if(ex)  entry.example=ex;
+
+  db.ref('vocab/'+S.id+'/'+id).set(entry).then(function(){
+    _vocabWords.unshift(Object.assign({id:id},entry));
+    vocabRender();
+    vocabCheckSRS();
+    // Clear form fields (keep date + part)
+    ['vi-word','vi-ipa','vi-pos','vi-def','vi-vi','vi-ex'].forEach(function(fid){
+      var el=document.getElementById(fid); if(el) el.value='';
+    });
+    toast('✅ Đã lưu từ "'+word+'"!');
+  }).catch(function(e){ toast('❌ Lỗi: '+e.message); });
+}
+
+/* ── Mark reviewed ── */
+function vocabMarkReviewed(id){
+  var w=_vocabWords.find(function(x){return x.id===id;}); if(!w) return;
+  var newRep=(w.repCount||0)+1;
+  var updates={repCount:newRep,lastReview:today()};
+  db.ref('vocab/'+S.id+'/'+id).update(updates).then(function(){
+    Object.assign(w,updates);
+    vocabRender();
+    vocabCheckSRS();
+    toast('✅ Đánh dấu đã ôn!');
+  });
+}
+
+/* ── Delete ── */
+function vocabDelete(id){
+  if(!confirm('Xoá từ này?')) return;
+  db.ref('vocab/'+S.id+'/'+id).remove().then(function(){
+    _vocabWords=_vocabWords.filter(function(w){return w.id!==id;});
+    vocabRender();
+    vocabCheckSRS();
+    toast('🗑 Đã xoá từ.');
+  });
+}
+
+/* ── Free Dictionary API autocomplete (debounced 600ms) ── */
+function vocabWordInput(inp){
+  clearTimeout(_vocabLookupTimer);
+  var word=(inp.value||'').trim();
+  if(word.length<2) return;
+  _vocabLookupTimer=setTimeout(function(){ vocabLookup(word); },600);
+}
+
+function vocabLookup(word){
+  var spinner=document.getElementById('vi-spinner');
+  if(spinner) spinner.style.display='inline';
+  fetch('https://api.dictionaryapi.dev/api/v2/entries/en/'+encodeURIComponent(word))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(spinner) spinner.style.display='none';
+      if(!Array.isArray(data)||!data.length) return;
+      var entry=data[0];
+      // IPA — pick first phonetic text
+      var ipa='';
+      if(entry.phonetic) ipa=entry.phonetic;
+      else if(entry.phonetics){
+        var ph=entry.phonetics.find(function(p){return p.text;});
+        if(ph) ipa=ph.text;
+      }
+      // Part of speech + definition — first meaning
+      var pos='', def='', ex='';
+      if(entry.meanings&&entry.meanings.length){
+        var m=entry.meanings[0];
+        pos=m.partOfSpeech||'';
+        if(m.definitions&&m.definitions.length){
+          def=m.definitions[0].definition||'';
+          ex=m.definitions[0].example||'';
+        }
+      }
+      // Only fill empty fields (don't overwrite manual input)
+      var ipaEl=document.getElementById('vi-ipa');
+      var posEl=document.getElementById('vi-pos');
+      var defEl=document.getElementById('vi-def');
+      var exEl =document.getElementById('vi-ex');
+      if(ipaEl&&!ipaEl.value&&ipa) ipaEl.value=ipa;
+      if(posEl&&!posEl.value&&pos) posEl.value=pos;
+      if(defEl&&!defEl.value&&def) defEl.value=def;
+      if(exEl &&!exEl.value &&ex)  exEl.value=ex;
+    })
+    .catch(function(){
+      if(spinner) spinner.style.display='none';
+      // Silently fail — user can fill manually
+    });
+}
 
 /* ═══ SURVEY BUBBLE ═══ */
 function openSurvey(){
