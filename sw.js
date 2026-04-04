@@ -4,6 +4,11 @@
 
 const CACHE_NAME = 'ta2hieu-v1';
 
+// ── Student ID lưu trong bộ nhớ SW (tồn tại chừng nào SW còn sống) ──
+var _studentId   = null;
+var _dbBaseUrl   = 'https://quanlyhocvien-b1796-default-rtdb.asia-southeast1.firebasedatabase.app';
+var _pollTimer   = null;
+
 // Cài đặt: xoá cache cũ nếu có
 self.addEventListener('install', function(event) {
   self.skipWaiting();
@@ -20,6 +25,14 @@ self.addEventListener('activate', function(event) {
       );
     }).then(function() {
       return self.clients.claim();
+    }).then(function() {
+      // Báo tất cả tab đang mở reload để lấy code mới
+      return self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then(function(clients) {
+          clients.forEach(function(c) {
+            c.postMessage({ type: 'SW_UPDATED' });
+          });
+        });
     })
   );
 });
@@ -30,48 +43,41 @@ self.addEventListener('fetch', function(event) {
 });
 
 /* ══════════════════════════════════════════════════════════════
-   PUSH NOTIFICATIONS
-   Trang chính detect DB change → postMessage → SW hiện notification
+   NHẬN MESSAGE TỪ TRANG CHÍNH
    ══════════════════════════════════════════════════════════════ */
-
-// Nhận message từ trang chính
 self.addEventListener('message', function(event) {
   var data = event.data;
   if (!data || !data.type) return;
 
-  // ── Luồng 1 & 3: Hiển thị notification ngay ──
-  if (data.type === 'SHOW_NOTIFICATION') {
-    var title = data.title || 'Tiếng Anh² Hiếu';
-    var body  = data.body  || 'Bạn có thông báo mới.';
-    var tag   = data.tag   || 'ta2hieu-general';
-    var url   = data.url   || '/student-site/';
-    var icon  = data.icon  || '/student-site/apple-touch-icon.png';
+  // ── SET_STUDENT: trang chính báo studentId sau khi login ──
+  if (data.type === 'SET_STUDENT') {
+    _studentId = data.studentId;
+    startPolling(); // bắt đầu poll Firebase để nhận notification khi app đóng
+    return;
+  }
 
+  // ── SHOW_NOTIFICATION: trang chính gọi trực tiếp (khi app đang mở) ──
+  if (data.type === 'SHOW_NOTIFICATION') {
     event.waitUntil(
-      self.registration.showNotification(title, {
-        body:      body,
-        icon:      icon,
-        badge:     icon,
-        tag:       tag,
-        renotify:  true,
-        data:      { url: url }
+      self.registration.showNotification(data.title || 'Tiếng Anh² Hiếu', {
+        body:     data.body  || 'Bạn có thông báo mới.',
+        icon:     data.icon  || '/student-site/apple-touch-icon.png',
+        badge:    data.icon  || '/student-site/apple-touch-icon.png',
+        tag:      data.tag   || 'ta2hieu-general',
+        renotify: true,
+        data:     { url: data.url || '/student-site/' }
       })
     );
     return;
   }
 
-  // ── Luồng 2: Reminder 8pm ──
+  // ── CHECK_EVENING_REMINDER: trang chính ping lúc 8pm ──
   if (data.type === 'CHECK_EVENING_REMINDER') {
     var pendingHw = data.pendingHw || 0;
     if (pendingHw <= 0) return;
-
     var now = new Date();
-    var h   = now.getHours();
-    var min = now.getMinutes();
-    if (h !== 20 || min > 5) return;
-
+    if (now.getHours() !== 20 || now.getMinutes() > 5) return;
     var todayTag = 'evening-reminder-' + now.toISOString().slice(0, 10);
-
     event.waitUntil(
       self.registration.getNotifications({ tag: todayTag }).then(function(existing) {
         if (existing.length > 0) return;
@@ -87,6 +93,63 @@ self.addEventListener('message', function(event) {
     return;
   }
 });
+
+/* ══════════════════════════════════════════════════════════════
+   BACKGROUND POLLING — SW tự fetch Firebase REST khi app đóng
+   Mỗi 3 phút check notifications/{studentId} có gì mới không
+   ══════════════════════════════════════════════════════════════ */
+function startPolling() {
+  if (_pollTimer) return; // đã đang poll rồi
+  _pollTimer = setInterval(pollNotifications, 3 * 60 * 1000); // 3 phút
+  pollNotifications(); // check ngay lần đầu
+}
+
+function pollNotifications() {
+  if (!_studentId) return;
+
+  // Check xem có client nào đang mở không — nếu có thì trang chính tự xử lý
+  self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+    .then(function(clients) {
+      // Có tab student site đang mở → không cần SW poll (tránh double notification)
+      var hasOpenTab = clients.some(function(c) {
+        return c.url.indexOf('/student-site') !== -1;
+      });
+      if (hasOpenTab) return;
+
+      // Không có tab mở → SW tự fetch Firebase REST API
+      var url = _dbBaseUrl + '/notifications/' + _studentId + '.json';
+      return fetch(url)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (!data) return;
+          var promises = [];
+          Object.keys(data).forEach(function(key) {
+            var n = data[key];
+            if (!n || n.seen) return; // đã seen rồi, bỏ qua
+            // Đánh dấu seen trước (PATCH request)
+            var patchUrl = _dbBaseUrl + '/notifications/' + _studentId + '/' + key + '/seen.json';
+            promises.push(
+              fetch(patchUrl, { method: 'PUT', body: 'true' })
+            );
+            // Hiện notification
+            promises.push(
+              self.registration.showNotification(n.title || 'Tiếng Anh² Hiếu', {
+                body:     n.body || 'Thầy vừa gửi thông báo.',
+                icon:     '/student-site/apple-touch-icon.png',
+                badge:    '/student-site/apple-touch-icon.png',
+                tag:      'manual-' + key,
+                renotify: true,
+                data:     { url: '/student-site/' }
+              })
+            );
+          });
+          return Promise.all(promises);
+        })
+        .catch(function(err) {
+          console.warn('[SW poll error]', err);
+        });
+    });
+}
 
 /* ══════════════════════════════════════════════════════════════
    NOTIFICATION CLICK — mở tab student site khi bấm vào thông báo
