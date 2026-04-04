@@ -4,11 +4,6 @@
 
 const CACHE_NAME = 'ta2hieu-v1';
 
-// ── Student ID lưu trong bộ nhớ SW (tồn tại chừng nào SW còn sống) ──
-var _studentId   = null;
-var _dbBaseUrl   = 'https://quanlyhocvien-b1796-default-rtdb.asia-southeast1.firebasedatabase.app';
-var _pollTimer   = null;
-
 // Cài đặt: xoá cache cũ nếu có
 self.addEventListener('install', function(event) {
   self.skipWaiting();
@@ -49,13 +44,6 @@ self.addEventListener('message', function(event) {
   var data = event.data;
   if (!data || !data.type) return;
 
-  // ── SET_STUDENT: trang chính báo studentId sau khi login ──
-  if (data.type === 'SET_STUDENT') {
-    _studentId = data.studentId;
-    startPolling(); // bắt đầu poll Firebase để nhận notification khi app đóng
-    return;
-  }
-
   // ── SHOW_NOTIFICATION: trang chính gọi trực tiếp (khi app đang mở) ──
   if (data.type === 'SHOW_NOTIFICATION') {
     event.waitUntil(
@@ -93,63 +81,6 @@ self.addEventListener('message', function(event) {
     return;
   }
 });
-
-/* ══════════════════════════════════════════════════════════════
-   BACKGROUND POLLING — SW tự fetch Firebase REST khi app đóng
-   Mỗi 3 phút check notifications/{studentId} có gì mới không
-   ══════════════════════════════════════════════════════════════ */
-function startPolling() {
-  if (_pollTimer) return; // đã đang poll rồi
-  _pollTimer = setInterval(pollNotifications, 3 * 60 * 1000); // 3 phút
-  pollNotifications(); // check ngay lần đầu
-}
-
-function pollNotifications() {
-  if (!_studentId) return;
-
-  // Check xem có client nào đang mở không — nếu có thì trang chính tự xử lý
-  self.clients.matchAll({ type: 'window', includeUncontrolled: true })
-    .then(function(clients) {
-      // Có tab student site đang mở → không cần SW poll (tránh double notification)
-      var hasOpenTab = clients.some(function(c) {
-        return c.url.indexOf('/student-site') !== -1;
-      });
-      if (hasOpenTab) return;
-
-      // Không có tab mở → SW tự fetch Firebase REST API
-      var url = _dbBaseUrl + '/notifications/' + _studentId + '.json';
-      return fetch(url)
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-          if (!data) return;
-          var promises = [];
-          Object.keys(data).forEach(function(key) {
-            var n = data[key];
-            if (!n || n.seen) return; // đã seen rồi, bỏ qua
-            // Đánh dấu seen trước (PATCH request)
-            var patchUrl = _dbBaseUrl + '/notifications/' + _studentId + '/' + key + '/seen.json';
-            promises.push(
-              fetch(patchUrl, { method: 'PUT', body: 'true' })
-            );
-            // Hiện notification
-            promises.push(
-              self.registration.showNotification(n.title || 'Tiếng Anh² Hiếu', {
-                body:     n.body || 'Thầy vừa gửi thông báo.',
-                icon:     '/student-site/apple-touch-icon.png',
-                badge:    '/student-site/apple-touch-icon.png',
-                tag:      'manual-' + key,
-                renotify: true,
-                data:     { url: '/student-site/' }
-              })
-            );
-          });
-          return Promise.all(promises);
-        })
-        .catch(function(err) {
-          console.warn('[SW poll error]', err);
-        });
-    });
-}
 
 /* ══════════════════════════════════════════════════════════════
    PUSH EVENT — nhận push thật từ FCM server (Cloud Function)
