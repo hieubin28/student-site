@@ -5188,6 +5188,9 @@ function openSurvey(){
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Đăng ký Service Worker và xin quyền notification ── */
+/* ── VAPID Public Key (từ Cloud Function) ── */
+var VAPID_PUBLIC_KEY = 'BLrjzyy5bIbEzs2C67woqyn_NGrsR4a8QhOGtgCPLGMpOOLJ_K4b0YVuzUAQRbgNQPA06zHfsPTEDcik_PdGA9g';
+
 function initPushNotifications(){
   if(!('serviceWorker' in navigator)){
     console.log('[PN] Service Worker không được hỗ trợ.');
@@ -5245,7 +5248,11 @@ function initPushNotifications(){
 function requestNotifPermission(){
   if(!('Notification' in window)) return;
   _notifPermission = Notification.permission;
-  if(_notifPermission === 'granted') return; // đã có rồi
+  if(_notifPermission === 'granted'){
+    // Đã có quyền → đảm bảo subscription được lưu vào Firebase
+    subscribePush();
+    return;
+  }
   if(_notifPermission === 'denied') return;  // user đã từ chối, không hỏi lại
 
   // Hiện banner mềm mỏng để giải thích trước khi hỏi hệ thống
@@ -5289,8 +5296,52 @@ function grantNotifPermission(){
     _notifPermission = perm;
     if(perm === 'granted'){
       toast('🔔 Đã bật thông báo!');
+      // Subscribe Web Push và lưu subscription vào Firebase
+      subscribePush();
     }
   });
+}
+
+/* ── Subscribe Web Push (FCM qua VAPID) ── */
+function subscribePush(){
+  if(!_swReg) return;
+  if(!S || !S.id) return;
+  _swReg.pushManager.getSubscription().then(function(existing){
+    if(existing){
+      // Đã subscribe rồi → lưu lại vào Firebase (phòng trường hợp chưa lưu)
+      savePushSubscription(existing);
+      return;
+    }
+    // Subscribe mới
+    var appServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+    return _swReg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: appServerKey
+    }).then(function(sub){
+      savePushSubscription(sub);
+    });
+  }).catch(function(err){
+    console.warn('[PN] Subscribe failed:', err);
+  });
+}
+
+function savePushSubscription(sub){
+  if(!S || !S.id) return;
+  db.ref('pushSubscriptions/' + S.id).set(sub.toJSON()).then(function(){
+    console.log('[PN] Subscription saved to Firebase for', S.id);
+  });
+}
+
+/* ── Convert VAPID key từ base64 sang Uint8Array ── */
+function urlBase64ToUint8Array(base64String){
+  var padding = '='.repeat((4 - base64String.length % 4) % 4);
+  var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  var rawData = window.atob(base64);
+  var outputArray = new Uint8Array(rawData.length);
+  for(var i = 0; i < rawData.length; ++i){
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
 }
 
 function dismissNotifBanner(){
