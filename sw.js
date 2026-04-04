@@ -152,6 +152,33 @@ function pollNotifications() {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   PUSH EVENT — nhận push thật từ FCM server (Cloud Function)
+   Hoạt động kể cả khi app đóng hoàn toàn, kể cả iOS 16.4+
+   ══════════════════════════════════════════════════════════════ */
+self.addEventListener('push', function(event) {
+  if(!event.data) return;
+
+  var data = {};
+  try { data = event.data.json(); } catch(e) { data = { title: 'Tiếng Anh² Hiếu', body: event.data.text() }; }
+
+  var title = data.title || 'Tiếng Anh² Hiếu';
+  var body  = data.body  || 'Bạn có thông báo mới.';
+  var url   = data.url   || '/student-site/';
+  var icon  = '/student-site/apple-touch-icon.png';
+
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body:     body,
+      icon:     icon,
+      badge:    icon,
+      tag:      'ta2hieu-push-' + Date.now(),
+      renotify: true,
+      data:     { url: url }
+    })
+  );
+});
+
+/* ══════════════════════════════════════════════════════════════
    NOTIFICATION CLICK — mở tab student site khi bấm vào thông báo
    ══════════════════════════════════════════════════════════════ */
 self.addEventListener('notificationclick', function(event) {
