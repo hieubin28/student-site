@@ -2580,15 +2580,7 @@ function launchApp(){
     // So sánh HW ids để detect homework mới được giao
     var newHwIds=(newData.homework||[]).map(function(h){return h.id;}).join(',');
     if(_prevHwIds!==null && newHwIds!==_prevHwIds){
-      // Có HW mới — tìm những id chưa có trước đó
-      var oldSet=new Set(_prevHwIds?_prevHwIds.split(','):[]);
-      var newHws=(newData.homework||[]).filter(function(h){return !oldSet.has(h.id);});
-      newHws.forEach(function(h){
-        var label=h.label||('BTVN ngày '+fmtD(h.date));
-        var totalItems=countHwItems(h);
-        var body=label+(totalItems?' — '+totalItems+' nhiệm vụ':'');
-        showPushNotification('📚 Thầy vừa giao bài tập!',body,'hw-new-'+h.id);
-      });
+      // HW mới detected — Cloud Function sẽ tự gửi push, không cần gửi ở đây nữa
     }
     _prevHwIds=newHwIds;
     S=newData; renderAll();
@@ -2670,16 +2662,11 @@ function launchApp(){
     vocabCheckSRS();
   });
   // Real-time: manual notifications từ thầy
+  // Cloud Function đã gửi push rồi — ở đây chỉ đánh dấu seen khi app đang mở
   db.ref('notifications/'+S.id).on('child_added',function(snap){
     var n=snap.val();
     if(!n||n.seen) return;
-    // Đánh dấu đã xem để không push lại khi reload
     db.ref('notifications/'+S.id+'/'+snap.key+'/seen').set(true);
-    showPushNotification(
-      n.title||'Tiếng Anh² Hiếu',
-      n.body||'Thầy vừa gửi cho bạn một thông báo.',
-      'manual-'+snap.key
-    );
   });
 }
 
