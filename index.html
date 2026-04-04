@@ -2438,6 +2438,8 @@ var allScoreReqs = {};
 var allClasses = {};
 var allAttendanceFee = {}; // attendance data for fee tab
 var _feeMonth = new Date().getMonth()+1; // 1-12
+var _swReg    = null;  // Service Worker registration
+var _notifPermission = 'default'; // 'granted'|'denied'|'default'
 var _feeYear  = new Date().getFullYear();
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
@@ -2554,6 +2556,9 @@ function launchApp(){
   var bubble=document.getElementById('survey-bubble');
   if(bubble){ bubble.style.display='flex'; }
 
+  // ── Push Notification: đăng ký SW & xin quyền ──
+  initPushNotifications();
+
   // Event delegation for mission item ticks (avoids inline onclick escaping issues)
   document.getElementById('missions-content').addEventListener('click',function(e){
     var item=e.target.closest('.ms-item');
@@ -2567,10 +2572,26 @@ function launchApp(){
     if(hwId&&date&&sec&&!isNaN(idx)) markItemDone(hwId,date,sec,idx,false);
   });
 
-  // Real-time: student data
+  // Real-time: student data — detect homework mới để push notification
+  var _prevHwIds = null;
   db.ref('students/'+S.id).on('value',function(snap){
     if(!snap.exists()) return;
-    S=snap.val(); renderAll();
+    var newData=snap.val();
+    // So sánh HW ids để detect homework mới được giao
+    var newHwIds=(newData.homework||[]).map(function(h){return h.id;}).join(',');
+    if(_prevHwIds!==null && newHwIds!==_prevHwIds){
+      // Có HW mới — tìm những id chưa có trước đó
+      var oldSet=new Set(_prevHwIds?_prevHwIds.split(','):[]);
+      var newHws=(newData.homework||[]).filter(function(h){return !oldSet.has(h.id);});
+      newHws.forEach(function(h){
+        var label=h.label||('BTVN ngày '+fmtD(h.date));
+        var totalItems=countHwItems(h);
+        var body=label+(totalItems?' — '+totalItems+' nhiệm vụ':'');
+        showPushNotification('📚 Thầy vừa giao bài tập!',body,'hw-new-'+h.id);
+      });
+    }
+    _prevHwIds=newHwIds;
+    S=newData; renderAll();
   });
   // Real-time: bookings
   db.ref('bookings').on('value',function(snap){
@@ -2647,6 +2668,18 @@ function launchApp(){
     Object.keys(raw).forEach(function(k){ _vocabWords.push(Object.assign({id:k},raw[k])); });
     _vocabWords.sort(function(a,b){return (b.addedDate||'').localeCompare(a.addedDate||'');});
     vocabCheckSRS();
+  });
+  // Real-time: manual notifications từ thầy
+  db.ref('notifications/'+S.id).on('child_added',function(snap){
+    var n=snap.val();
+    if(!n||n.seen) return;
+    // Đánh dấu đã xem để không push lại khi reload
+    db.ref('notifications/'+S.id+'/'+snap.key+'/seen').set(true);
+    showPushNotification(
+      n.title||'Tiếng Anh² Hiếu',
+      n.body||'Thầy vừa gửi cho bạn một thông báo.',
+      'manual-'+snap.key
+    );
   });
 }
 
@@ -5150,6 +5183,124 @@ function vocabTranslateVI(text){
 function openSurvey(){
   window.open('https://forms.gle/Uu7gyfgBYx5qHYyX9','_blank','noopener,noreferrer');
 }
+/* ═══════════════════════════════════════════════════════════════
+   PUSH NOTIFICATION SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Đăng ký Service Worker và xin quyền notification ── */
+function initPushNotifications(){
+  if(!('serviceWorker' in navigator)){
+    console.log('[PN] Service Worker không được hỗ trợ.');
+    return;
+  }
+  // Đăng ký sw.js từ root của GitHub Pages repo
+  navigator.serviceWorker.register('/student-site/sw.js', { scope: '/student-site/' })
+    .then(function(reg){
+      _swReg = reg;
+      console.log('[PN] SW registered:', reg.scope);
+      // Xin quyền notification sau 2 giây (tránh popup ngay lúc login)
+      setTimeout(requestNotifPermission, 2000);
+      // Ping SW check evening reminder nếu đã có data
+      setTimeout(pingEveningReminder, 5000);
+    })
+    .catch(function(err){
+      console.warn('[PN] SW registration failed:', err);
+    });
+}
+
+/* ── Xin quyền thông báo — hiện banner mềm trước ── */
+function requestNotifPermission(){
+  if(!('Notification' in window)) return;
+  _notifPermission = Notification.permission;
+  if(_notifPermission === 'granted') return; // đã có rồi
+  if(_notifPermission === 'denied') return;  // user đã từ chối, không hỏi lại
+
+  // Hiện banner mềm mỏng để giải thích trước khi hỏi hệ thống
+  showNotifBanner();
+}
+
+function showNotifBanner(){
+  var banner = document.getElementById('notif-permission-banner');
+  if(banner) { banner.style.display='flex'; return; }
+  // Tạo banner nếu chưa có
+  var el = document.createElement('div');
+  el.id = 'notif-permission-banner';
+  el.style.cssText = [
+    'position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%)',
+    'background:var(--ink2);color:#fff;border-radius:10px',
+    'padding:.85rem 1.1rem;display:flex;align-items:center;gap:.9rem',
+    'box-shadow:0 4px 20px rgba(0,0,0,.35);z-index:9998',
+    'max-width:92vw;width:360px;font-family:"Be Vietnam Pro",sans-serif',
+    'font-size:.82rem;animation:toastIn .35s ease'
+  ].join(';');
+  el.innerHTML =
+    '<span style="font-size:1.4rem">🔔</span>' +
+    '<div style="flex:1">' +
+      '<div style="font-weight:600;margin-bottom:.2rem">Bật thông báo nhé?</div>' +
+      '<div style="opacity:.75;font-size:.77rem">Để nhận nhắc nhở khi có bài tập mới từ thầy.</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:.5rem;flex-shrink:0">' +
+      '<button onclick="dismissNotifBanner()" style="' +
+        'background:rgba(255,255,255,.12);border:none;color:#fff;' +
+        'padding:.38rem .7rem;border-radius:6px;cursor:pointer;font-size:.75rem">Bỏ qua</button>' +
+      '<button onclick="grantNotifPermission()" style="' +
+        'background:var(--orange);border:none;color:#fff;' +
+        'padding:.38rem .8rem;border-radius:6px;cursor:pointer;font-weight:600;font-size:.75rem">Bật</button>' +
+    '</div>';
+  document.body.appendChild(el);
+}
+
+function grantNotifPermission(){
+  dismissNotifBanner();
+  Notification.requestPermission().then(function(perm){
+    _notifPermission = perm;
+    if(perm === 'granted'){
+      toast('🔔 Đã bật thông báo!');
+    }
+  });
+}
+
+function dismissNotifBanner(){
+  var el = document.getElementById('notif-permission-banner');
+  if(el) el.style.display = 'none';
+}
+
+/* ── Core: gửi notification qua SW ── */
+function showPushNotification(title, body, tag){
+  if(!('Notification' in window)) return;
+  if(Notification.permission !== 'granted') return;
+  if(!_swReg) return;
+
+  _swReg.active && _swReg.active.postMessage({
+    type: 'SHOW_NOTIFICATION',
+    title: title,
+    body:  body,
+    tag:   tag || 'ta2hieu',
+    url:   '/student-site/',
+    icon:  '/student-site/apple-touch-icon.png'
+  });
+}
+
+/* ── Ping SW để check evening reminder 8pm ── */
+function pingEveningReminder(){
+  if(!_swReg || !_swReg.active) return;
+  if(!S) return;
+  // Đếm HW còn pending (endDate >= hôm nay, chưa nộp link)
+  var td = today();
+  var pending = 0;
+  (S.homework||[]).forEach(function(h){
+    var hwEnd = h.endDate||h.date;
+    if(hwEnd < td) return;
+    var linked = getDayLink(S.id, h.id);
+    if(linked && linked.link) return;
+    if(countHwItems(h) > 0) pending++;
+  });
+  _swReg.active.postMessage({
+    type: 'CHECK_EVENING_REMINDER',
+    pendingHw: pending
+  });
+}
+
 function dismissSurvey(){
   var bubble=document.getElementById('survey-bubble');
   if(bubble){
