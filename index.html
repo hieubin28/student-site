@@ -2525,7 +2525,7 @@ function doLogin(){
     }
     errEl.style.display='none';
     S=snap.val();
-    sessionStorage.setItem('sv_id',id);
+    localStorage.setItem('sv_id',id);
     launchApp();
   }).catch(function(){
     btn.disabled=false;
@@ -2537,7 +2537,7 @@ function doLogin(){
 document.getElementById('li-id').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
 
 function doLogout(){
-  sessionStorage.removeItem('sv_id');
+  localStorage.removeItem('sv_id');
   S=null; selSlot=null;
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
@@ -4317,7 +4317,7 @@ function submitBook(){
 
 /* ═══ INIT ═══ */
 window.addEventListener('load', function(){
-  var savedId=sessionStorage.getItem('sv_id');
+  var savedId=localStorage.getItem('sv_id');
   if(savedId){
     db.ref('students/'+savedId).get().then(function(snap){
       if(snap.exists()){ S=snap.val(); launchApp(); }
@@ -5198,6 +5198,39 @@ function initPushNotifications(){
     .then(function(reg){
       _swReg = reg;
       console.log('[PN] SW registered:', reg.scope);
+      // Lắng nghe SW_UPDATED → reload để lấy code mới
+      // Chờ đến khi tab không được focus (user không đang dùng) mới reload
+      // → tránh mất dữ liệu đang nhập
+      navigator.serviceWorker.addEventListener('message', function(e) {
+        if(!e.data || e.data.type !== 'SW_UPDATED') return;
+        console.log('[PN] SW updated — sẽ reload khi user không dùng');
+        if(document.hidden || !document.hasFocus()) {
+          // Tab đang ẩn hoặc không focus → reload ngay
+          window.location.reload();
+        } else {
+          // Tab đang active → đợi user chuyển tab / minimize rồi mới reload
+          var _reloadOnHide = function() {
+            document.removeEventListener('visibilitychange', _reloadOnHide);
+            window.removeEventListener('blur', _reloadOnHide);
+            window.location.reload();
+          };
+          document.addEventListener('visibilitychange', _reloadOnHide);
+          window.addEventListener('blur', _reloadOnHide);
+        }
+      });
+      // Gửi studentId cho SW để SW tự poll khi app đóng
+      var swReady = reg.active
+        ? Promise.resolve(reg.active)
+        : new Promise(function(res){
+            reg.addEventListener('updatefound', function(){
+              reg.installing.addEventListener('statechange', function(){
+                if(reg.active) res(reg.active);
+              });
+            });
+          });
+      swReady.then(function(worker){
+        if(S && S.id) worker.postMessage({ type: 'SET_STUDENT', studentId: S.id });
+      });
       // Xin quyền notification sau 2 giây (tránh popup ngay lúc login)
       setTimeout(requestNotifPermission, 2000);
       // Ping SW check evening reminder nếu đã có data
@@ -5270,6 +5303,11 @@ function showPushNotification(title, body, tag){
   if(!('Notification' in window)) return;
   if(Notification.permission !== 'granted') return;
   if(!_swReg) return;
+
+  // Đảm bảo SW luôn biết studentId hiện tại
+  if(_swReg.active && S && S.id){
+    _swReg.active.postMessage({ type: 'SET_STUDENT', studentId: S.id });
+  }
 
   _swReg.active && _swReg.active.postMessage({
     type: 'SHOW_NOTIFICATION',
