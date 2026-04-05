@@ -2523,8 +2523,14 @@ function doLogin(){
       errEl.style.display='block';
       return;
     }
+    var data=snap.val();
+    if(data.frozen){
+      errEl.textContent='🔒 Tài khoản đang bị tạm khoá. Liên hệ giáo viên để được hỗ trợ.';
+      errEl.style.display='block';
+      return;
+    }
     errEl.style.display='none';
-    S=snap.val();
+    S=data;
     localStorage.setItem('sv_id',id);
     launchApp();
   }).catch(function(){
@@ -2577,6 +2583,19 @@ function launchApp(){
   db.ref('students/'+S.id).on('value',function(snap){
     if(!snap.exists()) return;
     var newData=snap.val();
+    // Kick ra ngay nếu bị freeze trong khi đang dùng
+    if(newData.frozen){
+      localStorage.removeItem('sv_id');
+      S=null;
+      document.getElementById('app').style.display='none';
+      var ls=document.getElementById('login-screen');
+      ls.style.display='flex';
+      document.getElementById('li-id').value='';
+      var errEl=document.getElementById('li-err');
+      errEl.textContent='🔒 Tài khoản đã bị tạm khoá. Liên hệ giáo viên để được hỗ trợ.';
+      errEl.style.display='block';
+      return;
+    }
     // So sánh HW ids để detect homework mới được giao
     var newHwIds=(newData.homework||[]).map(function(h){return h.id;}).join(',');
     if(_prevHwIds!==null && newHwIds!==_prevHwIds){
