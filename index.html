@@ -3227,13 +3227,22 @@ function submitScoreReq(){
   var scores=(S.scores||[]).slice();
   scores.push(entry);
   scores.sort(function(a,b){return a.date.localeCompare(b.date);});
-  db.ref('students/'+S.id+'/scores').set(scores);
+  // Cập nhật local ngay để UI phản hồi tức thì
+  S.scores=scores;
+  renderScoresTab();
+  db.ref('students/'+S.id+'/scores').set(scores).then(function(){
+    toast('✅ Đã lưu điểm!');
+  }).catch(function(err){
+    // Rollback local nếu lỗi
+    S.scores=(S.scores||[]).filter(function(s){ return s!==entry; });
+    renderScoresTab();
+    alert('Lưu điểm thất bại: '+(err&&err.message?err.message:'Lỗi không xác định')+'\nKiểm tra kết nối mạng và thử lại.');
+  });
   // Clear form
   ['sc-score-input','sc-date','sc-testname','sc-note','sc-p1','sc-p2','sc-p3','sc-p4','sc-p5','sc-p6','sc-p7'].forEach(function(eid){
     var el=document.getElementById(eid); if(el) el.value='';
   });
   document.getElementById('sc-preview').style.display='none';
-  toast('✅ Đã lưu điểm!');
 }
 
 /* ═══ MISSIONS ═══ */
