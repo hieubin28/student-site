@@ -1724,6 +1724,153 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   .el-guide-def{padding-left:.3rem;}
 }
 
+/* ══ PARAPHRASE LOG ══ */
+.para-flashcard-btn{
+  background:var(--orange);color:#fff;border:none;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.75rem;font-weight:600;
+  padding:.4rem .9rem;cursor:pointer;transition:opacity .15s;
+  display:flex;align-items:center;gap:.35rem;
+}
+.para-flashcard-btn:hover{opacity:.85;}
+.para-card{
+  background:var(--paper);border:1px solid var(--border);
+  padding:.7rem .9rem;margin-bottom:.4rem;
+  display:flex;align-items:center;gap:.7rem;
+}
+.para-card-body{flex:1;min-width:0;}
+.para-pair{font-size:.82rem;color:var(--ink);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+.para-source{font-weight:600;}
+.para-arrow{color:var(--orange);font-size:.85rem;flex-shrink:0;}
+.para-target{color:var(--sky);font-weight:600;}
+.para-meta{font-size:.65rem;color:var(--muted);margin-top:.2rem;display:flex;gap:.6rem;flex-wrap:wrap;}
+.para-srs-badge{font-size:.6rem;font-weight:700;padding:.1rem .35rem;}
+.para-srs-due{background:var(--rust2);color:var(--rust);}
+.para-srs-soon{background:rgba(196,98,45,.12);color:var(--orange);}
+.para-srs-ok{background:var(--sage2);color:var(--sage);}
+.para-card-acts{display:flex;gap:.3rem;flex-shrink:0;}
+.para-del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:.2rem .35rem;transition:color .15s;}
+.para-del-btn:hover{color:var(--rust);}
+/* Flashcard overlay */
+.para-fc-ov{
+  position:fixed;inset:0;z-index:4000;
+  background:rgba(44,30,15,.92);
+  display:none;align-items:center;justify-content:center;padding:1rem;
+  backdrop-filter:blur(6px);
+}
+.para-fc-ov.open{display:flex;}
+.para-fc-modal{
+  background:var(--paper);width:100%;max-width:480px;
+  display:flex;flex-direction:column;gap:0;overflow:hidden;
+}
+.para-fc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.65rem 1rem;border-bottom:1px solid var(--line);
+  background:var(--paper2);
+}
+.para-fc-progress{font-size:.72rem;font-weight:600;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.para-fc-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:.1rem .3rem;transition:color .15s;}
+.para-fc-close:hover{color:var(--rust);}
+.para-fc-card{
+  min-height:200px;padding:2rem 1.5rem;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;text-align:center;
+  background:var(--cream);border-bottom:1px solid var(--line);
+  transition:background .15s;
+}
+.para-fc-card:hover{background:var(--paper2);}
+.para-fc-front{font-family:'Lora',serif;font-size:1.25rem;font-weight:700;color:var(--ink);line-height:1.4;}
+.para-fc-back{width:100%;text-align:center;}
+.para-fc-answer{font-family:'Lora',serif;font-size:1.25rem;font-weight:700;color:var(--orange);margin-bottom:.5rem;line-height:1.4;}
+.para-fc-meta{font-size:.7rem;color:var(--muted);}
+.para-fc-hint{font-size:.7rem;color:var(--muted);margin-top:1rem;font-style:italic;}
+.para-fc-actions{
+  display:flex;gap:0;
+}
+.para-fc-forget{
+  flex:1;padding:.8rem;border:none;background:var(--rust2);color:var(--rust);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:background .15s;
+}
+.para-fc-forget:hover{background:#f5c5be;}
+.para-fc-know{
+  flex:1;padding:.8rem;border:none;background:var(--sage2);color:var(--sage);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:background .15s;
+}
+.para-fc-know:hover{background:#bcdece;}
+.para-fc-done{
+  padding:2rem;text-align:center;
+}
+
+/* ══ VOCAB FLASHCARD ══ */
+.vocab-fc-ov{
+  position:fixed;inset:0;z-index:4000;
+  background:rgba(44,30,15,.92);
+  display:none;align-items:center;justify-content:center;padding:1rem;
+  backdrop-filter:blur(6px);
+}
+.vocab-fc-ov.open{display:flex;}
+.vocab-fc-modal{
+  background:var(--paper);width:100%;max-width:500px;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.vocab-fc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.65rem 1rem;border-bottom:1px solid var(--line);background:var(--paper2);
+}
+.vocab-fc-progress{font-size:.72rem;font-weight:600;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.vocab-fc-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:.1rem .3rem;transition:color .15s;}
+.vocab-fc-close:hover{color:var(--rust);}
+.vocab-fc-card{
+  min-height:220px;padding:2rem 1.5rem;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;cursor:pointer;text-align:center;
+  background:var(--cream);border-bottom:1px solid var(--line);transition:background .15s;
+}
+.vocab-fc-card:hover{background:var(--paper2);}
+.vocab-fc-front-word{font-family:'Lora',serif;font-size:1.6rem;font-weight:700;color:var(--ink);}
+.vocab-fc-front-ipa{font-size:.8rem;color:var(--muted);margin-top:.3rem;font-family:'JetBrains Mono',monospace;}
+.vocab-fc-front-hint{font-size:.7rem;color:var(--muted);margin-top:1rem;font-style:italic;}
+.vocab-fc-back{width:100%;text-align:center;}
+.vocab-fc-back-vi{font-family:'Lora',serif;font-size:1.15rem;font-weight:700;color:var(--orange);margin-bottom:.35rem;}
+.vocab-fc-back-def{font-size:.78rem;color:var(--muted);margin-bottom:.25rem;}
+.vocab-fc-back-ex{font-size:.75rem;color:var(--sky);font-style:italic;margin-top:.3rem;}
+.vocab-fc-back-part{font-size:.65rem;color:var(--muted);margin-top:.5rem;}
+.vocab-fc-actions{display:flex;gap:0;}
+.vocab-fc-forget{
+  flex:1;padding:.8rem;border:none;background:var(--rust2);color:var(--rust);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:background .15s;
+}
+.vocab-fc-forget:hover{background:#f5c5be;}
+.vocab-fc-know{
+  flex:1;padding:.8rem;border:none;background:var(--sage2);color:var(--sage);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.82rem;font-weight:600;
+  cursor:pointer;transition:background .15s;
+}
+.vocab-fc-know:hover{background:#bcdece;}
+.vocab-fc-done{padding:2rem;text-align:center;}
+.vocab-fc-btn{
+  background:var(--orange);color:#fff;border:none;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.75rem;font-weight:600;
+  padding:.4rem .9rem;cursor:pointer;transition:opacity .15s;margin-bottom:.7rem;
+}
+.vocab-fc-btn:hover{opacity:.85;}
+/* Daily Digest rows */
+.digest-row{
+  display:flex;align-items:center;gap:.7rem;
+  padding:.6rem .75rem;background:rgba(255,255,255,.05);border:1px solid rgba(196,98,45,.2);
+}
+.digest-ico{font-size:1.2rem;flex-shrink:0;}
+.digest-body{flex:1;min-width:0;}
+.digest-title{font-size:.82rem;font-weight:600;color:rgba(245,239,230,.9);line-height:1.3;}
+.digest-sub{font-size:.68rem;color:rgba(245,239,230,.45);margin-top:.1rem;}
+.digest-go{
+  background:var(--orange);color:#fff;border:none;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.68rem;font-weight:600;
+  padding:.3rem .6rem;cursor:pointer;white-space:nowrap;flex-shrink:0;
+  transition:opacity .15s;
+}
+.digest-go:hover{opacity:.85;}
+
 </style>
 </head>
 <body>
@@ -2104,6 +2251,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <div class="el-view-toggle">
       <button class="el-view-btn active" id="el-btn-form" onclick="elShowView('form')">✏️ Nhập log mới</button>
       <button class="el-view-btn" id="el-btn-dash" onclick="elShowView('dash')">📊 Dashboard</button>
+      <button class="el-view-btn" id="el-btn-para" onclick="elShowView('para')">🔄 Paraphrase</button>
     </div>
 
     <!-- FORM VIEW -->
@@ -2231,6 +2379,82 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
       <div class="el-section-hd">Lịch sử các buổi luyện</div>
       <div id="el-history-list"></div>
     </div>
+
+    <!-- PARAPHRASE VIEW -->
+    <div id="el-view-para" style="display:none">
+
+      <!-- Add paraphrase form -->
+      <div class="el-form-card">
+        <div class="el-section-hd" style="margin-top:0">➕ Thêm cặp paraphrase</div>
+        <div class="el-form-row">
+          <div>
+            <label class="el-form-label">Từ / cụm gốc <span style="font-weight:400;font-size:.68rem;text-transform:none;letter-spacing:0;color:var(--muted)">(trong bài nghe/đọc)</span></label>
+            <input class="el-form-input" id="para-source" type="text" placeholder="VD: open a new branch">
+          </div>
+          <div>
+            <label class="el-form-label">Paraphrase <span style="font-weight:400;font-size:.68rem;text-transform:none;letter-spacing:0;color:var(--muted)">(trong đáp án)</span></label>
+            <input class="el-form-input" id="para-target" type="text" placeholder="VD: expand operations">
+          </div>
+        </div>
+        <div class="el-form-row">
+          <div>
+            <label class="el-form-label">Part</label>
+            <select class="el-form-input" id="para-part">
+              <option value="3">Part 3</option>
+              <option value="4">Part 4</option>
+              <option value="7">Part 7</option>
+            </select>
+          </div>
+          <div>
+            <label class="el-form-label">Ghi chú <span style="font-weight:400;font-size:.68rem;text-transform:none;letter-spacing:0;color:var(--muted)">(tuỳ chọn)</span></label>
+            <input class="el-form-input" id="para-note" type="text" placeholder="VD: ETS 2024 Test 1, Q44">
+          </div>
+        </div>
+        <button class="el-submit-btn" onclick="paraAdd()">💾 Lưu paraphrase</button>
+      </div>
+
+      <!-- Stats + practice button -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.5rem;">
+        <div id="para-stats" style="font-size:.73rem;color:var(--muted)"></div>
+        <button class="para-flashcard-btn" id="para-fc-btn" onclick="paraStartFlashcard()" style="display:none">🃏 Luyện Flashcard</button>
+      </div>
+
+      <!-- List -->
+      <div id="para-list"></div>
+    </div>
+
+    <!-- PARAPHRASE FLASHCARD OVERLAY -->
+    <div class="para-fc-ov" id="para-fc-ov">
+      <div class="para-fc-modal">
+        <div class="para-fc-header">
+          <div class="para-fc-progress" id="para-fc-progress">0 / 0</div>
+          <div style="display:flex;align-items:center;gap:.6rem;">
+            <label style="font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;cursor:pointer;">
+              <input type="checkbox" id="para-fc-flip" onchange="paraFcFlipToggle()"> Đảo chiều
+            </label>
+            <button class="para-fc-close" onclick="paraCloseFlashcard()">✕</button>
+          </div>
+        </div>
+        <div class="para-fc-card" id="para-fc-card" onclick="paraFcReveal()">
+          <div class="para-fc-front" id="para-fc-front"></div>
+          <div class="para-fc-back" id="para-fc-back" style="display:none">
+            <div class="para-fc-answer" id="para-fc-answer"></div>
+            <div class="para-fc-meta" id="para-fc-meta"></div>
+          </div>
+          <div class="para-fc-hint" id="para-fc-hint">Nhấn để xem đáp án</div>
+        </div>
+        <div class="para-fc-actions" id="para-fc-actions" style="display:none">
+          <button class="para-fc-forget" onclick="paraFcMark(false)">🔁 Chưa nhớ</button>
+          <button class="para-fc-know" onclick="paraFcMark(true)">✅ Nhớ rồi!</button>
+        </div>
+        <div class="para-fc-done" id="para-fc-done" style="display:none">
+          <div style="font-size:2rem;margin-bottom:.5rem">🎉</div>
+          <div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--orange2);margin-bottom:.4rem">Hoàn thành!</div>
+          <div id="para-fc-done-msg" style="font-size:.8rem;color:rgba(245,239,230,.7);margin-bottom:1rem"></div>
+          <button class="el-submit-btn" style="max-width:200px;margin:0 auto" onclick="paraCloseFlashcard()">Đóng</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   </div><!-- /main -->
@@ -2310,14 +2534,58 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <button class="vocab-add-btn" onclick="vocabAddWord()">💾 Lưu từ</button>
   </div>
 
-  <!-- Stats row -->
-  <div class="vocab-stats-row" id="vocab-stats-row"></div>
+
+  <!-- Stats row + flashcard btn -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.5rem;">
+    <div class="vocab-stats-row" id="vocab-stats-row" style="margin-bottom:0"></div>
+    <button class="vocab-fc-btn" id="vocab-fc-btn" onclick="vocabStartFlashcard()" style="display:none">🃏 Luyện Flashcard</button>
+  </div>
 
   <!-- Word list -->
   <div id="vocab-list-wrap">
     <div class="empty" style="padding:2rem;text-align:center;color:var(--muted)">Chưa có từ nào. Thêm từ đầu tiên nhé!</div>
   </div>
 
+  </div>
+</div>
+
+<!-- ══ VOCAB FLASHCARD OVERLAY ══ -->
+<div class="vocab-fc-ov" id="vocab-fc-ov">
+  <div class="vocab-fc-modal">
+    <div class="vocab-fc-header">
+      <div class="vocab-fc-progress" id="vocab-fc-progress">0 / 0</div>
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <label style="font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;cursor:pointer;">
+          <input type="checkbox" id="vocab-fc-flip" onchange="vocabFcFlipToggle()"> VN → EN
+        </label>
+        <button class="vocab-fc-close" onclick="vocabCloseFlashcard()">✕</button>
+      </div>
+    </div>
+    <div class="vocab-fc-card" id="vocab-fc-card" onclick="vocabFcReveal()">
+      <div class="vocab-fc-front" id="vocab-fc-front"></div>
+      <div class="vocab-fc-back" id="vocab-fc-back" style="display:none"></div>
+      <div class="vocab-fc-front-hint" id="vocab-fc-hint-txt" style="font-size:.7rem;color:var(--muted);margin-top:1rem;font-style:italic">Nhấn để xem đáp án</div>
+    </div>
+    <div class="vocab-fc-actions" id="vocab-fc-actions" style="display:none">
+      <button class="vocab-fc-forget" onclick="vocabFcMark(false)">🔁 Chưa nhớ</button>
+      <button class="vocab-fc-know" onclick="vocabFcMark(true)">✅ Nhớ rồi!</button>
+    </div>
+    <div class="vocab-fc-done" id="vocab-fc-done" style="display:none">
+      <div style="font-size:2rem;margin-bottom:.5rem">🎉</div>
+      <div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--orange2);margin-bottom:.4rem">Hoàn thành!</div>
+      <div id="vocab-fc-done-msg" style="font-size:.8rem;color:var(--muted);margin-bottom:1rem"></div>
+      <button class="vocab-fc-btn" onclick="vocabCloseFlashcard()">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DAILY DIGEST POPUP ══ -->
+<div class="popup-ov" id="popup-daily-digest">
+  <div class="popup-card reminder-popup-card" style="max-width:440px;padding:1.8rem 1.6rem;">
+    <div style="font-size:2rem;margin-bottom:.5rem;animation:gentle-wave 2s ease infinite alternate;">☀️</div>
+    <div class="popup-title" id="digest-title" style="color:var(--orange2);font-size:1.1rem;margin-bottom:1rem;"></div>
+    <div id="digest-rows" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.2rem;text-align:left;"></div>
+    <button class="popup-btn" style="background:transparent;border:1px solid rgba(196,98,45,.4);color:rgba(245,239,230,.5);min-width:120px;" onclick="closeDigest()">Để sau</button>
   </div>
 </div>
 
@@ -2394,7 +2662,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 </div>
 
 <!-- REMINDER POPUP -->
-<div class="popup-ov" id="popup-reminder">
+<div class="popup-ov" id="popup-reminder" style="display:none!important"><!-- legacy, replaced by Daily Digest -->
   <div class="popup-card reminder-popup-card" style="max-width:440px;">
     <div style="font-size:2.8rem;margin-bottom:.6rem;animation:gentle-wave 2s ease infinite alternate;">🌸</div>
     <div class="popup-title" id="reminder-title" style="color:var(--orange2);font-size:1.35rem;margin-bottom:.6rem;">Ơi bạn ơi~</div>
@@ -2408,7 +2676,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 </div>
 
 <!-- VOCAB SRS POPUP -->
-<div class="popup-ov" id="popup-vocab-srs">
+<div class="popup-ov" id="popup-vocab-srs" style="display:none!important"><!-- legacy, replaced by Daily Digest -->
   <div class="popup-card reminder-popup-card" style="max-width:440px;">
     <div style="font-size:2.8rem;margin-bottom:.6rem;animation:gentle-wave 2s ease infinite alternate;">📖</div>
     <div class="popup-title" style="color:var(--orange2);font-size:1.35rem;margin-bottom:.6rem;" id="vocab-srs-popup-title">Ôn từ vựng thôi!</div>
@@ -3640,50 +3908,19 @@ function checkReminder(){
   if(alreadyShownToday) return;
   sessionStorage.setItem(sessionKey,'1');
 
-  // Warm, friendly messages
-  var totalOverdue=overdueList.reduce(function(sum,item){return sum+(item.total-item.done);},0);
-  var firstName=(S.name||'bạn').split(' ').pop();
+  // Always update banner (số liệu mới nhất)
+  showOverdueBanner(overdueList);
 
-  var greetings=[
-    firstName+' ơi~ 💛',
-    'Hế lô '+firstName+' dễ thương~ 🌼',
-    'Psst... '+firstName+' ơi! 🌸',
-    'Này '+firstName+'~ 🍊',
-  ];
-  var messages=[
-    'Có <strong>'+totalOverdue+' nhiệm vụ</strong> đang chờ '+firstName+' ghé thăm nè~ Không cần hoàn hảo, chỉ cần cố gắng một chút thôi là được rồi! 🌱',
-    'Mình thấy còn <strong>'+totalOverdue+' nhiệm vụ</strong> chưa xong nè. Không sao cả — làm từng bước nhỏ thôi, '+firstName+' hoàn toàn làm được! 💪',
-    ''+firstName+' có biết không — chỉ cần hoàn thành <strong>'+totalOverdue+' nhiệm vụ</strong> còn lại là xong rồi đó! Cùng cố lên nào~ 🚀',
-    'Nhắc nhẹ thôi nha: còn <strong>'+totalOverdue+' nhiệm vụ</strong> đang đợi '+firstName+' kìa. Làm xong rồi thư giãn thoải mái nhé! ☕',
-  ];
+  if(alreadyShownToday) return;
+  sessionStorage.setItem(sessionKey,'1');
 
-  var title=greetings[Math.floor(Math.random()*greetings.length)];
-  var msg=messages[Math.floor(Math.random()*messages.length)];
-
-  document.getElementById('reminder-title').textContent=title;
-  document.getElementById('popup-reminder-msg').innerHTML=msg;
-
-  // Build overdue list
-  var listEl=document.getElementById('reminder-overdue-list');
-  listEl.innerHTML='';
-  overdueList.slice(0,4).forEach(function(item){
-    var div=document.createElement('div');
-    div.className='reminder-overdue-item';
-    var label=item.h.label||isoToDMY(item.hwEnd);
-    div.innerHTML='<span>📌 '+escH(label)+'</span>'+
-      '<span class="roi-count">'+(item.total-item.done)+' mục còn lại</span>';
-    listEl.appendChild(div);
-  });
-  if(overdueList.length>4){
-    var more=document.createElement('div');
-    more.style.cssText='font-size:.72rem;color:rgba(245,239,230,.35);text-align:center;padding:.2rem 0';
-    more.textContent='... và '+(overdueList.length-4)+' ngày khác';
-    listEl.appendChild(more);
-  }
-
-  document.getElementById('popup-reminder').classList.add('show');
-  // If vocab popup was already shown, close it — mission popup takes priority
-  document.getElementById('popup-vocab-srs').classList.remove('show');
+  // Delegate to Daily Digest — loads paraphrase data first
+  db.ref('students/'+S.id+'/paraphraseLog').once('value').then(function(snap){
+    _paraWords = [];
+    var raw = snap.val() || {};
+    Object.keys(raw).forEach(function(k){ _paraWords.push(Object.assign({id:k}, raw[k])); });
+    showDailyDigest();
+  }).catch(function(){ showDailyDigest(); });
 }
 
 function showOverdueBanner(overdueList){
@@ -4602,9 +4839,12 @@ function elSubmit(){
 function elShowView(view){
   document.getElementById('el-view-form').style.display = view==='form' ? '' : 'none';
   document.getElementById('el-view-dash').style.display = view==='dash' ? '' : 'none';
+  document.getElementById('el-view-para').style.display = view==='para' ? '' : 'none';
   document.getElementById('el-btn-form').classList.toggle('active', view==='form');
   document.getElementById('el-btn-dash').classList.toggle('active', view==='dash');
+  document.getElementById('el-btn-para').classList.toggle('active', view==='para');
   if(view==='dash') elRenderDash();
+  if(view==='para') paraInitView();
 }
 
 function elRenderDash(){
@@ -4920,79 +5160,39 @@ function vocabSrsLabel(word){
 function vocabCheckSRS(){
   if(!_vocabWords.length) return;
   var due = _vocabWords.filter(vocabIsDue);
-  var bannerEl = document.getElementById('vocab-srs-banner');
   var tabEl = document.getElementById('tab-vocab');
+  var fcBtn = document.getElementById('vocab-fc-btn');
 
-  // Always update badge on tab
-  if(!due.length){
-    if(bannerEl) bannerEl.style.display='none';
-    if(tabEl) tabEl.innerHTML='📖 Từ vựng';
-    return;
-  }
-  if(tabEl) tabEl.innerHTML='📖 Từ vựng<span class="badge">'+due.length+'</span>';
+  // Update badge on tab
+  if(tabEl) tabEl.innerHTML = '📖 Từ vựng' + (due.length ? '<span class="badge">'+due.length+'</span>' : '');
+  // Show/hide flashcard button
+  if(fcBtn) fcBtn.style.display = _vocabWords.length ? 'flex' : 'none';
 
-  // Only proceed with popup/banner once per session
-  var sessionKey='vocab_srs_'+S.id+'_'+today();
-  if(sessionStorage.getItem(sessionKey)) return;
-  // Don't set sessionKey here — maybeShowVocabPopup will set it when actually shown
-
-  // Show banner inside vocab tab
-  if(bannerEl){
+  // Show banner inside vocab tab if due
+  var bannerEl = document.getElementById('vocab-srs-banner');
+  if(bannerEl && due.length){
     bannerEl.style.display='block';
-    bannerEl.innerHTML='<div class="vocab-srs-banner-box">'+
-      '<div class="reminder-ico">📖</div>'+
-      '<div class="reminder-body">'+
-        '<div class="reminder-title">Có <strong>'+due.length+' từ vựng</strong> đến hạn ôn tập hôm nay!</div>'+
-        '<div class="reminder-text">Ôn lại các từ đã tích luỹ để nhớ lâu hơn.</div>'+
-      '</div>'+
-      '<button class="reminder-close" onclick="document.getElementById(\'vocab-srs-banner\').style.display=\'none\'">✕</button>'+
-    '</div>';
-  }
+    bannerEl.innerHTML='<div class="vocab-srs-banner-box">'
+      +'<div class="reminder-ico">📖</div>'
+      +'<div class="reminder-body">'
+        +'<div class="reminder-title">Có <strong>'+due.length+' từ vựng</strong> đến hạn ôn tập hôm nay!</div>'
+        +'<div class="reminder-text">Ôn lại để nhớ lâu hơn.</div>'
+      +'</div>'
+      +'<button class="reminder-close" onclick="document.getElementById(\'vocab-srs-banner\').style.display=\'none\'">✕</button>'
+      +'</div>';
+  } else if(bannerEl){ bannerEl.style.display='none'; }
 
-  // Popup is deferred — shown by checkReminder() flow or maybeShowVocabPopup()
-  // If no mission popup will show (checkReminder not triggered), show vocab popup directly
-  // This is called from launchApp vocab load — at that point _subsReady/_daylinksReady
-  // may not be set yet, so we queue it after a short delay
+  // Trigger Daily Digest after short delay (waits for paraphrase data too)
   setTimeout(function(){
-    var missionPopupShowing = document.getElementById('popup-reminder').classList.contains('show');
-    if(!missionPopupShowing) maybeShowVocabPopup();
-  }, 800);
+    if(!document.getElementById('popup-daily-digest').classList.contains('show')){
+      showDailyDigest();
+    }
+  }, 900);
 }
 
-/* Show vocab SRS popup if due words exist and not shown today */
+/* maybeShowVocabPopup — kept for backward compat but now delegates to Daily Digest */
 function maybeShowVocabPopup(){
-  var sessionKey='vocab_srs_'+S.id+'_'+today();
-  if(sessionStorage.getItem(sessionKey)) return;
-  var due = _vocabWords.filter(vocabIsDue);
-  if(!due.length) return;
-  sessionStorage.setItem(sessionKey,'1');
-
-  var firstName=(S.name||'bạn').split(' ').pop();
-  var msgs=[
-    firstName+' ơi, có <strong>'+due.length+' từ vựng</strong> đang chờ ôn tập hôm nay~ Ôn nhanh thôi, nhớ lâu hơn nhiều đó! 📚',
-    'Nhắc nhẹ nha: <strong>'+due.length+' từ vựng</strong> đến hạn ôn rồi! Dành 5 phút ôn lại ngay nhé '+firstName+'~ 💡',
-    '<strong>'+due.length+' từ vựng</strong> đang đợi '+firstName+' kìa~ Ôn xong rồi tự thưởng một tách trà nhé! ☕',
-  ];
-  document.getElementById('vocab-srs-popup-msg').innerHTML=msgs[Math.floor(Math.random()*msgs.length)];
-
-  // Build due word list (max 4)
-  var listEl=document.getElementById('vocab-srs-due-list');
-  listEl.innerHTML='';
-  due.slice(0,4).forEach(function(w){
-    var div=document.createElement('div');
-    div.className='reminder-overdue-item';
-    div.innerHTML='<span>📌 <strong>'+escH(w.word)+'</strong>'+(w.vi?' — '+escH(w.vi):'')+'</span>'+
-      '<span class="roi-count">Part '+w.part+'</span>';
-    listEl.appendChild(div);
-  });
-  if(due.length>4){
-    var more=document.createElement('div');
-    more.style.cssText='font-size:.72rem;color:rgba(245,239,230,.35);text-align:center;padding:.2rem 0';
-    more.textContent='... và '+(due.length-4)+' từ khác';
-    listEl.appendChild(more);
-  }
-
-  document.getElementById('popup-vocab-srs').classList.add('show');
+  showDailyDigest();
 }
 
 /* ── Part filter ── */
@@ -5007,7 +5207,11 @@ function vocabSetPart(btn){
 function vocabRender(){
   var statsEl = document.getElementById('vocab-stats-row');
   var listEl  = document.getElementById('vocab-list-wrap');
+  var fcBtn   = document.getElementById('vocab-fc-btn');
   if(!statsEl||!listEl) return;
+
+  var total = _vocabWords.length;
+  if(fcBtn) fcBtn.style.display = total ? 'flex' : 'none';
 
   var filtered = _vocabFilter==='all'
     ? _vocabWords
@@ -5209,6 +5413,348 @@ function vocabTranslateVI(text){
     .catch(function(){
       if(spVI) spVI.style.display='none';
     });
+}
+
+/* ═══════════════════════════════════════════
+   PARAPHRASE LOG MODULE
+═══════════════════════════════════════════ */
+var SRS_INTERVALS_PARA = [1, 3, 7, 14, 30];
+var _paraWords = []; // local cache
+var _paraFcQueue = [];
+var _paraFcIdx = 0;
+var _paraFcFlipped = false; // false = source→target, true = target→source
+var _paraFcKnown = 0;
+
+function paraNextReview(p){
+  var rep = p.repCount || 0;
+  var interval = SRS_INTERVALS_PARA[Math.min(rep, SRS_INTERVALS_PARA.length-1)];
+  var base = p.lastReview || p.addedDate || today();
+  var d = new Date(base + 'T00:00:00');
+  d.setDate(d.getDate() + interval);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function paraIsDue(p){ return paraNextReview(p) <= today(); }
+function paraSrsLabel(p){
+  var nr = paraNextReview(p);
+  var td = today();
+  if(nr <= td) return {cls:'para-srs-due', txt:'🔴 Đến hạn ôn'};
+  var diff = Math.ceil((new Date(nr+'T00:00:00') - new Date(td+'T00:00:00'))/(86400000));
+  if(diff <= 3) return {cls:'para-srs-soon', txt:'🟡 '+diff+' ngày nữa'};
+  return {cls:'para-srs-ok', txt:'✅ '+diff+' ngày nữa'};
+}
+
+function paraInitView(){
+  if(!S) return;
+  db.ref('students/'+S.id+'/paraphraseLog').once('value').then(function(snap){
+    _paraWords = [];
+    var raw = snap.val() || {};
+    Object.keys(raw).forEach(function(k){ _paraWords.push(Object.assign({id:k}, raw[k])); });
+    _paraWords.sort(function(a,b){ return (b.addedDate||'').localeCompare(a.addedDate||''); });
+    paraRender();
+  });
+}
+
+function paraRender(){
+  var listEl = document.getElementById('para-list');
+  var statsEl = document.getElementById('para-stats');
+  var fcBtn = document.getElementById('para-fc-btn');
+  if(!listEl) return;
+  var due = _paraWords.filter(paraIsDue);
+  if(statsEl) statsEl.textContent = _paraWords.length + ' cặp đã log' + (due.length ? ' · ' + due.length + ' đến hạn ôn' : '');
+  if(fcBtn) fcBtn.style.display = _paraWords.length ? 'flex' : 'none';
+  if(!_paraWords.length){
+    listEl.innerHTML = '<div class="empty">Chưa có cặp paraphrase nào. Thêm từ form bên trên!</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  _paraWords.forEach(function(p){
+    var srs = paraSrsLabel(p);
+    var d = document.createElement('div');
+    d.className = 'para-card';
+    d.innerHTML =
+      '<div class="para-card-body">'
+        +'<div class="para-pair">'
+          +'<span class="para-source">'+escH(p.source||'')+'</span>'
+          +'<span class="para-arrow">→</span>'
+          +'<span class="para-target">'+escH(p.target||'')+'</span>'
+        +'</div>'
+        +'<div class="para-meta">'
+          +'<span>Part '+escH(String(p.part||''))+'</span>'
+          +(p.note ? '<span>📝 '+escH(p.note)+'</span>' : '')
+          +'<span class="para-srs-badge '+srs.cls+'">'+srs.txt+'</span>'
+        +'</div>'
+      +'</div>'
+      +'<div class="para-card-acts">'
+        +'<button class="para-del-btn" data-id="'+p.id+'" onclick="paraDelete(\''+p.id+'\')">✕</button>'
+      +'</div>';
+    listEl.appendChild(d);
+  });
+}
+
+function paraAdd(){
+  if(!S) return;
+  var source = (document.getElementById('para-source').value||'').trim();
+  var target = (document.getElementById('para-target').value||'').trim();
+  var part   = document.getElementById('para-part').value;
+  var note   = (document.getElementById('para-note').value||'').trim();
+  if(!source || !target){ toast('⚠️ Nhập đủ cặp từ gốc và paraphrase!'); return; }
+  var id = 'para'+Date.now();
+  var entry = { source:source, target:target, part:part, addedDate:today(), repCount:0 };
+  if(note) entry.note = note;
+  db.ref('students/'+S.id+'/paraphraseLog/'+id).set(entry).then(function(){
+    _paraWords.unshift(Object.assign({id:id}, entry));
+    document.getElementById('para-source').value = '';
+    document.getElementById('para-target').value = '';
+    document.getElementById('para-note').value = '';
+    paraRender();
+    toast('✅ Đã lưu paraphrase!');
+  }).catch(function(e){ toast('❌ Lỗi: '+e.message); });
+}
+
+function paraDelete(id){
+  if(!confirm('Xoá cặp paraphrase này?')) return;
+  db.ref('students/'+S.id+'/paraphraseLog/'+id).remove().then(function(){
+    _paraWords = _paraWords.filter(function(p){ return p.id !== id; });
+    paraRender();
+    toast('🗑 Đã xoá.');
+  });
+}
+
+/* ── Flashcard ── */
+function paraStartFlashcard(){
+  if(!_paraWords.length) return;
+  var due = _paraWords.filter(paraIsDue);
+  _paraFcQueue = due.length ? due.slice() : _paraWords.slice();
+  _paraFcIdx = 0; _paraFcKnown = 0;
+  _paraFcFlipped = document.getElementById('para-fc-flip') ? document.getElementById('para-fc-flip').checked : false;
+  document.getElementById('para-fc-ov').classList.add('open');
+  document.getElementById('para-fc-done').style.display = 'none';
+  document.getElementById('para-fc-actions').style.display = 'none';
+  paraFcRenderCard();
+}
+
+function paraFcRenderCard(){
+  var card = _paraFcQueue[_paraFcIdx];
+  if(!card){ paraFcFinish(); return; }
+  document.getElementById('para-fc-progress').textContent = (_paraFcIdx+1) + ' / ' + _paraFcQueue.length;
+  var front = _paraFcFlipped ? card.target : card.source;
+  var back  = _paraFcFlipped ? card.source : card.target;
+  document.getElementById('para-fc-front').textContent = front;
+  document.getElementById('para-fc-answer').textContent = back;
+  document.getElementById('para-fc-meta').textContent = 'Part ' + card.part + (card.note ? ' · ' + card.note : '');
+  document.getElementById('para-fc-front').style.display = '';
+  document.getElementById('para-fc-back').style.display = 'none';
+  document.getElementById('para-fc-hint').style.display = '';
+  document.getElementById('para-fc-actions').style.display = 'none';
+}
+
+function paraFcReveal(){
+  var actionsEl = document.getElementById('para-fc-actions');
+  if(actionsEl.style.display !== 'none') return; // already revealed
+  document.getElementById('para-fc-back').style.display = '';
+  document.getElementById('para-fc-hint').style.display = 'none';
+  actionsEl.style.display = 'flex';
+}
+
+function paraFcFlipToggle(){
+  _paraFcFlipped = document.getElementById('para-fc-flip').checked;
+  paraFcRenderCard();
+}
+
+function paraFcMark(knew){
+  var card = _paraFcQueue[_paraFcIdx];
+  if(!card) return;
+  if(knew) _paraFcKnown++;
+  // Update SRS
+  var newRep = knew ? Math.min((card.repCount||0)+1, SRS_INTERVALS_PARA.length-1) : 0;
+  var update = { repCount: newRep, lastReview: today() };
+  db.ref('students/'+S.id+'/paraphraseLog/'+card.id).update(update);
+  // Update local cache
+  var local = _paraWords.find(function(p){ return p.id === card.id; });
+  if(local){ local.repCount = newRep; local.lastReview = today(); }
+  _paraFcIdx++;
+  if(_paraFcIdx >= _paraFcQueue.length){ paraFcFinish(); return; }
+  paraFcRenderCard();
+}
+
+function paraFcFinish(){
+  document.getElementById('para-fc-card').style.cursor = 'default';
+  document.getElementById('para-fc-actions').style.display = 'none';
+  document.getElementById('para-fc-done').style.display = 'block';
+  document.getElementById('para-fc-done-msg').textContent =
+    'Đã ôn ' + _paraFcQueue.length + ' cặp · Nhớ được ' + _paraFcKnown + ' / ' + _paraFcQueue.length;
+  paraRender(); // refresh SRS labels
+}
+
+function paraCloseFlashcard(){
+  document.getElementById('para-fc-ov').classList.remove('open');
+  document.getElementById('para-fc-card').style.cursor = 'pointer';
+}
+
+/* ═══════════════════════════════════════════
+   VOCAB FLASHCARD MODULE
+═══════════════════════════════════════════ */
+var _vocabFcQueue = [];
+var _vocabFcIdx = 0;
+var _vocabFcFlipped = false; // false = EN→VN, true = VN→EN
+var _vocabFcKnown = 0;
+
+function vocabStartFlashcard(){
+  if(!_vocabWords || !_vocabWords.length) return;
+  var due = _vocabWords.filter(vocabIsDue);
+  _vocabFcQueue = due.length ? due.slice() : _vocabWords.slice();
+  _vocabFcIdx = 0; _vocabFcKnown = 0;
+  _vocabFcFlipped = document.getElementById('vocab-fc-flip') ? document.getElementById('vocab-fc-flip').checked : false;
+  document.getElementById('vocab-fc-ov').classList.add('open');
+  document.getElementById('vocab-fc-done').style.display = 'none';
+  document.getElementById('vocab-fc-actions').style.display = 'none';
+  vocabFcRenderCard();
+}
+
+function vocabFcRenderCard(){
+  var w = _vocabFcQueue[_vocabFcIdx];
+  if(!w){ vocabFcFinish(); return; }
+  document.getElementById('vocab-fc-progress').textContent = (_vocabFcIdx+1) + ' / ' + _vocabFcQueue.length;
+  var frontEl = document.getElementById('vocab-fc-front');
+  var backEl  = document.getElementById('vocab-fc-back');
+  if(!_vocabFcFlipped){
+    // EN front
+    frontEl.innerHTML =
+      '<div class="vocab-fc-front-word">'+escH(w.word||'')+'</div>'
+      +(w.ipa ? '<div class="vocab-fc-front-ipa">'+escH(w.ipa)+'</div>' : '')
+      +(w.pos ? '<div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">'+escH(w.pos)+'</div>' : '');
+    backEl.innerHTML =
+      '<div class="vocab-fc-back-vi">'+(w.vi ? escH(w.vi) : '—')+'</div>'
+      +(w.def ? '<div class="vocab-fc-back-def">'+escH(w.def)+'</div>' : '')
+      +(w.example ? '<div class="vocab-fc-back-ex">'+escH(w.example)+'</div>' : '')
+      +'<div class="vocab-fc-back-part">Part '+escH(String(w.part||''))+'</div>';
+  } else {
+    // VN front
+    frontEl.innerHTML =
+      '<div class="vocab-fc-front-word" style="font-size:1.2rem">'+(w.vi ? escH(w.vi) : '—')+'</div>';
+    backEl.innerHTML =
+      '<div class="vocab-fc-back-vi">'+escH(w.word||'')+'</div>'
+      +(w.ipa ? '<div class="vocab-fc-back-def">'+escH(w.ipa)+'</div>' : '')
+      +(w.def ? '<div class="vocab-fc-back-def">'+escH(w.def)+'</div>' : '')
+      +(w.example ? '<div class="vocab-fc-back-ex">'+escH(w.example)+'</div>' : '')
+      +'<div class="vocab-fc-back-part">Part '+escH(String(w.part||''))+'</div>';
+  }
+  frontEl.style.display = '';
+  backEl.style.display = 'none';
+  document.getElementById('vocab-fc-hint-txt').style.display = '';
+  document.getElementById('vocab-fc-actions').style.display = 'none';
+}
+
+function vocabFcReveal(){
+  var actionsEl = document.getElementById('vocab-fc-actions');
+  if(actionsEl.style.display !== 'none') return;
+  document.getElementById('vocab-fc-back').style.display = '';
+  document.getElementById('vocab-fc-hint-txt').style.display = 'none';
+  actionsEl.style.display = 'flex';
+}
+
+function vocabFcFlipToggle(){
+  _vocabFcFlipped = document.getElementById('vocab-fc-flip').checked;
+  vocabFcRenderCard();
+}
+
+function vocabFcMark(knew){
+  var w = _vocabFcQueue[_vocabFcIdx];
+  if(!w) return;
+  if(knew) _vocabFcKnown++;
+  var newRep = knew ? Math.min((w.repCount||0)+1, SRS_INTERVALS.length-1) : 0;
+  db.ref('vocab/'+S.id+'/'+w.id).update({ repCount: newRep, lastReview: today() });
+  var local = _vocabWords.find(function(v){ return v.id === w.id; });
+  if(local){ local.repCount = newRep; local.lastReview = today(); }
+  _vocabFcIdx++;
+  if(_vocabFcIdx >= _vocabFcQueue.length){ vocabFcFinish(); return; }
+  vocabFcRenderCard();
+}
+
+function vocabFcFinish(){
+  document.getElementById('vocab-fc-actions').style.display = 'none';
+  document.getElementById('vocab-fc-done').style.display = 'block';
+  document.getElementById('vocab-fc-done-msg').textContent =
+    'Đã ôn ' + _vocabFcQueue.length + ' từ · Nhớ được ' + _vocabFcKnown + ' / ' + _vocabFcQueue.length;
+  vocabRender();
+}
+
+function vocabCloseFlashcard(){
+  document.getElementById('vocab-fc-ov').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════
+   DAILY DIGEST POPUP (replaces 3 old popups)
+═══════════════════════════════════════════ */
+function showDailyDigest(){
+  if(!S) return;
+  var sessionKey = 'daily_digest_'+S.id+'_'+today();
+  if(sessionStorage.getItem(sessionKey)) return;
+
+  // Collect data
+  var missions = _getMissionOverdue();
+  var vocabDue = (_vocabWords||[]).filter(vocabIsDue);
+  var paraDue  = _paraWords.filter(paraIsDue);
+
+  // If nothing to show, skip
+  if(!missions.length && !vocabDue.length && !paraDue.length) return;
+
+  sessionStorage.setItem(sessionKey, '1');
+
+  var firstName = (S.name||'bạn').split(' ').pop();
+  var rows = '';
+  if(missions.length){
+    var mTotal = missions.reduce(function(s,i){return s+(i.total-i.done);},0);
+    rows += '<div class="digest-row"><span class="digest-ico">📌</span>'
+      +'<div class="digest-body"><div class="digest-title">'+mTotal+' nhiệm vụ quá hạn</div>'
+      +'<div class="digest-sub">Từ '+missions.length+' buổi chưa hoàn thành</div></div>'
+      +'<button class="digest-go" onclick="closeDigest();goTab(document.querySelector(\'[data-tab=missions]\'))">Xem →</button>'
+      +'</div>';
+  }
+  if(vocabDue.length){
+    rows += '<div class="digest-row"><span class="digest-ico">📖</span>'
+      +'<div class="digest-body"><div class="digest-title">'+vocabDue.length+' từ vựng đến hạn ôn</div>'
+      +'<div class="digest-sub">Ôn ngay để nhớ lâu hơn</div></div>'
+      +'<button class="digest-go" onclick="closeDigest();goTab(document.querySelector(\'[data-tab=vocab]\'))">Ôn →</button>'
+      +'</div>';
+  }
+  if(paraDue.length){
+    rows += '<div class="digest-row"><span class="digest-ico">🔄</span>'
+      +'<div class="digest-body"><div class="digest-title">'+paraDue.length+' paraphrase cần ôn</div>'
+      +'<div class="digest-sub">SRS nhắc hôm nay</div></div>'
+      +'<button class="digest-go" onclick="closeDigest();goTab(document.querySelector(\'[data-tab=errorlog]\'));elShowView(\'para\')">Ôn →</button>'
+      +'</div>';
+  }
+
+  var msgs = [
+    'Có vài thứ đang chờ '+firstName+' hôm nay~ 🌸',
+    firstName+' ơi, điểm danh nào! 🎯',
+    'Chào '+firstName+'~ Cùng ôn tập một chút nhé! 💪',
+  ];
+  document.getElementById('digest-title').textContent = msgs[Math.floor(Math.random()*msgs.length)];
+  document.getElementById('digest-rows').innerHTML = rows;
+  document.getElementById('popup-daily-digest').classList.add('show');
+}
+
+function _getMissionOverdue(){
+  if(!S) return [];
+  var td = today();
+  var hw = (S.homework||[]).filter(function(h){ return (h.endDate||h.date) < td; });
+  var overdueList = [];
+  hw.forEach(function(h){
+    var total = countHwItems(h);
+    if(!total) return;
+    var doneKeys = getDoneKeys(S.id, h.date);
+    var dayLinkData = getDayLink(S.id, h.id);
+    var hasLink = !!(dayLinkData&&dayLinkData.link);
+    var done = hasLink ? total : doneKeys.length;
+    if(done < total) overdueList.push({h:h, total:total, done:done, hwEnd:h.endDate||h.date});
+  });
+  return overdueList;
+}
+
+function closeDigest(){
+  document.getElementById('popup-daily-digest').classList.remove('show');
 }
 
 /* ═══ SURVEY BUBBLE ═══ */
