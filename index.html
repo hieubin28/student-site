@@ -418,10 +418,12 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   background:var(--paper);border-bottom:2px solid var(--border);
   display:flex;padding:0 1.8rem;overflow-x:auto;
   box-shadow:0 1px 4px rgba(44,30,15,.06);
+  scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
 }
+.tabs::-webkit-scrollbar{display:none;}
 .tab{
   padding:.85rem 1.2rem;font-size:.8rem;font-weight:500;color:var(--muted);
-  cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
+  cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;margin-bottom:-2px;
   white-space:nowrap;transition:all .15s;flex-shrink:0;
 }
 .tab:hover{color:var(--ink);}
@@ -1890,9 +1892,90 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   .fc-scene{padding:1rem .7rem;min-height:220px;}
   .fc-face{min-height:190px;padding:1.5rem 1.2rem;}
 }
+
+/* ─── Mobile UX Fixes ─── */
+@media(max-width:500px){
+  /* Mode picker sheet */
+  .fcm-grid{grid-template-columns:1fr 1fr;}
+  .fcm-card{padding:.65rem .7rem;}
+  .fcm-card-icon{font-size:1.1rem;}
+  .fcm-card-name{font-size:.72rem;}
+  .fcm-card-desc{font-size:.6rem;}
+  .fcm-sheet{padding:1.2rem 1rem 1.5rem;}
+  /* Launch button - full width on mobile */
+  .fc-launch-btn{font-size:.72rem;padding:.5rem .85rem;}
+}
+@media(max-width:400px){
+  .fcm-grid{grid-template-columns:1fr;}
+}
+/* Flashcard shell - safer height on iOS */
+@supports(-webkit-touch-callout:none){
+  .fc-shell{min-height:-webkit-fill-available;}
+}
+
 /* Legacy compat — keep old class names pointing to same vars */
 .para-fc-ov,.vocab-fc-ov{position:fixed;inset:0;z-index:4000;display:none;}
 .para-fc-ov.open,.vocab-fc-ov.open{display:flex;}
+
+/* ─── Flashcard Launch Button (redesigned) ─── */
+.fc-launch-btn{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:linear-gradient(135deg,var(--orange) 0%,var(--rust) 100%);
+  color:#fff;border:none;cursor:pointer;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.78rem;font-weight:700;
+  padding:.55rem 1.1rem;letter-spacing:.03em;
+  box-shadow:0 2px 8px rgba(196,98,45,.35);
+  transition:opacity .15s,box-shadow .15s;
+}
+.fc-launch-btn:hover{opacity:.9;box-shadow:0 3px 12px rgba(196,98,45,.5);}
+.fc-launch-btn .fc-launch-icon{font-size:1rem;}
+.fc-launch-btn .fc-launch-due{
+  background:rgba(255,255,255,.22);
+  font-size:.62rem;padding:.1rem .35rem;font-weight:700;
+}
+
+/* ─── Flashcard Mode Picker Modal ─── */
+.fcm-overlay{
+  position:fixed;inset:0;z-index:5000;
+  background:rgba(20,12,4,.7);backdrop-filter:blur(6px);
+  display:none;align-items:flex-end;justify-content:center;
+}
+.fcm-overlay.open{display:flex;}
+.fcm-sheet{
+  width:100%;max-width:560px;
+  background:var(--paper);border-top:1px solid var(--border);
+  padding:1.5rem 1.2rem 2rem;
+  animation:fcm-slide-up .25s ease;
+}
+@keyframes fcm-slide-up{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.fcm-title{font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:.3rem;}
+.fcm-sub{font-size:.72rem;color:var(--muted);margin-bottom:1.2rem;}
+.fcm-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1.1rem;}
+.fcm-card{
+  border:1.5px solid var(--border);background:var(--cream);
+  padding:.85rem .9rem;cursor:pointer;
+  display:flex;flex-direction:column;gap:.3rem;
+  transition:border-color .15s,background .15s;
+  position:relative;
+}
+.fcm-card:hover{border-color:var(--orange);background:var(--orange3);}
+.fcm-card.disabled{opacity:.38;cursor:not-allowed;pointer-events:none;}
+.fcm-card-icon{font-size:1.4rem;line-height:1;}
+.fcm-card-name{font-size:.8rem;font-weight:700;color:var(--ink);}
+.fcm-card-desc{font-size:.65rem;color:var(--muted);line-height:1.4;}
+.fcm-card-badge{
+  position:absolute;top:.5rem;right:.5rem;
+  background:var(--orange);color:#fff;
+  font-size:.55rem;font-weight:700;padding:.1rem .35rem;
+  letter-spacing:.04em;
+}
+.fcm-cancel{
+  width:100%;padding:.6rem;border:1px solid var(--border);background:none;
+  color:var(--muted);font-family:'Be Vietnam Pro',sans-serif;font-size:.78rem;
+  cursor:pointer;transition:background .15s;
+}
+.fcm-cancel:hover{background:var(--cream);}
+
 /* Daily Digest rows */
 .digest-row{
   display:flex;align-items:center;gap:.7rem;
@@ -2044,14 +2127,14 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   </header>
 
   <nav class="tabs">
-    <div class="tab active" data-tab="overview" onclick="goTab(this)">Tổng quan</div>
-    <div class="tab" data-tab="progress"  onclick="goTab(this)">Tiến độ học</div>
+    <div class="tab active" data-tab="overview" onclick="goTab(this)">🏠 Tổng quan</div>
+    <div class="tab" data-tab="progress"  onclick="goTab(this)">📈 Tiến độ học</div>
     <div class="tab" data-tab="scores"    onclick="goTab(this)" id="tab-scores">🎯 Điểm số</div>
     <div class="tab" data-tab="errorlog"  onclick="goTab(this)" id="tab-errorlog">📒 Nhật ký lỗi</div>
     <div class="tab" data-tab="vocab"     onclick="goTab(this)" id="tab-vocab">📖 Từ vựng</div>
     <div class="tab" data-tab="missions"  onclick="goTab(this)" id="tab-missions">✅ Nhiệm vụ</div>
-    <div class="tab" data-tab="schedule"  onclick="goTab(this)">Lịch học</div>
-    <div class="tab" data-tab="booking"   onclick="goTab(this)" id="tab-booking">Book 1-1 🗓</div>
+    <div class="tab" data-tab="schedule"  onclick="goTab(this)">🗓 Lịch học</div>
+    <div class="tab" data-tab="booking"   onclick="goTab(this)" id="tab-booking">📅 Book 1-1</div>
     <div class="tab" data-tab="fee"       onclick="goTab(this)" id="tab-fee">💰 Học phí</div>
   </nav>
 
@@ -2455,7 +2538,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
       <!-- Stats + practice button -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.5rem;">
         <div id="para-stats" style="font-size:.73rem;color:var(--muted)"></div>
-        <button class="para-flashcard-btn" id="para-fc-btn" onclick="paraStartFlashcard()" style="display:none">🃏 Luyện Flashcard</button>
+        <button class="fc-launch-btn" id="para-fc-btn" onclick="openParaFcPicker()" style="display:none"><span class="fc-launch-icon">🃏</span> Luyện Flashcard <span class="fc-launch-due" id="para-fc-due-badge"></span></button>
       </div>
 
       <!-- List -->
@@ -2598,7 +2681,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   <!-- Stats row + flashcard btn -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.5rem;">
     <div class="vocab-stats-row" id="vocab-stats-row" style="margin-bottom:0"></div>
-    <button class="vocab-fc-btn" id="vocab-fc-btn" onclick="vocabStartFlashcard()" style="display:none">🃏 Luyện Flashcard</button>
+    <button class="fc-launch-btn" id="vocab-fc-btn" onclick="openVocabFcPicker()" style="display:none"><span class="fc-launch-icon">🃏</span> Luyện Flashcard <span class="fc-launch-due" id="vocab-fc-due-badge"></span></button>
   </div>
 
   <!-- Word list -->
@@ -2885,7 +2968,7 @@ function doLogin(){
     }
     errEl.style.display='none';
     S=snap.val();
-    sessionStorage.setItem('sv_id',id);
+    localStorage.setItem('sv_id',id);
     launchApp();
   }).catch(function(){
     btn.disabled=false;
@@ -2895,9 +2978,18 @@ function doLogin(){
   });
 }
 document.getElementById('li-id').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
+// Close flashcard mode pickers on Escape
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Escape') return;
+  var vmo = document.getElementById('vocab-fcm-overlay');
+  var pmo = document.getElementById('para-fcm-overlay');
+  if(vmo && vmo.classList.contains('open')){ closeVocabFcPicker(); return; }
+  if(pmo && pmo.classList.contains('open')){ closeParaFcPicker(); return; }
+});
+
 
 function doLogout(){
-  sessionStorage.removeItem('sv_id');
+  localStorage.removeItem('sv_id');
   S=null; selSlot=null;
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
@@ -4617,7 +4709,7 @@ function submitBook(){
 
 /* ═══ INIT ═══ */
 window.addEventListener('load', function(){
-  var savedId=sessionStorage.getItem('sv_id');
+  var savedId=localStorage.getItem('sv_id');
   if(savedId){
     db.ref('students/'+savedId).get().then(function(snap){
       if(snap.exists()){ S=snap.val(); launchApp(); }
@@ -5247,6 +5339,9 @@ function vocabCheckSRS(){
   if(tabEl) tabEl.innerHTML = '📖 Từ vựng' + (due.length ? '<span class="badge">'+due.length+'</span>' : '');
   // Show/hide flashcard button
   if(fcBtn) fcBtn.style.display = _vocabWords.length ? 'flex' : 'none';
+  // Update due count badge on button
+  var dueBadge = document.getElementById('vocab-fc-due-badge');
+  if(dueBadge){ dueBadge.textContent = due.length ? due.length+' đến hạn' : ''; dueBadge.style.display=due.length?'':'none'; }
 
   // Show banner inside vocab tab if due
   var bannerEl = document.getElementById('vocab-srs-banner');
@@ -5542,6 +5637,8 @@ function paraRender(){
   var due = _paraWords.filter(paraIsDue);
   if(statsEl) statsEl.textContent = _paraWords.length + ' cặp đã log' + (due.length ? ' · ' + due.length + ' đến hạn ôn' : '');
   if(fcBtn) fcBtn.style.display = _paraWords.length ? 'flex' : 'none';
+  var paraDueBadge = document.getElementById('para-fc-due-badge');
+  if(paraDueBadge){ paraDueBadge.textContent = due.length ? due.length+' đến hạn' : ''; paraDueBadge.style.display=due.length?'':'none'; }
   if(!_paraWords.length){
     listEl.innerHTML = '<div class="empty">Chưa có cặp paraphrase nào. Thêm từ form bên trên!</div>';
     return;
@@ -5666,19 +5763,7 @@ function fcShowDone(prefix, total, known, forgotList, retryFn, closeFn){
 var _paraFcForgotten = []; // cards marked "Chưa nhớ" this session
 
 function paraStartFlashcard(){
-  if(!_paraWords.length) return;
-  var due = _paraWords.filter(paraIsDue);
-  _paraFcQueue = due.length ? due.slice() : _paraWords.slice();
-  _paraFcForgotten = [];
-  _paraFcIdx = 0; _paraFcKnown = 0;
-  _paraFcFlipped = document.getElementById('para-fc-flip').checked;
-  // Reset UI
-  document.getElementById('para-fc-ov').classList.add('open');
-  document.getElementById('para-fc-done').classList.remove('show');
-  document.getElementById('para-fc-scene').style.display='';
-  document.getElementById('para-fc-actions').classList.add('hidden');
-  document.getElementById('para-fc-card').classList.remove('flipped');
-  paraFcRenderCard();
+  openParaFcPicker();
 }
 
 function paraFcRenderCard(){
@@ -5704,12 +5789,21 @@ function paraFcRenderCard(){
 
 function paraFcReveal(){
   var wrap = document.getElementById('para-fc-card');
-  if(wrap.classList.contains('flipped')) return;
-  wrap.classList.add('flipped');
-  document.getElementById('para-fc-hint').classList.add('hidden');
-  setTimeout(function(){
-    document.getElementById('para-fc-actions').classList.remove('hidden');
-  }, 480);
+  var isFlipped = wrap.classList.contains('flipped');
+  wrap.classList.toggle('flipped');
+  if(!isFlipped){
+    // đang lật ra mặt sau -> ẩn hint, show actions
+    document.getElementById('para-fc-hint').classList.add('hidden');
+    setTimeout(function(){
+      document.getElementById('para-fc-actions').classList.remove('hidden');
+    }, 480);
+  } else {
+    // lật lại mặt trước -> show hint, ẩn actions
+    var hintEl = document.getElementById('para-fc-hint');
+    hintEl.textContent = 'Nhấn để lật thẻ';
+    hintEl.classList.remove('hidden');
+    document.getElementById('para-fc-actions').classList.add('hidden');
+  }
 }
 
 function paraFcFlipToggle(){
@@ -5768,19 +5862,136 @@ var _vocabFcFlipped = false;
 var _vocabFcKnown = 0;
 var _vocabFcForgotten = [];
 
-function vocabStartFlashcard(){
+
+/* ══════════════════════════════════════
+   FLASHCARD MODE PICKERS
+══════════════════════════════════════ */
+
+/* ── VOCAB MODE PICKER ── */
+function openVocabFcPicker(){
   if(!_vocabWords||!_vocabWords.length) return;
   var due = _vocabWords.filter(vocabIsDue);
-  _vocabFcQueue = due.length ? due.slice() : _vocabWords.slice();
+  var dueEl = document.getElementById('vocab-fcm-due-count');
+  var allEl = document.getElementById('vocab-fcm-all-count');
+  if(dueEl) dueEl.textContent = due.length ? due.length+' thẻ' : '';
+  if(dueEl) dueEl.style.display = due.length ? '' : 'none';
+  if(allEl) allEl.textContent = _vocabWords.length+' thẻ';
+  // Build part buttons
+  var parts = [];
+  _vocabWords.forEach(function(w){ if(w.part && parts.indexOf(String(w.part))===-1) parts.push(String(w.part)); });
+  parts.sort(function(a,b){return Number(a)-Number(b);});
+  var partBtns = document.getElementById('vocab-fcm-part-btns');
+  if(partBtns){
+    partBtns.innerHTML = '';
+    parts.forEach(function(p){
+      var cnt = _vocabWords.filter(function(w){return String(w.part)===p;}).length;
+      var btn = document.createElement('button');
+      btn.className = 'vocab-part-btn';
+      btn.textContent = 'Part '+p+' ('+cnt+')';
+      btn.addEventListener('click', function(){ vocabLaunchPartMode(p); });
+      partBtns.appendChild(btn);
+    });
+  }
+  // Disable due card if none due
+  var dueCard = document.querySelector('#vocab-fcm-grid .fcm-card:first-child');
+  if(dueCard){ dueCard.classList.toggle('disabled', due.length===0); }
+  document.getElementById('vocab-fcm-part-select').style.display='none';
+  document.getElementById('vocab-fcm-overlay').classList.add('open');
+}
+function closeVocabFcPicker(){
+  document.getElementById('vocab-fcm-overlay').classList.remove('open');
+}
+function vocabLaunchMode(mode){
+  if(mode==='due'){
+    var due = _vocabWords.filter(vocabIsDue);
+    if(!due.length) return;
+    _vocabFcQueue = due.slice();
+  } else if(mode==='all'){
+    _vocabFcQueue = _vocabWords.slice();
+  } else if(mode==='part'){
+    // Show part selector instead of launching
+    document.getElementById('vocab-fcm-part-select').style.display='';
+    return;
+  } else if(mode==='random'){
+    _vocabFcQueue = _vocabWords.slice().sort(function(){return Math.random()-.5;});
+  }
+  closeVocabFcPicker();
+  _vocabFcLaunch();
+}
+function vocabLaunchPartMode(part){
+  var filtered = _vocabWords.filter(function(w){return String(w.part)===String(part);});
+  if(!filtered.length){ toast('Chưa có từ nào ở Part '+part); return; }
+  _vocabFcQueue = filtered.slice();
+  closeVocabFcPicker();
+  _vocabFcLaunch();
+}
+function _vocabFcLaunch(){
   _vocabFcForgotten = [];
   _vocabFcIdx = 0; _vocabFcKnown = 0;
   _vocabFcFlipped = document.getElementById('vocab-fc-flip').checked;
   document.getElementById('vocab-fc-ov').classList.add('open');
   document.getElementById('vocab-fc-done').classList.remove('show');
-  document.getElementById('vocab-fc-scene').style.display = '';
+  document.getElementById('vocab-fc-scene').style.display='';
   document.getElementById('vocab-fc-actions').classList.add('hidden');
   document.getElementById('vocab-fc-card').classList.remove('flipped');
   vocabFcRenderCard();
+}
+
+/* ── PARA MODE PICKER ── */
+function openParaFcPicker(){
+  if(!_paraWords||!_paraWords.length) return;
+  var due = _paraWords.filter(paraIsDue);
+  var dueEl = document.getElementById('para-fcm-due-count');
+  var allEl = document.getElementById('para-fcm-all-count');
+  if(dueEl){ dueEl.textContent = due.length ? due.length+' thẻ' : ''; dueEl.style.display=due.length?'':'none'; }
+  if(allEl) allEl.textContent = _paraWords.length+' thẻ';
+  // Disable due card if none
+  var dueCard = document.querySelector('#para-fcm-overlay .fcm-card:first-child');
+  if(dueCard){ dueCard.classList.toggle('disabled', due.length===0); }
+  document.getElementById('para-fcm-part-select').style.display='none';
+  document.getElementById('para-fcm-overlay').classList.add('open');
+}
+function closeParaFcPicker(){
+  document.getElementById('para-fcm-overlay').classList.remove('open');
+}
+function paraLaunchMode(mode){
+  if(mode==='due'){
+    var due = _paraWords.filter(paraIsDue);
+    if(!due.length) return;
+    _paraFcQueue = due.slice();
+  } else if(mode==='all'){
+    _paraFcQueue = _paraWords.slice();
+  } else if(mode==='part'){
+    document.getElementById('para-fcm-part-select').style.display='';
+    return;
+  } else if(mode==='random'){
+    _paraFcQueue = _paraWords.slice().sort(function(){return Math.random()-.5;});
+  }
+  closeParaFcPicker();
+  _paraFcLaunch();
+}
+function paraLaunchPartMode(part){
+  var filtered = _paraWords.filter(function(p){return String(p.part)===String(part);});
+  if(!filtered.length){ toast('Chưa có cặp nào ở Part '+part); return; }
+  _paraFcQueue = filtered.slice();
+  closeParaFcPicker();
+  _paraFcLaunch();
+}
+function _paraFcLaunch(){
+  _paraFcForgotten = [];
+  _paraFcIdx = 0; _paraFcKnown = 0;
+  _paraFcFlipped = document.getElementById('para-fc-flip').checked;
+  document.getElementById('para-fc-ov').classList.add('open');
+  document.getElementById('para-fc-done').classList.remove('show');
+  document.getElementById('para-fc-scene').style.display='';
+  document.getElementById('para-fc-actions').classList.add('hidden');
+  document.getElementById('para-fc-card').classList.remove('flipped');
+  paraFcRenderCard();
+}
+
+function vocabStartFlashcard(){
+  // Now delegates to mode picker; kept for backward compat
+  openVocabFcPicker();
 }
 
 function vocabFcRenderCard(){
@@ -5823,12 +6034,19 @@ function vocabFcRenderCard(){
 
 function vocabFcReveal(){
   var wrap = document.getElementById('vocab-fc-card');
-  if(wrap.classList.contains('flipped')) return;
-  wrap.classList.add('flipped');
-  document.getElementById('vocab-fc-hint-txt').classList.add('hidden');
-  setTimeout(function(){
-    document.getElementById('vocab-fc-actions').classList.remove('hidden');
-  }, 480);
+  var isFlipped = wrap.classList.contains('flipped');
+  wrap.classList.toggle('flipped');
+  if(!isFlipped){
+    document.getElementById('vocab-fc-hint-txt').classList.add('hidden');
+    setTimeout(function(){
+      document.getElementById('vocab-fc-actions').classList.remove('hidden');
+    }, 480);
+  } else {
+    var hintV = document.getElementById('vocab-fc-hint-txt');
+    hintV.textContent = 'Nhấn để lật thẻ';
+    hintV.classList.remove('hidden');
+    document.getElementById('vocab-fc-actions').classList.add('hidden');
+  }
 }
 
 function vocabFcFlipToggle(){
@@ -5969,6 +6187,87 @@ function dismissSurvey(){
   <div class="survey-row">
     <button class="survey-dismiss" onclick="dismissSurvey()" title="Ẩn đi">✕</button>
     <button class="survey-btn" onclick="openSurvey()" title="Khảo sát chất lượng">📋</button>
+  </div>
+</div>
+
+
+<!-- ══ VOCAB FLASHCARD MODE PICKER ══ -->
+<div class="fcm-overlay" id="vocab-fcm-overlay" onclick="if(event.target===this)closeVocabFcPicker()">
+  <div class="fcm-sheet">
+    <div class="fcm-title">🃏 Chọn chế độ luyện</div>
+    <div class="fcm-sub" id="vocab-fcm-sub">Chọn cách bạn muốn ôn từ vựng hôm nay</div>
+    <div class="fcm-grid" id="vocab-fcm-grid">
+      <div class="fcm-card" onclick="vocabLaunchMode('due')">
+        <div class="fcm-card-icon">🔴</div>
+        <div class="fcm-card-name">Đến hạn ôn hôm nay</div>
+        <div class="fcm-card-desc">Chỉ các từ SRS đến hạn — tối ưu nhất</div>
+        <span class="fcm-card-badge" id="vocab-fcm-due-count"></span>
+      </div>
+      <div class="fcm-card" onclick="vocabLaunchMode('all')">
+        <div class="fcm-card-icon">📚</div>
+        <div class="fcm-card-name">Toàn bộ từ vựng</div>
+        <div class="fcm-card-desc">Ôn tất cả từ đã lưu</div>
+        <span class="fcm-card-badge" id="vocab-fcm-all-count"></span>
+      </div>
+      <div class="fcm-card" id="vocab-fcm-part-card" onclick="vocabLaunchMode('part')">
+        <div class="fcm-card-icon">🎯</div>
+        <div class="fcm-card-name">Theo Part</div>
+        <div class="fcm-card-desc">Luyện từ vựng của 1 Part cụ thể</div>
+      </div>
+      <div class="fcm-card" onclick="vocabLaunchMode('random')">
+        <div class="fcm-card-icon">🎲</div>
+        <div class="fcm-card-name">Ngẫu nhiên</div>
+        <div class="fcm-card-desc">Xáo bài ngẫu nhiên toàn bộ từ</div>
+      </div>
+    </div>
+    <!-- Part selector (hidden until "Theo Part" chosen) -->
+    <div id="vocab-fcm-part-select" style="display:none;margin-bottom:.9rem;">
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;">Chọn Part:</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;" id="vocab-fcm-part-btns"></div>
+    </div>
+    <button class="fcm-cancel" onclick="closeVocabFcPicker()">Huỷ</button>
+  </div>
+</div>
+
+<!-- ══ PARA FLASHCARD MODE PICKER ══ -->
+<div class="fcm-overlay" id="para-fcm-overlay" onclick="if(event.target===this)closeParaFcPicker()">
+  <div class="fcm-sheet">
+    <div class="fcm-title">🃏 Chọn chế độ luyện</div>
+    <div class="fcm-sub">Chọn cách bạn muốn ôn paraphrase hôm nay</div>
+    <div class="fcm-grid">
+      <div class="fcm-card" onclick="paraLaunchMode('due')">
+        <div class="fcm-card-icon">🔴</div>
+        <div class="fcm-card-name">Đến hạn ôn hôm nay</div>
+        <div class="fcm-card-desc">Chỉ các cặp SRS đến hạn — tối ưu nhất</div>
+        <span class="fcm-card-badge" id="para-fcm-due-count"></span>
+      </div>
+      <div class="fcm-card" onclick="paraLaunchMode('all')">
+        <div class="fcm-card-icon">📚</div>
+        <div class="fcm-card-name">Toàn bộ</div>
+        <div class="fcm-card-desc">Ôn tất cả cặp paraphrase đã lưu</div>
+        <span class="fcm-card-badge" id="para-fcm-all-count"></span>
+      </div>
+      <div class="fcm-card" onclick="paraLaunchMode('part')">
+        <div class="fcm-card-icon">🎯</div>
+        <div class="fcm-card-name">Theo Part</div>
+        <div class="fcm-card-desc">Chỉ Part 3, 4 hoặc 7</div>
+      </div>
+      <div class="fcm-card" onclick="paraLaunchMode('random')">
+        <div class="fcm-card-icon">🎲</div>
+        <div class="fcm-card-name">Ngẫu nhiên</div>
+        <div class="fcm-card-desc">Xáo bài ngẫu nhiên toàn bộ</div>
+      </div>
+    </div>
+    <!-- Part selector -->
+    <div id="para-fcm-part-select" style="display:none;margin-bottom:.9rem;">
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.4rem;font-weight:600;">Chọn Part:</div>
+      <div style="display:flex;gap:.4rem;">
+        <button class="vocab-part-btn" onclick="paraLaunchPartMode(3)">Part 3</button>
+        <button class="vocab-part-btn" onclick="paraLaunchPartMode(4)">Part 4</button>
+        <button class="vocab-part-btn" onclick="paraLaunchPartMode(7)">Part 7</button>
+      </div>
+    </div>
+    <button class="fcm-cancel" onclick="closeParaFcPicker()">Huỷ</button>
   </div>
 </div>
 
