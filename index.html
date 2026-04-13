@@ -2402,7 +2402,21 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <div id="reminder-overdue-list" style="margin:.9rem 0 1.2rem;display:flex;flex-direction:column;gap:.4rem;"></div>
     <div style="display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;">
       <button class="popup-btn" style="background:var(--orange);min-width:140px;" onclick="closePopup('popup-reminder');goTab(document.querySelector('[data-tab=missions]'))">📋 Xem nhiệm vụ</button>
-      <button class="popup-btn" style="background:transparent;border:1px solid rgba(196,98,45,.4);color:rgba(245,239,230,.5);min-width:100px;" onclick="closePopup('popup-reminder')">Để sau</button>
+      <button class="popup-btn" style="background:transparent;border:1px solid rgba(196,98,45,.4);color:rgba(245,239,230,.5);min-width:100px;" onclick="closePopup('popup-reminder');maybeShowVocabPopup()">Để sau</button>
+    </div>
+  </div>
+</div>
+
+<!-- VOCAB SRS POPUP -->
+<div class="popup-ov" id="popup-vocab-srs">
+  <div class="popup-card reminder-popup-card" style="max-width:440px;">
+    <div style="font-size:2.8rem;margin-bottom:.6rem;animation:gentle-wave 2s ease infinite alternate;">📖</div>
+    <div class="popup-title" style="color:var(--orange2);font-size:1.35rem;margin-bottom:.6rem;" id="vocab-srs-popup-title">Ôn từ vựng thôi!</div>
+    <div class="popup-msg" id="vocab-srs-popup-msg" style="line-height:1.75;color:rgba(245,239,230,.82);"></div>
+    <div id="vocab-srs-due-list" style="margin:.9rem 0 1.2rem;display:flex;flex-direction:column;gap:.4rem;"></div>
+    <div style="display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;">
+      <button class="popup-btn" style="background:var(--orange);min-width:140px;" onclick="closePopup('popup-vocab-srs');goTab(document.querySelector('[data-tab=vocab]'))">📖 Ôn ngay</button>
+      <button class="popup-btn" style="background:transparent;border:1px solid rgba(196,98,45,.4);color:rgba(245,239,230,.5);min-width:100px;" onclick="closePopup('popup-vocab-srs')">Để sau</button>
     </div>
   </div>
 </div>
@@ -2438,8 +2452,6 @@ var allScoreReqs = {};
 var allClasses = {};
 var allAttendanceFee = {}; // attendance data for fee tab
 var _feeMonth = new Date().getMonth()+1; // 1-12
-var _swReg    = null;  // Service Worker registration
-var _notifPermission = 'default'; // 'granted'|'denied'|'default'
 var _feeYear  = new Date().getFullYear();
 
 /* ═══ STORAGE KEYS (localStorage chỉ dùng cho data CỦA riêng browser: done-checkboxes, goal, reminder) ═══ */
@@ -2523,15 +2535,9 @@ function doLogin(){
       errEl.style.display='block';
       return;
     }
-    var data=snap.val();
-    if(data.frozen){
-      errEl.textContent='🔒 Tài khoản đang bị tạm khoá. Liên hệ giáo viên để được hỗ trợ.';
-      errEl.style.display='block';
-      return;
-    }
     errEl.style.display='none';
-    S=data;
-    localStorage.setItem('sv_id',id);
+    S=snap.val();
+    sessionStorage.setItem('sv_id',id);
     launchApp();
   }).catch(function(){
     btn.disabled=false;
@@ -2543,7 +2549,7 @@ function doLogin(){
 document.getElementById('li-id').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
 
 function doLogout(){
-  localStorage.removeItem('sv_id');
+  sessionStorage.removeItem('sv_id');
   S=null; selSlot=null;
   document.getElementById('app').style.display='none';
   document.getElementById('login-screen').style.display='flex';
@@ -2562,9 +2568,6 @@ function launchApp(){
   var bubble=document.getElementById('survey-bubble');
   if(bubble){ bubble.style.display='flex'; }
 
-  // ── Push Notification: đăng ký SW & xin quyền ──
-  initPushNotifications();
-
   // Event delegation for mission item ticks (avoids inline onclick escaping issues)
   document.getElementById('missions-content').addEventListener('click',function(e){
     var item=e.target.closest('.ms-item');
@@ -2578,31 +2581,10 @@ function launchApp(){
     if(hwId&&date&&sec&&!isNaN(idx)) markItemDone(hwId,date,sec,idx,false);
   });
 
-  // Real-time: student data — detect homework mới để push notification
-  var _prevHwIds = null;
+  // Real-time: student data
   db.ref('students/'+S.id).on('value',function(snap){
     if(!snap.exists()) return;
-    var newData=snap.val();
-    // Kick ra ngay nếu bị freeze trong khi đang dùng
-    if(newData.frozen){
-      localStorage.removeItem('sv_id');
-      S=null;
-      document.getElementById('app').style.display='none';
-      var ls=document.getElementById('login-screen');
-      ls.style.display='flex';
-      document.getElementById('li-id').value='';
-      var errEl=document.getElementById('li-err');
-      errEl.textContent='🔒 Tài khoản đã bị tạm khoá. Liên hệ giáo viên để được hỗ trợ.';
-      errEl.style.display='block';
-      return;
-    }
-    // So sánh HW ids để detect homework mới được giao
-    var newHwIds=(newData.homework||[]).map(function(h){return h.id;}).join(',');
-    if(_prevHwIds!==null && newHwIds!==_prevHwIds){
-      // HW mới detected — Cloud Function sẽ tự gửi push, không cần gửi ở đây nữa
-    }
-    _prevHwIds=newHwIds;
-    S=newData; renderAll();
+    S=snap.val(); renderAll();
   });
   // Real-time: bookings
   db.ref('bookings').on('value',function(snap){
@@ -2679,13 +2661,6 @@ function launchApp(){
     Object.keys(raw).forEach(function(k){ _vocabWords.push(Object.assign({id:k},raw[k])); });
     _vocabWords.sort(function(a,b){return (b.addedDate||'').localeCompare(a.addedDate||'');});
     vocabCheckSRS();
-  });
-  // Real-time: manual notifications từ thầy
-  // Cloud Function đã gửi push rồi — ở đây chỉ đánh dấu seen khi app đang mở
-  db.ref('notifications/'+S.id).on('child_added',function(snap){
-    var n=snap.val();
-    if(!n||n.seen) return;
-    db.ref('notifications/'+S.id+'/'+snap.key+'/seen').set(true);
   });
 }
 
@@ -3227,22 +3202,13 @@ function submitScoreReq(){
   var scores=(S.scores||[]).slice();
   scores.push(entry);
   scores.sort(function(a,b){return a.date.localeCompare(b.date);});
-  // Cập nhật local ngay để UI phản hồi tức thì
-  S.scores=scores;
-  renderScoresTab();
-  db.ref('students/'+S.id+'/scores').set(scores).then(function(){
-    toast('✅ Đã lưu điểm!');
-  }).catch(function(err){
-    // Rollback local nếu lỗi
-    S.scores=(S.scores||[]).filter(function(s){ return s!==entry; });
-    renderScoresTab();
-    alert('Lưu điểm thất bại: '+(err&&err.message?err.message:'Lỗi không xác định')+'\nKiểm tra kết nối mạng và thử lại.');
-  });
+  db.ref('students/'+S.id+'/scores').set(scores);
   // Clear form
   ['sc-score-input','sc-date','sc-testname','sc-note','sc-p1','sc-p2','sc-p3','sc-p4','sc-p5','sc-p6','sc-p7'].forEach(function(eid){
     var el=document.getElementById(eid); if(el) el.value='';
   });
   document.getElementById('sc-preview').style.display='none';
+  toast('✅ Đã lưu điểm!');
 }
 
 /* ═══ MISSIONS ═══ */
@@ -3716,6 +3682,8 @@ function checkReminder(){
   }
 
   document.getElementById('popup-reminder').classList.add('show');
+  // If vocab popup was already shown, close it — mission popup takes priority
+  document.getElementById('popup-vocab-srs').classList.remove('show');
 }
 
 function showOverdueBanner(overdueList){
@@ -4332,7 +4300,7 @@ function submitBook(){
 
 /* ═══ INIT ═══ */
 window.addEventListener('load', function(){
-  var savedId=localStorage.getItem('sv_id');
+  var savedId=sessionStorage.getItem('sv_id');
   if(savedId){
     db.ref('students/'+savedId).get().then(function(snap){
       if(snap.exists()){ S=snap.val(); launchApp(); }
@@ -4954,28 +4922,77 @@ function vocabCheckSRS(){
   var due = _vocabWords.filter(vocabIsDue);
   var bannerEl = document.getElementById('vocab-srs-banner');
   var tabEl = document.getElementById('tab-vocab');
+
+  // Always update badge on tab
   if(!due.length){
     if(bannerEl) bannerEl.style.display='none';
     if(tabEl) tabEl.innerHTML='📖 Từ vựng';
     return;
   }
-  // Badge on tab
   if(tabEl) tabEl.innerHTML='📖 Từ vựng<span class="badge">'+due.length+'</span>';
-  // Show banner only once per session
+
+  // Only proceed with popup/banner once per session
   var sessionKey='vocab_srs_'+S.id+'_'+today();
   if(sessionStorage.getItem(sessionKey)) return;
-  sessionStorage.setItem(sessionKey,'1');
+  // Don't set sessionKey here — maybeShowVocabPopup will set it when actually shown
+
+  // Show banner inside vocab tab
   if(bannerEl){
     bannerEl.style.display='block';
     bannerEl.innerHTML='<div class="vocab-srs-banner-box">'+
       '<div class="reminder-ico">📖</div>'+
       '<div class="reminder-body">'+
         '<div class="reminder-title">Có <strong>'+due.length+' từ vựng</strong> đến hạn ôn tập hôm nay!</div>'+
-        '<div class="reminder-text">Ôn lại các từ đã tích luỹ để nhớ lâu hơn. Vào tab <strong>Từ vựng</strong> để xem.</div>'+
+        '<div class="reminder-text">Ôn lại các từ đã tích luỹ để nhớ lâu hơn.</div>'+
       '</div>'+
       '<button class="reminder-close" onclick="document.getElementById(\'vocab-srs-banner\').style.display=\'none\'">✕</button>'+
     '</div>';
   }
+
+  // Popup is deferred — shown by checkReminder() flow or maybeShowVocabPopup()
+  // If no mission popup will show (checkReminder not triggered), show vocab popup directly
+  // This is called from launchApp vocab load — at that point _subsReady/_daylinksReady
+  // may not be set yet, so we queue it after a short delay
+  setTimeout(function(){
+    var missionPopupShowing = document.getElementById('popup-reminder').classList.contains('show');
+    if(!missionPopupShowing) maybeShowVocabPopup();
+  }, 800);
+}
+
+/* Show vocab SRS popup if due words exist and not shown today */
+function maybeShowVocabPopup(){
+  var sessionKey='vocab_srs_'+S.id+'_'+today();
+  if(sessionStorage.getItem(sessionKey)) return;
+  var due = _vocabWords.filter(vocabIsDue);
+  if(!due.length) return;
+  sessionStorage.setItem(sessionKey,'1');
+
+  var firstName=(S.name||'bạn').split(' ').pop();
+  var msgs=[
+    firstName+' ơi, có <strong>'+due.length+' từ vựng</strong> đang chờ ôn tập hôm nay~ Ôn nhanh thôi, nhớ lâu hơn nhiều đó! 📚',
+    'Nhắc nhẹ nha: <strong>'+due.length+' từ vựng</strong> đến hạn ôn rồi! Dành 5 phút ôn lại ngay nhé '+firstName+'~ 💡',
+    '<strong>'+due.length+' từ vựng</strong> đang đợi '+firstName+' kìa~ Ôn xong rồi tự thưởng một tách trà nhé! ☕',
+  ];
+  document.getElementById('vocab-srs-popup-msg').innerHTML=msgs[Math.floor(Math.random()*msgs.length)];
+
+  // Build due word list (max 4)
+  var listEl=document.getElementById('vocab-srs-due-list');
+  listEl.innerHTML='';
+  due.slice(0,4).forEach(function(w){
+    var div=document.createElement('div');
+    div.className='reminder-overdue-item';
+    div.innerHTML='<span>📌 <strong>'+escH(w.word)+'</strong>'+(w.vi?' — '+escH(w.vi):'')+'</span>'+
+      '<span class="roi-count">Part '+w.part+'</span>';
+    listEl.appendChild(div);
+  });
+  if(due.length>4){
+    var more=document.createElement('div');
+    more.style.cssText='font-size:.72rem;color:rgba(245,239,230,.35);text-align:center;padding:.2rem 0';
+    more.textContent='... và '+(due.length-4)+' từ khác';
+    listEl.appendChild(more);
+  }
+
+  document.getElementById('popup-vocab-srs').classList.add('show');
 }
 
 /* ── Part filter ── */
@@ -5198,213 +5215,6 @@ function vocabTranslateVI(text){
 function openSurvey(){
   window.open('https://forms.gle/Uu7gyfgBYx5qHYyX9','_blank','noopener,noreferrer');
 }
-/* ═══════════════════════════════════════════════════════════════
-   PUSH NOTIFICATION SYSTEM
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ── Đăng ký Service Worker và xin quyền notification ── */
-/* ── VAPID Public Key (từ Cloud Function) ── */
-var VAPID_PUBLIC_KEY = 'BLrjzyy5bIbEzs2C67woqyn_NGrsR4a8QhOGtgCPLGMpOOLJ_K4b0YVuzUAQRbgNQPA06zHfsPTEDcik_PdGA9g';
-
-function initPushNotifications(){
-  if(!('serviceWorker' in navigator)){
-    console.log('[PN] Service Worker không được hỗ trợ.');
-    return;
-  }
-  // Đăng ký sw.js từ root của GitHub Pages repo
-  navigator.serviceWorker.register('/student-site/sw.js', { scope: '/student-site/' })
-    .then(function(reg){
-      _swReg = reg;
-      console.log('[PN] SW registered:', reg.scope);
-      // Lắng nghe SW_UPDATED → reload để lấy code mới
-      // Chờ đến khi tab không được focus (user không đang dùng) mới reload
-      // → tránh mất dữ liệu đang nhập
-      navigator.serviceWorker.addEventListener('message', function(e) {
-        if(!e.data || e.data.type !== 'SW_UPDATED') return;
-        console.log('[PN] SW updated — sẽ reload khi user không dùng');
-        if(document.hidden || !document.hasFocus()) {
-          // Tab đang ẩn hoặc không focus → reload ngay
-          window.location.reload();
-        } else {
-          // Tab đang active → đợi user chuyển tab / minimize rồi mới reload
-          var _reloadOnHide = function() {
-            document.removeEventListener('visibilitychange', _reloadOnHide);
-            window.removeEventListener('blur', _reloadOnHide);
-            window.location.reload();
-          };
-          document.addEventListener('visibilitychange', _reloadOnHide);
-          window.addEventListener('blur', _reloadOnHide);
-        }
-      });
-      // Gửi studentId cho SW để SW tự poll khi app đóng
-      var swReady = reg.active
-        ? Promise.resolve(reg.active)
-        : new Promise(function(res){
-            reg.addEventListener('updatefound', function(){
-              reg.installing.addEventListener('statechange', function(){
-                if(reg.active) res(reg.active);
-              });
-            });
-          });
-      swReady.then(function(worker){
-        if(S && S.id) worker.postMessage({ type: 'SET_STUDENT', studentId: S.id });
-      });
-      // Xin quyền notification sau 2 giây (tránh popup ngay lúc login)
-      setTimeout(requestNotifPermission, 2000);
-      // Ping SW check evening reminder nếu đã có data
-      setTimeout(pingEveningReminder, 5000);
-    })
-    .catch(function(err){
-      console.warn('[PN] SW registration failed:', err);
-    });
-}
-
-/* ── Xin quyền thông báo — hiện banner mềm trước ── */
-function requestNotifPermission(){
-  if(!('Notification' in window)) return;
-  _notifPermission = Notification.permission;
-  if(_notifPermission === 'granted'){
-    // Đã có quyền → đảm bảo subscription được lưu vào Firebase
-    subscribePush();
-    return;
-  }
-  if(_notifPermission === 'denied') return;  // user đã từ chối, không hỏi lại
-
-  // Hiện banner mềm mỏng để giải thích trước khi hỏi hệ thống
-  showNotifBanner();
-}
-
-function showNotifBanner(){
-  var banner = document.getElementById('notif-permission-banner');
-  if(banner) { banner.style.display='flex'; return; }
-  // Tạo banner nếu chưa có
-  var el = document.createElement('div');
-  el.id = 'notif-permission-banner';
-  el.style.cssText = [
-    'position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%)',
-    'background:var(--ink2);color:#fff;border-radius:10px',
-    'padding:.85rem 1.1rem;display:flex;align-items:center;gap:.9rem',
-    'box-shadow:0 4px 20px rgba(0,0,0,.35);z-index:9998',
-    'max-width:92vw;width:360px;font-family:"Be Vietnam Pro",sans-serif',
-    'font-size:.82rem;animation:toastIn .35s ease'
-  ].join(';');
-  el.innerHTML =
-    '<span style="font-size:1.4rem">🔔</span>' +
-    '<div style="flex:1">' +
-      '<div style="font-weight:600;margin-bottom:.2rem">Bật thông báo nhé?</div>' +
-      '<div style="opacity:.75;font-size:.77rem">Để nhận nhắc nhở khi có bài tập mới từ thầy.</div>' +
-    '</div>' +
-    '<div style="display:flex;gap:.5rem;flex-shrink:0">' +
-      '<button onclick="dismissNotifBanner()" style="' +
-        'background:rgba(255,255,255,.12);border:none;color:#fff;' +
-        'padding:.38rem .7rem;border-radius:6px;cursor:pointer;font-size:.75rem">Bỏ qua</button>' +
-      '<button onclick="grantNotifPermission()" style="' +
-        'background:var(--orange);border:none;color:#fff;' +
-        'padding:.38rem .8rem;border-radius:6px;cursor:pointer;font-weight:600;font-size:.75rem">Bật</button>' +
-    '</div>';
-  document.body.appendChild(el);
-}
-
-function grantNotifPermission(){
-  dismissNotifBanner();
-  Notification.requestPermission().then(function(perm){
-    _notifPermission = perm;
-    if(perm === 'granted'){
-      toast('🔔 Đã bật thông báo!');
-      // Subscribe Web Push và lưu subscription vào Firebase
-      subscribePush();
-    }
-  });
-}
-
-/* ── Subscribe Web Push (FCM qua VAPID) ── */
-function subscribePush(){
-  if(!_swReg) return;
-  if(!S || !S.id) return;
-  _swReg.pushManager.getSubscription().then(function(existing){
-    if(existing){
-      // Đã subscribe rồi → lưu lại vào Firebase (phòng trường hợp chưa lưu)
-      savePushSubscription(existing);
-      return;
-    }
-    // Subscribe mới
-    var appServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
-    return _swReg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: appServerKey
-    }).then(function(sub){
-      savePushSubscription(sub);
-    });
-  }).catch(function(err){
-    console.warn('[PN] Subscribe failed:', err);
-  });
-}
-
-function savePushSubscription(sub){
-  if(!S || !S.id) return;
-  db.ref('pushSubscriptions/' + S.id).set(sub.toJSON()).then(function(){
-    console.log('[PN] Subscription saved to Firebase for', S.id);
-  });
-}
-
-/* ── Convert VAPID key từ base64 sang Uint8Array ── */
-function urlBase64ToUint8Array(base64String){
-  var padding = '='.repeat((4 - base64String.length % 4) % 4);
-  var base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-  var rawData = window.atob(base64);
-  var outputArray = new Uint8Array(rawData.length);
-  for(var i = 0; i < rawData.length; ++i){
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-}
-
-function dismissNotifBanner(){
-  var el = document.getElementById('notif-permission-banner');
-  if(el) el.style.display = 'none';
-}
-
-/* ── Core: gửi notification qua SW ── */
-function showPushNotification(title, body, tag){
-  if(!('Notification' in window)) return;
-  if(Notification.permission !== 'granted') return;
-  if(!_swReg) return;
-
-  // Đảm bảo SW luôn biết studentId hiện tại
-  if(_swReg.active && S && S.id){
-    _swReg.active.postMessage({ type: 'SET_STUDENT', studentId: S.id });
-  }
-
-  _swReg.active && _swReg.active.postMessage({
-    type: 'SHOW_NOTIFICATION',
-    title: title,
-    body:  body,
-    tag:   tag || 'ta2hieu',
-    url:   '/student-site/',
-    icon:  '/student-site/apple-touch-icon.png'
-  });
-}
-
-/* ── Ping SW để check evening reminder 8pm ── */
-function pingEveningReminder(){
-  if(!_swReg || !_swReg.active) return;
-  if(!S) return;
-  // Đếm HW còn pending (endDate >= hôm nay, chưa nộp link)
-  var td = today();
-  var pending = 0;
-  (S.homework||[]).forEach(function(h){
-    var hwEnd = h.endDate||h.date;
-    if(hwEnd < td) return;
-    var linked = getDayLink(S.id, h.id);
-    if(linked && linked.link) return;
-    if(countHwItems(h) > 0) pending++;
-  });
-  _swReg.active.postMessage({
-    type: 'CHECK_EVENING_REMINDER',
-    pendingHw: pending
-  });
-}
-
 function dismissSurvey(){
   var bubble=document.getElementById('survey-bubble');
   if(bubble){
