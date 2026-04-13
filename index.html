@@ -1751,109 +1751,148 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .para-del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:.2rem .35rem;transition:color .15s;}
 .para-del-btn:hover{color:var(--rust);}
 /* Flashcard overlay */
-.para-fc-ov{
+/* ══ SHARED FLASHCARD OVERLAY ══ */
+.fc-ov{
   position:fixed;inset:0;z-index:4000;
-  background:rgba(44,30,15,.92);
-  display:none;align-items:center;justify-content:center;padding:1rem;
-  backdrop-filter:blur(6px);
+  background:rgba(30,18,8,.94);
+  display:none;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:0;backdrop-filter:blur(8px);overflow-y:auto;
 }
-.para-fc-ov.open{display:flex;}
-.para-fc-modal{
-  background:var(--paper);width:100%;max-width:480px;
-  display:flex;flex-direction:column;gap:0;overflow:hidden;
+.fc-ov.open{display:flex;}
+.fc-shell{
+  width:100%;max-width:560px;min-height:100dvh;
+  display:flex;flex-direction:column;
 }
-.para-fc-header{
+.fc-header{
   display:flex;align-items:center;justify-content:space-between;
-  padding:.65rem 1rem;border-bottom:1px solid var(--line);
-  background:var(--paper2);
+  padding:.75rem 1.1rem;border-bottom:1px solid rgba(255,255,255,.07);
+  background:rgba(255,255,255,.03);flex-shrink:0;
 }
-.para-fc-progress{font-size:.72rem;font-weight:600;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-.para-fc-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:.1rem .3rem;transition:color .15s;}
-.para-fc-close:hover{color:var(--rust);}
-.para-fc-card{
-  min-height:200px;padding:2rem 1.5rem;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;cursor:pointer;text-align:center;
-  background:var(--cream);border-bottom:1px solid var(--line);
-  transition:background .15s;
-}
-.para-fc-card:hover{background:var(--paper2);}
-.para-fc-front{font-family:'Lora',serif;font-size:1.25rem;font-weight:700;color:var(--ink);line-height:1.4;}
-.para-fc-back{width:100%;text-align:center;}
-.para-fc-answer{font-family:'Lora',serif;font-size:1.25rem;font-weight:700;color:var(--orange);margin-bottom:.5rem;line-height:1.4;}
-.para-fc-meta{font-size:.7rem;color:var(--muted);}
-.para-fc-hint{font-size:.7rem;color:var(--muted);margin-top:1rem;font-style:italic;}
-.para-fc-actions{
-  display:flex;gap:0;
-}
-.para-fc-forget{
-  flex:1;padding:.8rem;border:none;background:var(--rust2);color:var(--rust);
-  font-family:'Be Vietnam Pro',sans-serif;font-size:.82rem;font-weight:600;
-  cursor:pointer;transition:background .15s;
-}
-.para-fc-forget:hover{background:#f5c5be;}
-.para-fc-know{
-  flex:1;padding:.8rem;border:none;background:var(--sage2);color:var(--sage);
-  font-family:'Be Vietnam Pro',sans-serif;font-size:.82rem;font-weight:600;
-  cursor:pointer;transition:background .15s;
-}
-.para-fc-know:hover{background:#bcdece;}
-.para-fc-done{
-  padding:2rem;text-align:center;
-}
+.fc-progress-wrap{display:flex;flex-direction:column;gap:.25rem;}
+.fc-progress-label{font-size:.72rem;font-weight:600;color:rgba(245,239,230,.5);font-family:'JetBrains Mono',monospace;}
+.fc-progress-bar-track{height:3px;width:120px;background:rgba(255,255,255,.1);border-radius:2px;}
+.fc-progress-bar-fill{height:100%;background:var(--orange);border-radius:2px;transition:width .3s;}
+.fc-header-right{display:flex;align-items:center;gap:.75rem;}
+.fc-flip-label{font-size:.7rem;color:rgba(245,239,230,.45);display:flex;align-items:center;gap:.35rem;cursor:pointer;}
+.fc-flip-label:hover{color:rgba(245,239,230,.7);}
+.fc-close-btn{background:none;border:none;color:rgba(245,239,230,.3);cursor:pointer;font-size:1rem;padding:.2rem .35rem;transition:color .15s;line-height:1;}
+.fc-close-btn:hover{color:var(--rust);}
 
-/* ══ VOCAB FLASHCARD ══ */
-.vocab-fc-ov{
-  position:fixed;inset:0;z-index:4000;
-  background:rgba(44,30,15,.92);
-  display:none;align-items:center;justify-content:center;padding:1rem;
-  backdrop-filter:blur(6px);
+/* Flip card 3D */
+.fc-scene{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:1.5rem 1.1rem;perspective:1000px;cursor:pointer;
+  min-height:280px;
 }
-.vocab-fc-ov.open{display:flex;}
-.vocab-fc-modal{
-  background:var(--paper);width:100%;max-width:500px;
-  display:flex;flex-direction:column;overflow:hidden;
+.fc-card-wrap{
+  width:100%;max-width:480px;position:relative;
+  transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);
 }
-.vocab-fc-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:.65rem 1rem;border-bottom:1px solid var(--line);background:var(--paper2);
+.fc-card-wrap.flipped{transform:rotateY(180deg);}
+.fc-face{
+  width:100%;min-height:240px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem 1.8rem;text-align:center;
+  background:var(--paper);border:1px solid var(--border);
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
 }
-.vocab-fc-progress{font-size:.72rem;font-weight:600;color:var(--muted);font-family:'JetBrains Mono',monospace;}
-.vocab-fc-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1rem;padding:.1rem .3rem;transition:color .15s;}
-.vocab-fc-close:hover{color:var(--rust);}
-.vocab-fc-card{
-  min-height:220px;padding:2rem 1.5rem;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;cursor:pointer;text-align:center;
-  background:var(--cream);border-bottom:1px solid var(--line);transition:background .15s;
+.fc-face-back{
+  position:absolute;top:0;left:0;right:0;
+  transform:rotateY(180deg);
+  background:var(--cream);
 }
-.vocab-fc-card:hover{background:var(--paper2);}
-.vocab-fc-front-word{font-family:'Lora',serif;font-size:1.6rem;font-weight:700;color:var(--ink);}
-.vocab-fc-front-ipa{font-size:.8rem;color:var(--muted);margin-top:.3rem;font-family:'JetBrains Mono',monospace;}
-.vocab-fc-front-hint{font-size:.7rem;color:var(--muted);margin-top:1rem;font-style:italic;}
-.vocab-fc-back{width:100%;text-align:center;}
-.vocab-fc-back-vi{font-family:'Lora',serif;font-size:1.15rem;font-weight:700;color:var(--orange);margin-bottom:.35rem;}
-.vocab-fc-back-def{font-size:.78rem;color:var(--muted);margin-bottom:.25rem;}
-.vocab-fc-back-ex{font-size:.75rem;color:var(--sky);font-style:italic;margin-top:.3rem;}
-.vocab-fc-back-part{font-size:.65rem;color:var(--muted);margin-top:.5rem;}
-.vocab-fc-actions{display:flex;gap:0;}
-.vocab-fc-forget{
-  flex:1;padding:.8rem;border:none;background:var(--rust2);color:var(--rust);
+.fc-tap-hint{
+  position:absolute;bottom:-.65rem;left:50%;transform:translateX(-50%);
+  font-size:.62rem;color:rgba(245,239,230,.3);white-space:nowrap;
+  background:rgba(30,18,8,.94);padding:0 .5rem;letter-spacing:.04em;
+  opacity:1;transition:opacity .3s;pointer-events:none;
+}
+.fc-tap-hint.hidden{opacity:0;}
+
+/* Front content */
+.fc-word{font-family:'Lora',serif;font-size:1.8rem;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:.4rem;}
+.fc-ipa{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--muted);margin-bottom:.2rem;}
+.fc-pos{font-size:.7rem;color:var(--muted);font-style:italic;}
+.fc-front-label{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem;}
+
+/* Back content */
+.fc-answer-main{font-family:'Lora',serif;font-size:1.4rem;font-weight:700;color:var(--orange);line-height:1.3;margin-bottom:.5rem;}
+.fc-answer-sub{font-size:.8rem;color:var(--muted);margin-bottom:.3rem;line-height:1.5;}
+.fc-answer-ex{font-size:.75rem;color:var(--sky);font-style:italic;margin-top:.35rem;}
+.fc-answer-meta{font-size:.65rem;color:var(--muted);margin-top:.6rem;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap;}
+.fc-part-tag{background:var(--orange3);color:var(--orange);padding:.1rem .4rem;font-size:.6rem;font-weight:700;}
+
+/* Action bar */
+.fc-actions{
+  display:flex;border-top:1px solid rgba(255,255,255,.07);flex-shrink:0;
+  min-height:62px;transition:opacity .2s;
+}
+.fc-actions.hidden{opacity:0;pointer-events:none;}
+.fc-btn-forget{
+  flex:1;padding:.9rem;border:none;border-right:1px solid rgba(255,255,255,.07);
+  background:rgba(176,58,42,.15);color:#e88070;
   font-family:'Be Vietnam Pro',sans-serif;font-size:.82rem;font-weight:600;
-  cursor:pointer;transition:background .15s;
+  cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:.4rem;
 }
-.vocab-fc-forget:hover{background:#f5c5be;}
-.vocab-fc-know{
-  flex:1;padding:.8rem;border:none;background:var(--sage2);color:var(--sage);
+.fc-btn-forget:hover{background:rgba(176,58,42,.28);}
+.fc-btn-know{
+  flex:1;padding:.9rem;border:none;
+  background:rgba(46,125,70,.15);color:#70c090;
   font-family:'Be Vietnam Pro',sans-serif;font-size:.82rem;font-weight:600;
-  cursor:pointer;transition:background .15s;
+  cursor:pointer;transition:background .15s;display:flex;align-items:center;justify-content:center;gap:.4rem;
 }
-.vocab-fc-know:hover{background:#bcdece;}
-.vocab-fc-done{padding:2rem;text-align:center;}
-.vocab-fc-btn{
-  background:var(--orange);color:#fff;border:none;
-  font-family:'Be Vietnam Pro',sans-serif;font-size:.75rem;font-weight:600;
-  padding:.4rem .9rem;cursor:pointer;transition:opacity .15s;margin-bottom:.7rem;
+.fc-btn-know:hover{background:rgba(46,125,70,.28);}
+
+/* Done screen */
+.fc-done{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2.5rem 1.5rem;text-align:center;display:none;
 }
-.vocab-fc-btn:hover{opacity:.85;}
+.fc-done.show{display:flex;}
+.fc-done-emoji{font-size:3.5rem;margin-bottom:.8rem;animation:fc-bounce .6s ease infinite alternate;}
+@keyframes fc-bounce{from{transform:scale(1)}to{transform:scale(1.12)}}
+.fc-done-title{font-family:'Lora',serif;font-size:1.4rem;font-weight:700;color:var(--orange2);margin-bottom:.5rem;}
+.fc-done-sub{font-size:.82rem;color:rgba(245,239,230,.55);line-height:1.6;margin-bottom:1.5rem;}
+.fc-done-score{
+  display:flex;gap:1.2rem;margin-bottom:1.8rem;
+}
+.fc-done-pill{
+  display:flex;flex-direction:column;align-items:center;padding:.7rem 1.2rem;
+  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);
+}
+.fc-done-pill-num{font-family:'Lora',serif;font-size:1.8rem;font-weight:700;line-height:1;}
+.fc-done-pill-lbl{font-size:.62rem;color:rgba(245,239,230,.4);margin-top:.2rem;letter-spacing:.04em;}
+.fc-done-actions{display:flex;gap:.7rem;flex-wrap:wrap;justify-content:center;}
+.fc-done-btn-retry{
+  background:rgba(196,98,45,.2);color:var(--orange2);border:1px solid rgba(196,98,45,.3);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.8rem;font-weight:600;
+  padding:.55rem 1.2rem;cursor:pointer;transition:all .15s;
+}
+.fc-done-btn-retry:hover{background:rgba(196,98,45,.35);}
+.fc-done-btn-close{
+  background:rgba(255,255,255,.06);color:rgba(245,239,230,.5);border:1px solid rgba(255,255,255,.1);
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.8rem;font-weight:600;
+  padding:.55rem 1.2rem;cursor:pointer;transition:all .15s;
+}
+.fc-done-btn-close:hover{background:rgba(255,255,255,.12);}
+/* Confetti */
+.fc-confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:4100;overflow:hidden;}
+.fc-confetti-piece{
+  position:absolute;top:-10px;width:8px;height:8px;border-radius:1px;
+  animation:fc-confetti-fall linear forwards;
+}
+@keyframes fc-confetti-fall{
+  to{transform:translateY(110vh) rotate(720deg);opacity:0;}
+}
+@media(max-width:500px){
+  .fc-word{font-size:1.4rem;}
+  .fc-answer-main{font-size:1.15rem;}
+  .fc-scene{padding:1rem .7rem;min-height:220px;}
+  .fc-face{min-height:190px;padding:1.5rem 1.2rem;}
+}
+/* Legacy compat — keep old class names pointing to same vars */
+.para-fc-ov,.vocab-fc-ov{position:fixed;inset:0;z-index:4000;display:none;}
+.para-fc-ov.open,.vocab-fc-ov.open{display:flex;}
 /* Daily Digest rows */
 .digest-row{
   display:flex;align-items:center;gap:.7rem;
@@ -2424,34 +2463,55 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     </div>
 
     <!-- PARAPHRASE FLASHCARD OVERLAY -->
-    <div class="para-fc-ov" id="para-fc-ov">
-      <div class="para-fc-modal">
-        <div class="para-fc-header">
-          <div class="para-fc-progress" id="para-fc-progress">0 / 0</div>
-          <div style="display:flex;align-items:center;gap:.6rem;">
-            <label style="font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;cursor:pointer;">
+    <div class="fc-ov" id="para-fc-ov">
+      <div class="fc-shell">
+        <div class="fc-header">
+          <div class="fc-progress-wrap">
+            <div class="fc-progress-label" id="para-fc-progress">0 / 0</div>
+            <div class="fc-progress-bar-track"><div class="fc-progress-bar-fill" id="para-fc-bar" style="width:0%"></div></div>
+          </div>
+          <div class="fc-header-right">
+            <label class="fc-flip-label">
               <input type="checkbox" id="para-fc-flip" onchange="paraFcFlipToggle()"> Đảo chiều
             </label>
-            <button class="para-fc-close" onclick="paraCloseFlashcard()">✕</button>
+            <button class="fc-close-btn" onclick="paraCloseFlashcard()">✕</button>
           </div>
         </div>
-        <div class="para-fc-card" id="para-fc-card" onclick="paraFcReveal()">
-          <div class="para-fc-front" id="para-fc-front"></div>
-          <div class="para-fc-back" id="para-fc-back" style="display:none">
-            <div class="para-fc-answer" id="para-fc-answer"></div>
-            <div class="para-fc-meta" id="para-fc-meta"></div>
+
+        <!-- Card area -->
+        <div class="fc-scene" id="para-fc-scene" onclick="paraFcReveal()">
+          <div class="fc-card-wrap" id="para-fc-card">
+            <!-- Front -->
+            <div class="fc-face">
+              <div class="fc-front-label" id="para-front-label">TỪ GỐC</div>
+              <div class="fc-word" id="para-fc-front"></div>
+            </div>
+            <!-- Back -->
+            <div class="fc-face fc-face-back">
+              <div class="fc-front-label" style="color:var(--orange);opacity:.6">PARAPHRASE</div>
+              <div class="fc-answer-main" id="para-fc-answer"></div>
+              <div class="fc-answer-meta" id="para-fc-meta"></div>
+            </div>
           </div>
-          <div class="para-fc-hint" id="para-fc-hint">Nhấn để xem đáp án</div>
+          <div class="fc-tap-hint" id="para-fc-hint">Nhấn để lật thẻ</div>
         </div>
-        <div class="para-fc-actions" id="para-fc-actions" style="display:none">
-          <button class="para-fc-forget" onclick="paraFcMark(false)">🔁 Chưa nhớ</button>
-          <button class="para-fc-know" onclick="paraFcMark(true)">✅ Nhớ rồi!</button>
+
+        <!-- Action buttons -->
+        <div class="fc-actions hidden" id="para-fc-actions">
+          <button class="fc-btn-forget" onclick="paraFcMark(false)">🔁 Chưa nhớ</button>
+          <button class="fc-btn-know" onclick="paraFcMark(true)">✅ Nhớ rồi!</button>
         </div>
-        <div class="para-fc-done" id="para-fc-done" style="display:none">
-          <div style="font-size:2rem;margin-bottom:.5rem">🎉</div>
-          <div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--orange2);margin-bottom:.4rem">Hoàn thành!</div>
-          <div id="para-fc-done-msg" style="font-size:.8rem;color:rgba(245,239,230,.7);margin-bottom:1rem"></div>
-          <button class="el-submit-btn" style="max-width:200px;margin:0 auto" onclick="paraCloseFlashcard()">Đóng</button>
+
+        <!-- Done screen -->
+        <div class="fc-done" id="para-fc-done">
+          <div class="fc-done-emoji" id="para-fc-done-emoji">🎉</div>
+          <div class="fc-done-title" id="para-fc-done-title">Hoàn thành!</div>
+          <div class="fc-done-sub" id="para-fc-done-msg"></div>
+          <div class="fc-done-score" id="para-fc-done-score"></div>
+          <div class="fc-done-actions">
+            <button class="fc-done-btn-retry" id="para-fc-retry-btn" onclick="paraRetryForgotten()" style="display:none">🔁 Ôn lại chưa nhớ</button>
+            <button class="fc-done-btn-close" onclick="paraCloseFlashcard()">Đóng</button>
+          </div>
         </div>
       </div>
     </div>
@@ -2550,31 +2610,51 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 </div>
 
 <!-- ══ VOCAB FLASHCARD OVERLAY ══ -->
-<div class="vocab-fc-ov" id="vocab-fc-ov">
-  <div class="vocab-fc-modal">
-    <div class="vocab-fc-header">
-      <div class="vocab-fc-progress" id="vocab-fc-progress">0 / 0</div>
-      <div style="display:flex;align-items:center;gap:.6rem;">
-        <label style="font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:.35rem;cursor:pointer;">
+<div class="fc-ov" id="vocab-fc-ov">
+  <div class="fc-shell">
+    <div class="fc-header">
+      <div class="fc-progress-wrap">
+        <div class="fc-progress-label" id="vocab-fc-progress">0 / 0</div>
+        <div class="fc-progress-bar-track"><div class="fc-progress-bar-fill" id="vocab-fc-bar" style="width:0%"></div></div>
+      </div>
+      <div class="fc-header-right">
+        <label class="fc-flip-label">
           <input type="checkbox" id="vocab-fc-flip" onchange="vocabFcFlipToggle()"> VN → EN
         </label>
-        <button class="vocab-fc-close" onclick="vocabCloseFlashcard()">✕</button>
+        <button class="fc-close-btn" onclick="vocabCloseFlashcard()">✕</button>
       </div>
     </div>
-    <div class="vocab-fc-card" id="vocab-fc-card" onclick="vocabFcReveal()">
-      <div class="vocab-fc-front" id="vocab-fc-front"></div>
-      <div class="vocab-fc-back" id="vocab-fc-back" style="display:none"></div>
-      <div class="vocab-fc-front-hint" id="vocab-fc-hint-txt" style="font-size:.7rem;color:var(--muted);margin-top:1rem;font-style:italic">Nhấn để xem đáp án</div>
+
+    <!-- Card area -->
+    <div class="fc-scene" id="vocab-fc-scene" onclick="vocabFcReveal()">
+      <div class="fc-card-wrap" id="vocab-fc-card">
+        <div class="fc-face">
+          <div class="fc-front-label" id="vocab-front-label">TỪ TIẾNG ANH</div>
+          <div id="vocab-fc-front"></div>
+        </div>
+        <div class="fc-face fc-face-back">
+          <div id="vocab-fc-back"></div>
+        </div>
+      </div>
+      <div class="fc-tap-hint" id="vocab-fc-hint-txt">Nhấn để lật thẻ</div>
     </div>
-    <div class="vocab-fc-actions" id="vocab-fc-actions" style="display:none">
-      <button class="vocab-fc-forget" onclick="vocabFcMark(false)">🔁 Chưa nhớ</button>
-      <button class="vocab-fc-know" onclick="vocabFcMark(true)">✅ Nhớ rồi!</button>
+
+    <!-- Action buttons -->
+    <div class="fc-actions hidden" id="vocab-fc-actions">
+      <button class="fc-btn-forget" onclick="vocabFcMark(false)">🔁 Chưa nhớ</button>
+      <button class="fc-btn-know" onclick="vocabFcMark(true)">✅ Nhớ rồi!</button>
     </div>
-    <div class="vocab-fc-done" id="vocab-fc-done" style="display:none">
-      <div style="font-size:2rem;margin-bottom:.5rem">🎉</div>
-      <div style="font-family:'Lora',serif;font-size:1.1rem;font-weight:700;color:var(--orange2);margin-bottom:.4rem">Hoàn thành!</div>
-      <div id="vocab-fc-done-msg" style="font-size:.8rem;color:var(--muted);margin-bottom:1rem"></div>
-      <button class="vocab-fc-btn" onclick="vocabCloseFlashcard()">Đóng</button>
+
+    <!-- Done screen -->
+    <div class="fc-done" id="vocab-fc-done">
+      <div class="fc-done-emoji" id="vocab-fc-done-emoji">🎉</div>
+      <div class="fc-done-title" id="vocab-fc-done-title">Hoàn thành!</div>
+      <div class="fc-done-sub" id="vocab-fc-done-msg"></div>
+      <div class="fc-done-score" id="vocab-fc-done-score"></div>
+      <div class="fc-done-actions">
+        <button class="fc-done-btn-retry" id="vocab-fc-retry-btn" onclick="vocabRetryForgotten()" style="display:none">🔁 Ôn lại chưa nhớ</button>
+        <button class="fc-done-btn-close" onclick="vocabCloseFlashcard()">Đóng</button>
+      </div>
     </div>
   </div>
 </div>
@@ -5521,171 +5601,282 @@ function paraDelete(id){
 }
 
 /* ── Flashcard ── */
+/* ─── Shared confetti helper ─── */
+function fcFireConfetti(containerId){
+  var wrap = document.getElementById(containerId);
+  if(!wrap) return;
+  var colors=['#C4622D','#E8885C','#4A7C59','#3A6898','#F5D0BB','#D0E8D8','#FFF','#FFD700'];
+  for(var i=0;i<60;i++){
+    (function(){
+      var p=document.createElement('div');
+      p.className='fc-confetti-piece';
+      p.style.left=Math.random()*100+'vw';
+      p.style.background=colors[Math.floor(Math.random()*colors.length)];
+      p.style.width=(6+Math.random()*8)+'px';
+      p.style.height=(6+Math.random()*8)+'px';
+      p.style.borderRadius=Math.random()>.5?'50%':'2px';
+      var dur=1.5+Math.random()*2;
+      p.style.animationDuration=dur+'s';
+      p.style.animationDelay=Math.random()*.8+'s';
+      wrap.appendChild(p);
+      setTimeout(function(){if(p.parentNode)p.parentNode.removeChild(p);},( dur+.8)*1000);
+    })();
+  }
+}
+
+/* ─── Generic done screen builder ─── */
+function fcShowDone(prefix, total, known, forgotList, retryFn, closeFn){
+  var perfect = known === total;
+  var doneEl = document.getElementById(prefix+'-fc-done');
+  var actEl  = document.getElementById(prefix+'-fc-actions');
+  var sceneEl= document.getElementById(prefix+'-fc-scene');
+  if(actEl)  actEl.classList.add('hidden');
+  if(sceneEl) sceneEl.style.display='none';
+  if(doneEl) doneEl.classList.add('show');
+
+  document.getElementById(prefix+'-fc-done-emoji').textContent = perfect ? '🏆' : '💪';
+  document.getElementById(prefix+'-fc-done-title').textContent = perfect ? 'Tuyệt vời! 100% rồi!' : 'Hoàn thành buổi ôn!';
+  document.getElementById(prefix+'-fc-done-msg').textContent  = perfect
+    ? 'Bạn nhớ hết '+total+' '+(prefix==='vocab'?'từ':'cặp')+' rồi! Tiếp tục duy trì nhé 🔥'
+    : 'Còn '+(total-known)+' '+(prefix==='vocab'?'từ':'cặp')+' chưa nhớ — ôn thêm lần nữa nhé!';
+
+  var scoreEl=document.getElementById(prefix+'-fc-done-score');
+  if(scoreEl) scoreEl.innerHTML=
+    '<div class="fc-done-pill"><div class="fc-done-pill-num" style="color:var(--sage)">'+known+'</div><div class="fc-done-pill-lbl">Nhớ rồi</div></div>'
+    +'<div class="fc-done-pill"><div class="fc-done-pill-num" style="color:var(--rust)">'+(total-known)+'</div><div class="fc-done-pill-lbl">Chưa nhớ</div></div>'
+    +'<div class="fc-done-pill"><div class="fc-done-pill-num">'+total+'</div><div class="fc-done-pill-lbl">Tổng cộng</div></div>';
+
+  var retryBtn=document.getElementById(prefix+'-fc-retry-btn');
+  if(retryBtn) retryBtn.style.display = (!perfect && forgotList.length) ? 'inline-block':'none';
+
+  if(perfect){
+    // Spawn confetti wrapper
+    var cWrap=document.createElement('div');
+    cWrap.className='fc-confetti-wrap';
+    cWrap.id=prefix+'-confetti';
+    document.body.appendChild(cWrap);
+    fcFireConfetti(prefix+'-confetti');
+    setTimeout(function(){var el=document.getElementById(prefix+'-confetti');if(el)el.remove();},4000);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PARAPHRASE FLASHCARD
+═══════════════════════════════════════════ */
+var _paraFcForgotten = []; // cards marked "Chưa nhớ" this session
+
 function paraStartFlashcard(){
   if(!_paraWords.length) return;
   var due = _paraWords.filter(paraIsDue);
   _paraFcQueue = due.length ? due.slice() : _paraWords.slice();
+  _paraFcForgotten = [];
   _paraFcIdx = 0; _paraFcKnown = 0;
-  _paraFcFlipped = document.getElementById('para-fc-flip') ? document.getElementById('para-fc-flip').checked : false;
+  _paraFcFlipped = document.getElementById('para-fc-flip').checked;
+  // Reset UI
   document.getElementById('para-fc-ov').classList.add('open');
-  document.getElementById('para-fc-done').style.display = 'none';
-  document.getElementById('para-fc-actions').style.display = 'none';
+  document.getElementById('para-fc-done').classList.remove('show');
+  document.getElementById('para-fc-scene').style.display='';
+  document.getElementById('para-fc-actions').classList.add('hidden');
+  document.getElementById('para-fc-card').classList.remove('flipped');
   paraFcRenderCard();
 }
 
 function paraFcRenderCard(){
   var card = _paraFcQueue[_paraFcIdx];
   if(!card){ paraFcFinish(); return; }
-  document.getElementById('para-fc-progress').textContent = (_paraFcIdx+1) + ' / ' + _paraFcQueue.length;
+  var total = _paraFcQueue.length;
+  document.getElementById('para-fc-progress').textContent = (_paraFcIdx+1)+' / '+total;
+  document.getElementById('para-fc-bar').style.width = Math.round(_paraFcIdx/total*100)+'%';
   var front = _paraFcFlipped ? card.target : card.source;
   var back  = _paraFcFlipped ? card.source : card.target;
+  var frontLabel = _paraFcFlipped ? 'PARAPHRASE' : 'TỪ GỐC';
+  document.getElementById('para-front-label').textContent = frontLabel;
   document.getElementById('para-fc-front').textContent = front;
   document.getElementById('para-fc-answer').textContent = back;
-  document.getElementById('para-fc-meta').textContent = 'Part ' + card.part + (card.note ? ' · ' + card.note : '');
-  document.getElementById('para-fc-front').style.display = '';
-  document.getElementById('para-fc-back').style.display = 'none';
-  document.getElementById('para-fc-hint').style.display = '';
-  document.getElementById('para-fc-actions').style.display = 'none';
+  var metaEl = document.getElementById('para-fc-meta');
+  if(metaEl) metaEl.innerHTML =
+    '<span class="fc-part-tag">Part '+escH(String(card.part||''))+'</span>'
+    +(card.note ? '<span>'+escH(card.note)+'</span>' : '');
+  document.getElementById('para-fc-card').classList.remove('flipped');
+  document.getElementById('para-fc-actions').classList.add('hidden');
+  document.getElementById('para-fc-hint').classList.remove('hidden');
 }
 
 function paraFcReveal(){
-  var actionsEl = document.getElementById('para-fc-actions');
-  if(actionsEl.style.display !== 'none') return; // already revealed
-  document.getElementById('para-fc-back').style.display = '';
-  document.getElementById('para-fc-hint').style.display = 'none';
-  actionsEl.style.display = 'flex';
+  var wrap = document.getElementById('para-fc-card');
+  if(wrap.classList.contains('flipped')) return;
+  wrap.classList.add('flipped');
+  document.getElementById('para-fc-hint').classList.add('hidden');
+  setTimeout(function(){
+    document.getElementById('para-fc-actions').classList.remove('hidden');
+  }, 480);
 }
 
 function paraFcFlipToggle(){
   _paraFcFlipped = document.getElementById('para-fc-flip').checked;
+  document.getElementById('para-fc-card').classList.remove('flipped');
+  document.getElementById('para-fc-actions').classList.add('hidden');
+  document.getElementById('para-fc-hint').classList.remove('hidden');
   paraFcRenderCard();
 }
 
 function paraFcMark(knew){
   var card = _paraFcQueue[_paraFcIdx];
   if(!card) return;
-  if(knew) _paraFcKnown++;
-  // Update SRS
+  if(knew){ _paraFcKnown++; } else { _paraFcForgotten.push(card); }
   var newRep = knew ? Math.min((card.repCount||0)+1, SRS_INTERVALS_PARA.length-1) : 0;
-  var update = { repCount: newRep, lastReview: today() };
-  db.ref('students/'+S.id+'/paraphraseLog/'+card.id).update(update);
-  // Update local cache
-  var local = _paraWords.find(function(p){ return p.id === card.id; });
-  if(local){ local.repCount = newRep; local.lastReview = today(); }
+  db.ref('students/'+S.id+'/paraphraseLog/'+card.id).update({repCount:newRep, lastReview:today()});
+  var local = _paraWords.find(function(p){ return p.id===card.id; });
+  if(local){ local.repCount=newRep; local.lastReview=today(); }
   _paraFcIdx++;
   if(_paraFcIdx >= _paraFcQueue.length){ paraFcFinish(); return; }
-  paraFcRenderCard();
+  document.getElementById('para-fc-card').classList.remove('flipped');
+  document.getElementById('para-fc-actions').classList.add('hidden');
+  setTimeout(function(){ paraFcRenderCard(); }, 300);
 }
 
 function paraFcFinish(){
-  document.getElementById('para-fc-card').style.cursor = 'default';
-  document.getElementById('para-fc-actions').style.display = 'none';
-  document.getElementById('para-fc-done').style.display = 'block';
-  document.getElementById('para-fc-done-msg').textContent =
-    'Đã ôn ' + _paraFcQueue.length + ' cặp · Nhớ được ' + _paraFcKnown + ' / ' + _paraFcQueue.length;
-  paraRender(); // refresh SRS labels
+  document.getElementById('para-fc-bar').style.width = '100%';
+  fcShowDone('para', _paraFcQueue.length, _paraFcKnown, _paraFcForgotten, paraRetryForgotten, paraCloseFlashcard);
+  paraRender();
+}
+
+function paraRetryForgotten(){
+  if(!_paraFcForgotten.length) return;
+  _paraFcQueue = _paraFcForgotten.slice();
+  _paraFcForgotten = [];
+  _paraFcIdx = 0; _paraFcKnown = 0;
+  document.getElementById('para-fc-done').classList.remove('show');
+  document.getElementById('para-fc-scene').style.display = '';
+  document.getElementById('para-fc-card').classList.remove('flipped');
+  document.getElementById('para-fc-actions').classList.add('hidden');
+  paraFcRenderCard();
 }
 
 function paraCloseFlashcard(){
   document.getElementById('para-fc-ov').classList.remove('open');
-  document.getElementById('para-fc-card').style.cursor = 'pointer';
+  document.getElementById('para-fc-done').classList.remove('show');
+  document.getElementById('para-fc-scene').style.display = '';
 }
 
 /* ═══════════════════════════════════════════
-   VOCAB FLASHCARD MODULE
+   VOCAB FLASHCARD
 ═══════════════════════════════════════════ */
 var _vocabFcQueue = [];
 var _vocabFcIdx = 0;
-var _vocabFcFlipped = false; // false = EN→VN, true = VN→EN
+var _vocabFcFlipped = false;
 var _vocabFcKnown = 0;
+var _vocabFcForgotten = [];
 
 function vocabStartFlashcard(){
-  if(!_vocabWords || !_vocabWords.length) return;
+  if(!_vocabWords||!_vocabWords.length) return;
   var due = _vocabWords.filter(vocabIsDue);
   _vocabFcQueue = due.length ? due.slice() : _vocabWords.slice();
+  _vocabFcForgotten = [];
   _vocabFcIdx = 0; _vocabFcKnown = 0;
-  _vocabFcFlipped = document.getElementById('vocab-fc-flip') ? document.getElementById('vocab-fc-flip').checked : false;
+  _vocabFcFlipped = document.getElementById('vocab-fc-flip').checked;
   document.getElementById('vocab-fc-ov').classList.add('open');
-  document.getElementById('vocab-fc-done').style.display = 'none';
-  document.getElementById('vocab-fc-actions').style.display = 'none';
+  document.getElementById('vocab-fc-done').classList.remove('show');
+  document.getElementById('vocab-fc-scene').style.display = '';
+  document.getElementById('vocab-fc-actions').classList.add('hidden');
+  document.getElementById('vocab-fc-card').classList.remove('flipped');
   vocabFcRenderCard();
 }
 
 function vocabFcRenderCard(){
   var w = _vocabFcQueue[_vocabFcIdx];
   if(!w){ vocabFcFinish(); return; }
-  document.getElementById('vocab-fc-progress').textContent = (_vocabFcIdx+1) + ' / ' + _vocabFcQueue.length;
+  var total = _vocabFcQueue.length;
+  document.getElementById('vocab-fc-progress').textContent = (_vocabFcIdx+1)+' / '+total;
+  document.getElementById('vocab-fc-bar').style.width = Math.round(_vocabFcIdx/total*100)+'%';
   var frontEl = document.getElementById('vocab-fc-front');
   var backEl  = document.getElementById('vocab-fc-back');
+  var labelEl = document.getElementById('vocab-front-label');
   if(!_vocabFcFlipped){
-    // EN front
+    if(labelEl) labelEl.textContent = 'TỪ TIẾNG ANH';
     frontEl.innerHTML =
-      '<div class="vocab-fc-front-word">'+escH(w.word||'')+'</div>'
-      +(w.ipa ? '<div class="vocab-fc-front-ipa">'+escH(w.ipa)+'</div>' : '')
-      +(w.pos ? '<div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">'+escH(w.pos)+'</div>' : '');
+      '<div class="fc-word">'+escH(w.word||'')+'</div>'
+      +(w.ipa ? '<div class="fc-ipa">'+escH(w.ipa)+'</div>' : '')
+      +(w.pos ? '<div class="fc-pos">'+escH(w.pos)+'</div>' : '');
     backEl.innerHTML =
-      '<div class="vocab-fc-back-vi">'+(w.vi ? escH(w.vi) : '—')+'</div>'
-      +(w.def ? '<div class="vocab-fc-back-def">'+escH(w.def)+'</div>' : '')
-      +(w.example ? '<div class="vocab-fc-back-ex">'+escH(w.example)+'</div>' : '')
-      +'<div class="vocab-fc-back-part">Part '+escH(String(w.part||''))+'</div>';
+      '<div class="fc-front-label" style="color:var(--orange);opacity:.6;margin-bottom:.6rem">NGHĨA</div>'
+      +'<div class="fc-answer-main">'+(w.vi ? escH(w.vi) : '—')+'</div>'
+      +(w.def ? '<div class="fc-answer-sub">'+escH(w.def)+'</div>' : '')
+      +(w.example ? '<div class="fc-answer-ex">'+escH(w.example)+'</div>' : '')
+      +'<div class="fc-answer-meta"><span class="fc-part-tag">Part '+escH(String(w.part||''))+'</span></div>';
   } else {
-    // VN front
+    if(labelEl) labelEl.textContent = 'NGHĨA TIẾNG VIỆT';
     frontEl.innerHTML =
-      '<div class="vocab-fc-front-word" style="font-size:1.2rem">'+(w.vi ? escH(w.vi) : '—')+'</div>';
+      '<div class="fc-word" style="font-size:1.3rem">'+(w.vi ? escH(w.vi) : '—')+'</div>';
     backEl.innerHTML =
-      '<div class="vocab-fc-back-vi">'+escH(w.word||'')+'</div>'
-      +(w.ipa ? '<div class="vocab-fc-back-def">'+escH(w.ipa)+'</div>' : '')
-      +(w.def ? '<div class="vocab-fc-back-def">'+escH(w.def)+'</div>' : '')
-      +(w.example ? '<div class="vocab-fc-back-ex">'+escH(w.example)+'</div>' : '')
-      +'<div class="vocab-fc-back-part">Part '+escH(String(w.part||''))+'</div>';
+      '<div class="fc-front-label" style="color:var(--orange);opacity:.6;margin-bottom:.6rem">TỪ TIẾNG ANH</div>'
+      +'<div class="fc-answer-main">'+escH(w.word||'')+'</div>'
+      +(w.ipa ? '<div class="fc-answer-sub">'+escH(w.ipa)+'</div>' : '')
+      +(w.def ? '<div class="fc-answer-sub">'+escH(w.def)+'</div>' : '')
+      +(w.example ? '<div class="fc-answer-ex">'+escH(w.example)+'</div>' : '')
+      +'<div class="fc-answer-meta"><span class="fc-part-tag">Part '+escH(String(w.part||''))+'</span></div>';
   }
-  frontEl.style.display = '';
-  backEl.style.display = 'none';
-  document.getElementById('vocab-fc-hint-txt').style.display = '';
-  document.getElementById('vocab-fc-actions').style.display = 'none';
+  document.getElementById('vocab-fc-card').classList.remove('flipped');
+  document.getElementById('vocab-fc-actions').classList.add('hidden');
+  document.getElementById('vocab-fc-hint-txt').classList.remove('hidden');
 }
 
 function vocabFcReveal(){
-  var actionsEl = document.getElementById('vocab-fc-actions');
-  if(actionsEl.style.display !== 'none') return;
-  document.getElementById('vocab-fc-back').style.display = '';
-  document.getElementById('vocab-fc-hint-txt').style.display = 'none';
-  actionsEl.style.display = 'flex';
+  var wrap = document.getElementById('vocab-fc-card');
+  if(wrap.classList.contains('flipped')) return;
+  wrap.classList.add('flipped');
+  document.getElementById('vocab-fc-hint-txt').classList.add('hidden');
+  setTimeout(function(){
+    document.getElementById('vocab-fc-actions').classList.remove('hidden');
+  }, 480);
 }
 
 function vocabFcFlipToggle(){
   _vocabFcFlipped = document.getElementById('vocab-fc-flip').checked;
+  document.getElementById('vocab-fc-card').classList.remove('flipped');
+  document.getElementById('vocab-fc-actions').classList.add('hidden');
+  document.getElementById('vocab-fc-hint-txt').classList.remove('hidden');
   vocabFcRenderCard();
 }
 
 function vocabFcMark(knew){
   var w = _vocabFcQueue[_vocabFcIdx];
   if(!w) return;
-  if(knew) _vocabFcKnown++;
+  if(knew){ _vocabFcKnown++; } else { _vocabFcForgotten.push(w); }
   var newRep = knew ? Math.min((w.repCount||0)+1, SRS_INTERVALS.length-1) : 0;
-  db.ref('vocab/'+S.id+'/'+w.id).update({ repCount: newRep, lastReview: today() });
-  var local = _vocabWords.find(function(v){ return v.id === w.id; });
-  if(local){ local.repCount = newRep; local.lastReview = today(); }
+  db.ref('vocab/'+S.id+'/'+w.id).update({repCount:newRep, lastReview:today()});
+  var local = _vocabWords.find(function(v){ return v.id===w.id; });
+  if(local){ local.repCount=newRep; local.lastReview=today(); }
   _vocabFcIdx++;
   if(_vocabFcIdx >= _vocabFcQueue.length){ vocabFcFinish(); return; }
-  vocabFcRenderCard();
+  document.getElementById('vocab-fc-card').classList.remove('flipped');
+  document.getElementById('vocab-fc-actions').classList.add('hidden');
+  setTimeout(function(){ vocabFcRenderCard(); }, 300);
 }
 
 function vocabFcFinish(){
-  document.getElementById('vocab-fc-actions').style.display = 'none';
-  document.getElementById('vocab-fc-done').style.display = 'block';
-  document.getElementById('vocab-fc-done-msg').textContent =
-    'Đã ôn ' + _vocabFcQueue.length + ' từ · Nhớ được ' + _vocabFcKnown + ' / ' + _vocabFcQueue.length;
+  document.getElementById('vocab-fc-bar').style.width = '100%';
+  fcShowDone('vocab', _vocabFcQueue.length, _vocabFcKnown, _vocabFcForgotten, vocabRetryForgotten, vocabCloseFlashcard);
   vocabRender();
+}
+
+function vocabRetryForgotten(){
+  if(!_vocabFcForgotten.length) return;
+  _vocabFcQueue = _vocabFcForgotten.slice();
+  _vocabFcForgotten = [];
+  _vocabFcIdx = 0; _vocabFcKnown = 0;
+  document.getElementById('vocab-fc-done').classList.remove('show');
+  document.getElementById('vocab-fc-scene').style.display = '';
+  document.getElementById('vocab-fc-card').classList.remove('flipped');
+  document.getElementById('vocab-fc-actions').classList.add('hidden');
+  vocabFcRenderCard();
 }
 
 function vocabCloseFlashcard(){
   document.getElementById('vocab-fc-ov').classList.remove('open');
+  document.getElementById('vocab-fc-done').classList.remove('show');
+  document.getElementById('vocab-fc-scene').style.display = '';
 }
-
-/* ═══════════════════════════════════════════
-   DAILY DIGEST POPUP (replaces 3 old popups)
-═══════════════════════════════════════════ */
 function showDailyDigest(){
   if(!S) return;
   var sessionKey = 'daily_digest_'+S.id+'_'+today();
