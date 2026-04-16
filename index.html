@@ -86,6 +86,17 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
   font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s;margin-top:.3rem;
 }
 .vocab-add-btn:hover{background:var(--orange2);}
+/* ── Audio button ── */
+.vocab-audio-btn{
+  display:none;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;
+  font-size:1.1rem;padding:.15rem .3rem;line-height:1;
+  color:var(--orange);transition:transform .15s,opacity .15s;
+  flex-shrink:0;
+}
+.vocab-audio-btn:hover{transform:scale(1.2);opacity:.8;}
+.vocab-audio-btn.playing{animation:vocabAudioPulse .6s ease-in-out infinite alternate;}
+@keyframes vocabAudioPulse{from{opacity:1;transform:scale(1);}to{opacity:.5;transform:scale(1.15);}}
 .vocab-stats-row{display:flex;gap:.7rem;margin-bottom:1.1rem;flex-wrap:wrap;}
 .vocab-stat-pill{
   background:var(--paper);border:1px solid var(--border);
@@ -2627,9 +2638,10 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
     <div class="vocab-add-row">
       <div class="vocab-add-col" style="flex:2">
         <label class="vocab-lbl">Từ tiếng Anh</label>
-        <div style="position:relative">
-          <input class="vocab-input" id="vi-word" type="text" placeholder="VD: accomplish" autocomplete="off" oninput="vocabWordInput(this)">
-          <span class="vocab-lookup-spinner" id="vi-spinner" style="display:none">⟳</span>
+        <div style="position:relative;display:flex;align-items:center;gap:.4rem">
+          <input class="vocab-input" id="vi-word" type="text" placeholder="VD: accomplish" autocomplete="off" oninput="vocabWordInput(this)" style="flex:1">
+          <span class="vocab-lookup-spinner" id="vi-spinner" style="display:none;position:static;transform:none">⟳</span>
+          <button class="vocab-audio-btn" id="vi-audio-btn" title="Nghe phát âm" onclick="vocabPlayAudioForm()">🔊</button>
         </div>
       </div>
       <div class="vocab-add-col" style="flex:2;position:relative">
@@ -5301,6 +5313,42 @@ var SRS_INTERVALS = [1, 3, 7, 14, 30];
 var _vocabFilter = 'all';
 var _vocabLookupTimer = null;
 var _vocabWords = []; // local cache
+var _vocabCurrentAudioUrl = ''; // audio URL from last lookup
+var _vocabAudioEl = null;       // reusable Audio element
+
+/* ── Audio playback: Free Dict mp3 → fallback Web Speech API ── */
+function vocabPlayAudio(word, audioUrl){
+  if(!word) return;
+  // Stop any currently playing audio
+  if(_vocabAudioEl){ _vocabAudioEl.pause(); _vocabAudioEl=null; }
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+
+  if(audioUrl){
+    var audio=new Audio(audioUrl);
+    _vocabAudioEl=audio;
+    audio.play().catch(function(){
+      // mp3 failed (e.g. CORS on some devices) — fallback to TTS
+      _vocabAudioEl=null;
+      vocabSpeakTTS(word);
+    });
+  } else {
+    vocabSpeakTTS(word);
+  }
+}
+
+function vocabSpeakTTS(word){
+  if(!window.speechSynthesis) return;
+  var u=new SpeechSynthesisUtterance(word);
+  u.lang='en-US';
+  u.rate=0.9;
+  window.speechSynthesis.speak(u);
+}
+
+function vocabPlayAudioForm(){
+  var word=(document.getElementById('vi-word').value||'').trim();
+  if(!word) return;
+  vocabPlayAudio(word, _vocabCurrentAudioUrl);
+}
 
 function vocabInitTab(){
   if(!S) return;
@@ -5435,9 +5483,10 @@ function vocabRender(){
       var srs=vocabSrsLabel(w);
       html+='<div class="vocab-card" id="vcard-'+w.id+'">'+
         '<div class="vocab-card-body">'+
-          '<div>'+
+          '<div style="display:flex;align-items:center;gap:.4rem">'+
             '<span class="vocab-word">'+escH(w.word||'')+'</span>'+
             (w.pos?'<span class="vocab-pos-badge">'+escH(w.pos)+'</span>':'')+
+            '<button class="vocab-audio-btn" style="display:inline-flex" title="Nghe phát âm" onclick="vocabPlayAudio(\''+escH(w.word||'')+'\',\''+escH(w.audioUrl||'')+'\')">🔊</button>'+
           '</div>'+
           (w.ipa?'<div class="vocab-ipa">'+escH(w.ipa)+'</div>':'')+
           (w.def?'<div class="vocab-def">'+escH(w.def)+'</div>':'')+
@@ -5479,6 +5528,8 @@ function vocabAddWord(){
   if(def) entry.def=def;
   if(vi)  entry.vi=vi;
   if(ex)  entry.example=ex;
+  var audioUrl=_vocabCurrentAudioUrl||'';
+  if(audioUrl) entry.audioUrl=audioUrl;
 
   db.ref('vocab/'+S.id+'/'+id).set(entry).then(function(){
     _vocabWords.unshift(Object.assign({id:id},entry));
@@ -5488,6 +5539,9 @@ function vocabAddWord(){
     ['vi-word','vi-ipa','vi-pos','vi-def','vi-vi','vi-ex'].forEach(function(fid){
       var el=document.getElementById(fid); if(el) el.value='';
     });
+    _vocabCurrentAudioUrl='';
+    var audioBtn=document.getElementById('vi-audio-btn');
+    if(audioBtn) audioBtn.style.display='none';
     toast('✅ Đã lưu từ "'+word+'"!');
   }).catch(function(e){ toast('❌ Lỗi: '+e.message); });
 }
@@ -5526,6 +5580,12 @@ function vocabWordInput(inp){
     var el=document.getElementById(fid);
     if(el) el.value='';
   });
+  // Reset audio state
+  _vocabCurrentAudioUrl='';
+  var audioBtn=document.getElementById('vi-audio-btn');
+  if(audioBtn) audioBtn.style.display='none';
+  if(_vocabAudioEl){ _vocabAudioEl.pause(); _vocabAudioEl=null; }
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
   if(word.length<2) return;
   _vocabLookupTimer=setTimeout(function(){ vocabLookup(word); },600);
 }
@@ -5546,6 +5606,17 @@ function vocabLookup(word){
         var ph=entry.phonetics.find(function(p){return p.text;});
         if(ph) ipa=ph.text;
       }
+      // Audio URL — prefer US pronunciation, fallback to any available
+      var audioUrl='';
+      if(entry.phonetics){
+        var phAudio=entry.phonetics.find(function(p){return p.audio&&p.audio.indexOf('-us.')!==-1;});
+        if(!phAudio) phAudio=entry.phonetics.find(function(p){return p.audio&&p.audio.length>0;});
+        if(phAudio) audioUrl=phAudio.audio;
+      }
+      _vocabCurrentAudioUrl=audioUrl;
+      // Show/hide audio btn in form
+      var audioBtn=document.getElementById('vi-audio-btn');
+      if(audioBtn) audioBtn.style.display='inline-flex';
       // Part of speech — collect ALL unique pos from all meanings
       var pos='', def='', ex='';
       if(entry.meanings&&entry.meanings.length){
@@ -5572,6 +5643,8 @@ function vocabLookup(word){
       // Translate the word itself (not the definition) to Vietnamese
       var wordToTranslate=document.getElementById('vi-word').value.trim();
       if(wordToTranslate) vocabTranslateVI(wordToTranslate);
+      // Auto-play audio
+      vocabPlayAudio(word, audioUrl);
     })
     .catch(function(){
       if(spinner) spinner.style.display='none';
@@ -6019,7 +6092,8 @@ function vocabFcRenderCard(){
     frontEl.innerHTML =
       '<div class="fc-word">'+escH(w.word||'')+'</div>'
       +(w.ipa ? '<div class="fc-ipa">'+escH(w.ipa)+'</div>' : '')
-      +(w.pos ? '<div class="fc-pos">'+escH(w.pos)+'</div>' : '');
+      +(w.pos ? '<div class="fc-pos">'+escH(w.pos)+'</div>' : '')
+      +'<button class="vocab-audio-btn" style="display:inline-flex;margin-top:.5rem;font-size:1.4rem" title="Nghe phát âm" onclick="vocabPlayAudio(\''+escH(w.word||'')+'\',\''+escH(w.audioUrl||'')+'\')">🔊</button>';
     backEl.innerHTML =
       '<div class="fc-front-label" style="color:var(--orange);opacity:.6;margin-bottom:.6rem">NGHĨA</div>'
       +'<div class="fc-answer-main">'+(w.vi ? escH(w.vi) : '—')+'</div>'
@@ -6036,6 +6110,7 @@ function vocabFcRenderCard(){
       +(w.ipa ? '<div class="fc-answer-sub">'+escH(w.ipa)+'</div>' : '')
       +(w.def ? '<div class="fc-answer-sub">'+escH(w.def)+'</div>' : '')
       +(w.example ? '<div class="fc-answer-ex">'+escH(w.example)+'</div>' : '')
+      +'<button class="vocab-audio-btn" style="display:inline-flex;margin:.4rem auto 0;font-size:1.4rem" title="Nghe phát âm" onclick="vocabPlayAudio(\''+escH(w.word||'')+'\',\''+escH(w.audioUrl||'')+'\')">🔊</button>'
       +'<div class="fc-answer-meta"><span class="fc-part-tag">Part '+escH(String(w.part||''))+'</span></div>';
   }
   document.getElementById('vocab-fc-card').classList.remove('flipped');
