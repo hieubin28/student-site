@@ -3211,8 +3211,19 @@ function renderOverview(){
       hEl.appendChild(pip);
     });
   }
-  if(S.note){ document.getElementById('ov-note-block').style.display='block'; document.getElementById('ov-note').textContent=S.note; }
-  else { document.getElementById('ov-note-block').style.display='none'; }
+  // Hiển thị nhận xét mới nhất từ GV
+  var comments=S.comments||[];
+  if(comments.length){
+    var latest=comments.reduce(function(a,b){return (b.ts||0)>(a.ts||0)?b:a;});
+    document.getElementById('ov-note-block').style.display='block';
+    document.getElementById('ov-note').textContent=latest.text||'';
+  } else if(S.note_legacy){
+    // fallback: hiển thị note cũ nếu chưa có comments
+    document.getElementById('ov-note-block').style.display='block';
+    document.getElementById('ov-note').textContent=S.note_legacy;
+  } else {
+    document.getElementById('ov-note-block').style.display='none';
+  }
 
   var goal=getGoal(S.id);
   var goalRow=document.getElementById('ov-goal-row');
