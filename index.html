@@ -6277,6 +6277,19 @@ function vwHandleKey(e){
   }
 }
 
+/* Listen Enter ở document level để bắt cả khi input bị disabled */
+document.addEventListener('keydown', function(e){
+  if(e.key !== 'Enter') return;
+  var ov = document.getElementById('vocab-write-ov');
+  if(!ov || !ov.classList.contains('open')) return;
+  // Chỉ xử lý khi đã submitted (Enter lần 2 → next)
+  // Enter lần 1 đã được xử lý bởi onkeydown trên input (khi input còn enabled)
+  if(_vwSubmitted){
+    e.preventDefault();
+    vwNext();
+  }
+});
+
 function vwSubmit(){
   if(_vwSubmitted) return;
   var w = _vwQueue[_vwIdx];
