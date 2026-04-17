@@ -1928,6 +1928,78 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
 .para-fc-ov,.vocab-fc-ov{position:fixed;inset:0;z-index:4000;display:none;}
 .para-fc-ov.open,.vocab-fc-ov.open{display:flex;}
 
+/* ─── Vocab Write Mode Overlay ─── */
+.vw-ov{position:fixed;inset:0;z-index:4100;display:none;background:var(--bg);flex-direction:column;}
+.vw-ov.open{display:flex;}
+.vw-shell{display:flex;flex-direction:column;width:100%;max-width:560px;margin:0 auto;height:100%;padding:env(safe-area-inset-top,0) 1rem env(safe-area-inset-bottom,0);}
+.vw-header{display:flex;align-items:center;gap:.8rem;padding:.9rem 0 .7rem;flex-shrink:0;}
+.vw-progress-wrap{flex:1;}
+.vw-progress-label{font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:.3rem;font-family:'Be Vietnam Pro',sans-serif;}
+.vw-bar-track{height:5px;background:var(--line);border-radius:3px;overflow:hidden;}
+.vw-bar-fill{height:100%;background:linear-gradient(90deg,var(--orange),var(--rust));border-radius:3px;transition:width .4s ease;}
+.vw-close-btn{background:none;border:none;font-size:1.2rem;color:var(--muted);cursor:pointer;padding:.2rem .4rem;line-height:1;flex-shrink:0;}
+.vw-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;padding:0 0 1rem;}
+.vw-mode-badge{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--paper);border:1px solid var(--line);padding:.25rem .7rem;}
+/* Listen mode */
+.vw-listen-btn{
+  width:88px;height:88px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--orange) 0%,var(--rust) 100%);
+  color:#fff;font-size:2.2rem;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(196,98,45,.4);transition:transform .12s,box-shadow .12s;
+}
+.vw-listen-btn:active{transform:scale(.93);box-shadow:0 2px 8px rgba(196,98,45,.3);}
+.vw-listen-btn.playing{animation:vwPulse 1s ease-in-out infinite alternate;}
+@keyframes vwPulse{from{box-shadow:0 4px 20px rgba(196,98,45,.4);}to{box-shadow:0 4px 36px rgba(196,98,45,.75),0 0 0 10px rgba(196,98,45,.08);}}
+.vw-listen-hint{font-size:.72rem;color:var(--muted);margin-top:-.5rem;}
+/* Meaning mode */
+.vw-meaning-card{
+  background:var(--paper);border:1px solid var(--border);
+  padding:1.4rem 1.8rem;text-align:center;width:100%;max-width:380px;
+}
+.vw-meaning-label{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem;}
+.vw-meaning-text{font-size:1.35rem;font-weight:700;color:var(--ink);line-height:1.3;}
+.vw-meaning-sub{font-size:.8rem;color:var(--muted);margin-top:.4rem;font-style:italic;}
+/* Input area */
+.vw-input-wrap{width:100%;max-width:380px;display:flex;flex-direction:column;gap:.5rem;}
+.vw-input{
+  width:100%;padding:.85rem 1rem;font-size:1.1rem;font-family:'Be Vietnam Pro',sans-serif;
+  border:2px solid var(--border);background:var(--paper);color:var(--ink);outline:none;
+  text-align:center;letter-spacing:.04em;transition:border-color .15s;
+}
+.vw-input:focus{border-color:var(--orange);}
+.vw-input.correct{border-color:#4caf50;background:rgba(76,175,80,.07);}
+.vw-input.wrong{border-color:#e53935;background:rgba(229,57,53,.07);}
+.vw-submit-btn{
+  width:100%;padding:.7rem;background:var(--orange);color:#fff;border:none;
+  font-family:'Be Vietnam Pro',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;
+  transition:background .15s;
+}
+.vw-submit-btn:hover{background:var(--rust);}
+.vw-enter-hint{font-size:.65rem;color:var(--muted);text-align:center;}
+/* Feedback */
+.vw-feedback{width:100%;max-width:380px;text-align:center;min-height:3rem;}
+.vw-feedback.correct .vw-fb-result{color:#4caf50;font-size:1rem;font-weight:700;}
+.vw-feedback.wrong .vw-fb-result{color:#e53935;font-size:1rem;font-weight:700;}
+.vw-fb-correct-word{font-size:.85rem;color:var(--muted);margin-top:.3rem;}
+.vw-fb-correct-word strong{color:var(--ink);}
+.vw-next-btn{
+  margin-top:.5rem;padding:.55rem 1.8rem;
+  background:var(--paper);border:1.5px solid var(--orange);
+  color:var(--orange);font-family:'Be Vietnam Pro',sans-serif;
+  font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s;
+}
+.vw-next-btn:hover{background:var(--orange);color:#fff;}
+/* Done screen reuse fc-done styles but inside vw */
+.vw-done{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:.8rem;text-align:center;padding:2rem;}
+.vw-done.show{display:flex;}
+.vw-mode-select{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;width:100%;max-width:380px;}
+.vw-part-select-btn{
+  flex:1;min-width:80px;padding:.55rem .5rem;border:1.5px solid var(--border);
+  background:var(--paper);color:var(--ink);font-family:'Be Vietnam Pro',sans-serif;
+  font-size:.8rem;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;
+}
+.vw-part-select-btn:hover,.vw-part-select-btn.active{border-color:var(--orange);background:var(--orange);color:#fff;}
+
 /* ─── Flashcard Launch Button (redesigned) ─── */
 .fc-launch-btn{
   display:inline-flex;align-items:center;gap:.5rem;
@@ -2749,6 +2821,66 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
       <div class="fc-done-actions">
         <button class="fc-done-btn-retry" id="vocab-fc-retry-btn" onclick="vocabRetryForgotten()" style="display:none">🔁 Ôn lại chưa nhớ</button>
         <button class="fc-done-btn-close" onclick="vocabCloseFlashcard()">Đóng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VOCAB WRITE MODE OVERLAY ══ -->
+<div class="vw-ov" id="vocab-write-ov">
+  <div class="vw-shell">
+    <!-- Header -->
+    <div class="vw-header">
+      <div class="vw-progress-wrap">
+        <div class="vw-progress-label" id="vw-progress">0 / 0</div>
+        <div class="vw-bar-track"><div class="vw-bar-fill" id="vw-bar" style="width:0%"></div></div>
+      </div>
+      <button class="vw-close-btn" onclick="vwClose()">✕</button>
+    </div>
+
+    <!-- Quiz body (listen / meaning) -->
+    <div class="vw-body" id="vw-body">
+      <div class="vw-mode-badge" id="vw-mode-badge">✍️ LUYỆN VIẾT</div>
+
+      <!-- Listen mode: big speaker button -->
+      <div id="vw-listen-area" style="display:none;flex-direction:column;align-items:center;gap:.6rem">
+        <button class="vw-listen-btn" id="vw-listen-btn" onclick="vwPlayAudio()" title="Nghe phát âm">🔊</button>
+        <div class="vw-listen-hint">Nghe và gõ lại từ tiếng Anh</div>
+      </div>
+
+      <!-- Meaning mode: Vietnamese meaning card -->
+      <div id="vw-meaning-area" style="display:none">
+        <div class="vw-meaning-card">
+          <div class="vw-meaning-label">NGHĨA TIẾNG VIỆT</div>
+          <div class="vw-meaning-text" id="vw-meaning-text">—</div>
+          <div class="vw-meaning-sub" id="vw-meaning-sub"></div>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="vw-input-wrap">
+        <input class="vw-input" id="vw-input" type="text" placeholder="Gõ từ tiếng Anh..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onkeydown="vwHandleKey(event)">
+        <button class="vw-submit-btn" id="vw-submit-btn" onclick="vwSubmit()">Kiểm tra</button>
+        <div class="vw-enter-hint">⌨️ Nhấn <strong>Enter</strong> để kiểm tra · Nhấn <strong>Enter</strong> lần 2 để sang từ tiếp</div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="vw-feedback" id="vw-feedback">
+        <div class="vw-fb-result" id="vw-fb-result"></div>
+        <div class="vw-fb-correct-word" id="vw-fb-correct-word"></div>
+        <button class="vw-next-btn" id="vw-next-btn" style="display:none" onclick="vwNext()">Tiếp theo →</button>
+      </div>
+    </div>
+
+    <!-- Done screen -->
+    <div class="vw-done" id="vw-done">
+      <div class="fc-done-emoji" id="vw-done-emoji">🎉</div>
+      <div class="fc-done-title" id="vw-done-title">Hoàn thành!</div>
+      <div class="fc-done-sub" id="vw-done-msg"></div>
+      <div class="fc-done-score" id="vw-done-score"></div>
+      <div class="fc-done-actions">
+        <button class="fc-done-btn-retry" id="vw-retry-btn" onclick="vwRetry()" style="display:none">🔁 Ôn lại sai</button>
+        <button class="fc-done-btn-close" onclick="vwClose()">Đóng</button>
       </div>
     </div>
   </div>
@@ -6002,10 +6134,227 @@ function vocabLaunchMode(mode){
 function vocabLaunchPartMode(part){
   var filtered = _vocabWords.filter(function(w){return String(w.part)===String(part);});
   if(!filtered.length){ toast('Chưa có từ nào ở Part '+part); return; }
-  _vocabFcQueue = filtered.slice();
   closeVocabFcPicker();
-  _vocabFcLaunch();
+  var mode = (Number(part) <= 4) ? 'listen' : 'meaning';
+  vwStart(filtered, mode);
 }
+/* ═══════════════════════════════════════════
+   VOCAB WRITE MODE
+═══════════════════════════════════════════ */
+var _vwQueue    = [];   // array of word objects
+var _vwIdx      = 0;
+var _vwMode     = '';   // 'listen' | 'meaning'
+var _vwCorrect  = 0;
+var _vwWrong    = [];   // words answered incorrectly
+var _vwSubmitted = false; // track if current card already submitted
+
+/* Levenshtein distance (for typo tolerance) */
+function _levenshtein(a, b){
+  var m=a.length, n=b.length;
+  var dp=[];
+  for(var i=0;i<=m;i++){ dp[i]=[i]; }
+  for(var j=0;j<=n;j++){ dp[0][j]=j; }
+  for(var i=1;i<=m;i++){
+    for(var j=1;j<=n;j++){
+      if(a[i-1]===b[j-1]) dp[i][j]=dp[i-1][j-1];
+      else dp[i][j]=1+Math.min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]);
+    }
+  }
+  return dp[m][n];
+}
+
+function _vwIsCorrect(input, answer){
+  var a = input.trim().toLowerCase();
+  var b = answer.trim().toLowerCase();
+  if(a===b) return true;
+  var maxDist = b.length <= 4 ? 1 : (b.length <= 8 ? 2 : 2);
+  return _levenshtein(a, b) <= maxDist;
+}
+
+function vwStart(words, mode){
+  _vwQueue   = words.slice();
+  _vwIdx     = 0;
+  _vwMode    = mode;
+  _vwCorrect = 0;
+  _vwWrong   = [];
+  _vwSubmitted = false;
+  document.getElementById('vw-done').classList.remove('show');
+  document.getElementById('vw-body').style.display = '';
+  document.getElementById('vocab-write-ov').classList.add('open');
+  vwRenderCard();
+}
+
+function vwRenderCard(){
+  _vwSubmitted = false;
+  var w = _vwQueue[_vwIdx];
+  if(!w){ vwFinish(); return; }
+  var total = _vwQueue.length;
+  document.getElementById('vw-progress').textContent = (_vwIdx+1)+' / '+total;
+  document.getElementById('vw-bar').style.width = Math.round(_vwIdx/total*100)+'%';
+
+  // Reset feedback & input
+  var inp = document.getElementById('vw-input');
+  inp.value=''; inp.className='vw-input'; inp.disabled=false;
+  var fb = document.getElementById('vw-feedback');
+  fb.className='vw-feedback'; fb.querySelector('#vw-fb-result').textContent='';
+  fb.querySelector('#vw-fb-correct-word').innerHTML='';
+  document.getElementById('vw-next-btn').style.display='none';
+  document.getElementById('vw-submit-btn').style.display='';
+
+  if(_vwMode==='listen'){
+    document.getElementById('vw-mode-badge').textContent='🔊 NGHE VÀ VIẾT — Part '+w.part;
+    document.getElementById('vw-listen-area').style.display='flex';
+    document.getElementById('vw-meaning-area').style.display='none';
+    // Auto-play audio for new card
+    setTimeout(function(){ vwPlayAudio(); }, 200);
+  } else {
+    document.getElementById('vw-mode-badge').textContent='✍️ NGHĨA → TỪ TIẾNG ANH — Part '+w.part;
+    document.getElementById('vw-listen-area').style.display='none';
+    document.getElementById('vw-meaning-area').style.display='';
+    var vi = w.vi || w.def || '(không có nghĩa)';
+    document.getElementById('vw-meaning-text').textContent = vi;
+    var sub = '';
+    if(w.pos) sub += w.pos;
+    if(w.ipa) sub += (sub?' · ':'')+w.ipa;
+    document.getElementById('vw-meaning-sub').textContent = sub;
+  }
+  // Focus input after short delay (mobile keyboard)
+  setTimeout(function(){ inp.focus(); }, 300);
+}
+
+function vwPlayAudio(){
+  var w = _vwQueue[_vwIdx];
+  if(!w) return;
+  var btn = document.getElementById('vw-listen-btn');
+  if(btn) btn.classList.add('playing');
+  if(_vocabAudioEl){ _vocabAudioEl.pause(); _vocabAudioEl=null; }
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  fetch(_TTS_URL, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({word:w.word})
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    if(!data.audioContent) throw new Error('no audio');
+    var audio = new Audio('data:audio/mp3;base64,'+data.audioContent);
+    _vocabAudioEl = audio;
+    audio.onended = function(){ if(btn) btn.classList.remove('playing'); };
+    audio.play().catch(function(){ vwFallbackTTS(w.word, btn); });
+  })
+  .catch(function(){ vwFallbackTTS(w.word, btn); });
+}
+function vwFallbackTTS(word, btn){
+  if(btn) btn.classList.remove('playing');
+  if(!window.speechSynthesis) return;
+  var u = new SpeechSynthesisUtterance(word);
+  u.lang='en-US'; u.rate=0.9;
+  window.speechSynthesis.speak(u);
+}
+
+function vwHandleKey(e){
+  if(e.key !== 'Enter') return;
+  e.preventDefault();
+  if(!_vwSubmitted){
+    vwSubmit();
+  } else {
+    vwNext();
+  }
+}
+
+function vwSubmit(){
+  if(_vwSubmitted) return;
+  var w = _vwQueue[_vwIdx];
+  if(!w) return;
+  var inp = document.getElementById('vw-input');
+  var answer = (inp.value||'').trim();
+  if(!answer){ inp.focus(); return; }
+  _vwSubmitted = true;
+  inp.disabled = true;
+  document.getElementById('vw-submit-btn').style.display='none';
+  document.getElementById('vw-next-btn').style.display='';
+
+  var ok = _vwIsCorrect(answer, w.word);
+  var fb = document.getElementById('vw-feedback');
+  fb.className = 'vw-feedback '+(ok?'correct':'wrong');
+  document.getElementById('vw-fb-result').textContent = ok ? '✅ Đúng rồi!' : '❌ Chưa đúng';
+
+  if(ok){
+    inp.className='vw-input correct';
+    document.getElementById('vw-fb-correct-word').innerHTML='';
+    _vwCorrect++;
+    // SRS: correct → repCount++
+    var newRep = Math.min((w.repCount||0)+1, SRS_INTERVALS.length-1);
+    db.ref('vocab/'+S.id+'/'+w.id).update({repCount:newRep, lastReview:today()});
+    var local = _vocabWords.find(function(v){return v.id===w.id;});
+    if(local){ local.repCount=newRep; local.lastReview=today(); }
+  } else {
+    inp.className='vw-input wrong';
+    document.getElementById('vw-fb-correct-word').innerHTML='Từ đúng: <strong>'+escH(w.word)+'</strong>'+(w.ipa?' <span style="color:var(--muted);font-weight:400">'+escH(w.ipa)+'</span>':'');
+    _vwWrong.push(w);
+    // SRS: wrong → reset repCount = 0
+    db.ref('vocab/'+S.id+'/'+w.id).update({repCount:0, lastReview:today()});
+    var local2 = _vocabWords.find(function(v){return v.id===w.id;});
+    if(local2){ local2.repCount=0; local2.lastReview=today(); }
+  }
+  // In listen mode, reveal the word in input placeholder area
+  if(_vwMode==='listen' && !ok){
+    // Also play correct pronunciation after wrong answer
+    setTimeout(function(){ vwPlayAudio(); }, 600);
+  }
+}
+
+function vwNext(){
+  _vwIdx++;
+  if(_vwIdx >= _vwQueue.length){ vwFinish(); return; }
+  vwRenderCard();
+}
+
+function vwFinish(){
+  document.getElementById('vw-bar').style.width='100%';
+  var total = _vwQueue.length;
+  var wrong = total - _vwCorrect;
+  var perfect = wrong===0;
+  document.getElementById('vw-body').style.display='none';
+  var doneEl = document.getElementById('vw-done');
+  doneEl.classList.add('show');
+  document.getElementById('vw-done-emoji').textContent = perfect ? '🏆' : '💪';
+  document.getElementById('vw-done-title').textContent = perfect ? 'Tuyệt vời! 100% rồi!' : 'Hoàn thành buổi luyện!';
+  document.getElementById('vw-done-msg').textContent = perfect
+    ? 'Bạn viết đúng cả '+total+' từ! Tiếp tục duy trì nhé 🔥'
+    : 'Còn '+wrong+' từ chưa đúng — ôn thêm lần nữa nhé!';
+  document.getElementById('vw-done-score').innerHTML =
+    '<div class="fc-done-pill"><div class="fc-done-pill-num" style="color:var(--sage)">'+_vwCorrect+'</div><div class="fc-done-pill-lbl">Đúng</div></div>'+
+    '<div class="fc-done-pill"><div class="fc-done-pill-num" style="color:var(--rust)">'+wrong+'</div><div class="fc-done-pill-lbl">Sai</div></div>'+
+    '<div class="fc-done-pill"><div class="fc-done-pill-num">'+total+'</div><div class="fc-done-pill-lbl">Tổng</div></div>';
+  document.getElementById('vw-retry-btn').style.display = (!perfect&&_vwWrong.length)?'inline-block':'none';
+  if(perfect){
+    var cWrap=document.createElement('div');
+    cWrap.className='fc-confetti-wrap'; document.body.appendChild(cWrap);
+    fcFireConfetti(cWrap.id='vw-confetti-'+Date.now());
+    setTimeout(function(){if(cWrap.parentNode)cWrap.remove();},4000);
+  }
+  vocabRender(); vocabCheckSRS();
+}
+
+function vwRetry(){
+  if(!_vwWrong.length) return;
+  _vwQueue = _vwWrong.slice();
+  _vwIdx=0; _vwCorrect=0; _vwWrong=[];
+  document.getElementById('vw-done').classList.remove('show');
+  document.getElementById('vw-body').style.display='';
+  vwRenderCard();
+}
+
+function vwClose(){
+  if(_vocabAudioEl){ _vocabAudioEl.pause(); _vocabAudioEl=null; }
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
+  document.getElementById('vocab-write-ov').classList.remove('open');
+  document.getElementById('vw-done').classList.remove('show');
+  document.getElementById('vw-body').style.display='';
+  vocabRender(); vocabCheckSRS();
+}
+
 function _vocabFcLaunch(){
   _vocabFcForgotten = [];
   _vocabFcIdx = 0; _vocabFcKnown = 0;
