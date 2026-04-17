@@ -6270,24 +6270,21 @@ function vwFallbackTTS(word, btn){
 function vwHandleKey(e){
   if(e.key !== 'Enter') return;
   e.preventDefault();
+  e.stopPropagation(); // chặn document listener bắt cùng event này
   if(!_vwSubmitted){
     vwSubmit();
-  } else {
-    vwNext();
   }
+  // Enter lần 2 do document listener xử lý (input lúc đó đã disabled, không nhận keydown)
 }
 
-/* Listen Enter ở document level để bắt cả khi input bị disabled */
+/* Document listener: bắt Enter lần 2 khi input đã disabled sau submit */
 document.addEventListener('keydown', function(e){
   if(e.key !== 'Enter') return;
   var ov = document.getElementById('vocab-write-ov');
   if(!ov || !ov.classList.contains('open')) return;
-  // Chỉ xử lý khi đã submitted (Enter lần 2 → next)
-  // Enter lần 1 đã được xử lý bởi onkeydown trên input (khi input còn enabled)
-  if(_vwSubmitted){
-    e.preventDefault();
-    vwNext();
-  }
+  if(!_vwSubmitted) return; // chưa submit → bỏ qua
+  e.preventDefault();
+  vwNext();
 });
 
 function vwSubmit(){
